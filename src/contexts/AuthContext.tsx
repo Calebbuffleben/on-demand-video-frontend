@@ -1,64 +1,88 @@
-import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+'use client';
 
-import api from '../api';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useClerk, useUser } from '@clerk/nextjs';
 
-import { login } from '../services/authService';
-
-interface AuthContextProps {
-    handleLogin: (username: string, password: string) => Promise<void>;
-    logout: () => Promise<void>;
-    isAuthenticated: boolean;   
+interface AuthContextType {
+  isAuthenticated: boolean;
+  user: any;
+  loading: boolean;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextProps | undefined> (undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [ isAuthenticated, setIsAuthenticated ] = useState(false);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [loading, setLoading] = useState(true);
+  const { signOut } = useClerk();
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const router = useRouter();
 
-    useEffect(() => {
-        const token = localStorage.getItem('accessToken');
-
-        if(token) {
-            setIsAuthenticated(true);
-        }
-    }, []);
-
-    const handleLogin = async (email: string, password: string) => {
-        try {
-            await login(email, password );
-
-            setIsAuthenticated(true);
-        } catch (error) {
-            console.error('Login failed:', error);
-        }
-    };
-
-    const logout = async () => {
-        try {
-            await api.post('/logout');
-
-            sessionStorage.removeItem('accessToken');
-            document.cookie = 'refreshToken=; Max-Age=0; path=/';
-
-            setIsAuthenticated(false);
-        } catch (error) {
-            console.log('Logout failed', error);    
-        }
-    };
-
-    return (
-        <AuthContext.Provider value={{ handleLogin, logout, isAuthenticated }}>
-            {children}
-        </AuthContext.Provider>
-    );
-}
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-
-    if(context === undefined){
-        throw new Error('useAuth must be used within an AuthProvider');
+  useEffect(() => {
+    if (isUserLoaded) {
+      setLoading(false);
     }
+  }, [isUserLoaded]);
 
-    return context;
-}
+  const logout = async () => {
+    await signOut();
+    router.push('/sign-in');
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: !!user,
+        user,
+        loading,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const useAuthService = () => {
+  const { session, user } = useClerk();
+
+  const getToken = async (): Promise<string | null> => {
+    try {
+      if (!session) return null;
+      return await session.getToken();
+    } catch (error) {
+      console.error('Error getting token:', error);
+      return null;
+    }
+  };
+
+  const isAuthenticated = (): boolean => {
+    return !!user;
+  };
+
+  const getUserDetails = () => {
+    if (!user) return null;
+    
+    return {
+      id: user.id,
+      fullName: `${user.firstName} ${user.lastName}`,
+      email: user.primaryEmailAddress?.emailAddress,
+      imageUrl: user.imageUrl
+    };
+  };
+
+  return {
+    getToken,
+    isAuthenticated,
+    getUserDetails
+  };
+};

@@ -662,3 +662,139 @@ Note: Make sure to set up the required Stripe API keys and configure the webhook
 
 For more information on integrating Stripe subscriptions, refer to the [Stripe Docs](https://stripe.com/docs/billing/subscriptions/build-subscription?ui=checkout).
 
+# Frontend Authentication & API Service
+
+This document outlines the setup for handling authentication using Clerk and interacting with the backend API in this Next.js frontend application.
+
+## Overview
+
+The frontend integrates with a NestJS backend that uses Clerk for authentication. The core components responsible for managing API calls and authentication tokens are:
+
+1.  **API Service (`src/api-connection/service.ts`):** An Axios instance configured with interceptors to automatically handle authentication tokens and basic error responses.
+2.  **API Hook (`src/hooks/useApi.ts`):** A React custom hook designed to simplify making authenticated API requests from components, providing loading and error states.
+
+## API Service (`src/api-connection/service.ts`)
+
+This file configures and exports a singleton Axios instance (`api`) used for all backend communication.
+
+### Key Features:
+
+*   **Base URL:** Configured using the `NEXT_PUBLIC_API_URL` environment variable (defaults to `http://localhost:4000`).
+*   **Request Interceptor:**
+    *   Automatically runs before each request sent via the `api` instance.
+    *   Retrieves the JWT token currently stored in `localStorage` (under the key `'token'`).
+    *   If a token is found, it attaches it to the `Authorization` header as a Bearer token (`Authorization: Bearer <token>`).
+*   **Response Interceptor:**
+    *   Automatically runs after receiving a response (or error) from the backend.
+    *   Checks if the response status is `401 Unauthorized`.
+    *   If a `401` occurs, it dispatches a global browser event `new CustomEvent('auth:unauthorized')`. This signals to other parts of the application (e.g., a global context or layout) that the user's session might be invalid or expired, allowing for appropriate action like redirecting to the login page.
+
+## API Hook (`src/hooks/useApi.ts`)
+
+This custom React hook (`useApi`) provides a convenient way to make authenticated API calls from within your functional components.
+
+### Key Features:
+
+*   **Clerk Integration:** Uses Clerk's `useClerk()` hook to access the current user `session`.
+*   **Token Management (`ensureAuthToken`):**
+    *   Before each API request (`get`, `post`, etc.) is made, this internal function is called.
+    *   It uses `session.getToken()` to retrieve the latest valid JWT from Clerk (Clerk handles refreshing expired tokens automatically).
+    *   It stores the retrieved token in `localStorage` (key: `'token'`) so the API service's request interceptor can access it.
+    *   If getting the token fails, it dispatches the `auth:unauthorized` event.
+*   **Request Methods:** Provides standard HTTP request methods (`get`, `post`, `put`, `delete`). Each method handles:
+    *   Setting loading and error states.
+    *   Calling `ensureAuthToken`.
+    *   Making the API call using the `api` service instance.
+    *   Handling errors and updating the error state.
+*   **State Management:** Returns state variables for easy UI integration:
+    *   `loading` (boolean): Indicates if a request initiated by the hook is currently in progress.
+    *   `error` (Error | null): Holds any error object caught during the API request.
+
+### Usage Example:
+
+```tsx
+import React, { useEffect, useState } from 'react';
+import useApi from '../hooks/useApi'; // Adjust path as needed
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
+function UserProfileComponent() {
+  const { get, loading, error } = useApi();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const data = await get<UserProfile>('/users/profile'); // Example endpoint
+      if (data) {
+        setProfile(data);
+      }
+    };
+    fetchProfile();
+  }, [get]);
+
+  if (loading) return <p>Loading profile...</p>;
+  if (error) return <p className="error">Error loading profile: {error.message}</p>;
+  if (!profile) return <p>No profile data found.</p>;
+
+  return (
+    <div>
+      <h1>{profile.name}</h1>
+      <p>Email: {profile.email}</p>
+    </div>
+  );
+}
+
+export default UserProfileComponent;
+```
+
+## Authentication Flow Summary
+
+1.  A component calls one of the methods from the `useApi` hook (e.g., `get('/data')`).
+2.  The specific hook method (`get`, `post`, etc.) sets loading state, resets error state, and calls `ensureAuthToken`.
+3.  `ensureAuthToken` gets the latest token from Clerk via `session.getToken()` and stores it in `localStorage`.
+4.  The hook method then uses the `api` instance from `service.ts` to make the actual HTTP request (e.g., `api.get('/data')`).
+5.  The request interceptor in `service.ts` reads the token from `localStorage` and adds the `Authorization: Bearer <token>` header.
+6.  The request is sent to the backend.
+7.  If the backend responds with `401 Unauthorized`, the response interceptor in `service.ts` catches it and dispatches the `auth:unauthorized` event.
+8.  The `useApi` hook method catches any errors, updates its `loading` and `error` states, and returns the result or null.
+
+## Handling 401 Errors / Session Expiry
+
+The application should listen for the `auth:unauthorized` event dispatched by the API service's response interceptor. This is typically done in a layout component or a dedicated context provider.
+
+**Example Listener (e.g., in `_app.tsx` or a layout component):**
+
+```tsx
+import { useEffect } from 'react';
+import { useClerk } from '@clerk/nextjs';
+import { useRouter } from 'next/router';
+
+function AppLayout({ children }) {
+  const { signOut } = useClerk();
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      console.warn('Unauthorized request detected. Signing out and redirecting to login.');
+      // Optionally sign out the Clerk session
+      signOut(() => router.push('/sign-in')); 
+      // Or just redirect
+      // router.push('/sign-in');
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+
+    // Cleanup listener on component unmount
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
+  }, [signOut, router]);
+
+  return <>{children}</>;
+}
+
+

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import api from '../../api-connection/service';
+import subscriptionService from '../../api-connection/subscriptions';
 
 interface CheckoutProps {
   priceId: string;
@@ -13,8 +13,8 @@ const Checkout: React.FC<CheckoutProps> = ({ priceId }) => {
   const handleCheckout = async () => {
     setIsLoading(true);
     try {
-      const response = await api.post('/subscriptions/create-subscription', { priceId });
-      const { sessionUrl } = response.data;
+      // Use the subscription service
+      const { sessionUrl } = await subscriptionService.createCheckoutSession(priceId);
       
       // Redirect to the Stripe Checkout page using the URL provided by Stripe
       if (sessionUrl) {
