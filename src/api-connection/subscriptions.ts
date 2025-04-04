@@ -3,26 +3,46 @@ import api from './service';
 export const subscriptionService = {
   // Get current user's subscription
   getCurrentSubscription: async () => {
-    const response = await api.get('/subscriptions/current');
-    return response.data;
+    try {
+      const response = await api.get('/api/subscriptions/current');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get current subscription:', error);
+      throw error;
+    }
   },
 
   // Create a checkout session
   createCheckoutSession: async (priceId: string) => {
-    const response = await api.post('/subscriptions/create-checkout', { priceId });
-    return response.data;
+    try {
+      const response = await api.post('/api/subscriptions/create-checkout', { priceId });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create checkout session:', error);
+      throw error;
+    }
   },
 
   // Cancel subscription
   cancelSubscription: async (subscriptionId: string) => {
-    const response = await api.put(`/subscriptions/${subscriptionId}/cancel`);
-    return response.data;
+    try {
+      const response = await api.put(`/api/subscriptions/${subscriptionId}/cancel`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to cancel subscription:', error);
+      throw error;
+    }
   },
 
   // Get available subscription plans
   getSubscriptionPlans: async () => {
-    const response = await api.get('/subscriptions/plans');
-    return response.data;
+    try {
+      const response = await api.get('/api/subscriptions/plans');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get subscription plans:', error);
+      throw error;
+    }
   }
 };
 

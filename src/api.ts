@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 const api = axios.create({
   baseURL: 'http://127.0.0.1:8000/api', 
@@ -18,7 +18,7 @@ api.interceptors.request.use(config => {
   return  Promise.reject(error);
 })
 
-api.interceptors.response.use((response: Response) => {
+api.interceptors.response.use((response: AxiosResponse) => {
   return response;
 }, async (error) => {
   const originalRequest = error.config;
