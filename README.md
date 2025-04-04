@@ -796,5 +796,43 @@ function AppLayout({ children }) {
 
   return <>{children}</>;
 }
+```
+
+## Authentication
+
+The application uses Clerk for secure user authentication and session management. The `useClerkToken` hook is used to store the Clerk JWT in localStorage for use in authenticated API requests.
+
+### Using the useClerkToken Hook
+
+The `useClerkToken` hook automatically retrieves the Clerk JWT and stores it in localStorage whenever the user session changes. It also sets up a polling interval to periodically check for token updates.
+
+To use the hook, simply import it in your component:
+
+```typescript
+import { useClerkToken } from '@/hooks/useClerkToken';
+
+function MyComponent() {
+  useClerkToken();
+  // ...
+}
+```
+
+The hook will handle token management behind the scenes, making the token available to the API service for authenticated requests.
+
+### Configuring Clerk JWT Templates
+
+By default, the `useClerkToken` hook retrieves the standard Clerk JWT with no additional claims. If your application requires specific claims or permissions in the token, you can configure a custom JWT template in your Clerk dashboard.
+
+To use a custom template, update the `getToken` call in the hook:
+
+```typescript
+const token = await session.getToken({
+  template: 'my_custom_template'
+});
+```
+
+Make sure to replace `'my_custom_template'` with the actual name of your JWT template defined in Clerk.
+
+If the specified template does not exist, the hook will fall back to using the default token. It's important to ensure your template is set up correctly to avoid authentication issues.
 
 
