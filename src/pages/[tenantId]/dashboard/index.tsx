@@ -8,10 +8,7 @@ const DashboardPage = () => {
     //get the subscription and store it in the state
     const [subscription, setSubscription] = useState<null | any>(null);
 
-      
-    useEffect(() => {
-        fetchSubscription();
-    }, []);
+   
     
 
     const fetchSubscription = async () => {
@@ -26,7 +23,7 @@ const DashboardPage = () => {
 
              <div>
                 <h2>Subscription</h2>
-                <p>Current Status: {subscription?.status}</p> 
+                
             </div> 
         </div>
     )

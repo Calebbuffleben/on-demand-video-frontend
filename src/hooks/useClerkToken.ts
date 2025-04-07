@@ -27,7 +27,7 @@ export function useClerkToken() {
         
         // Get the default token (no template specified)
         const token = await session.getToken({
-            template: 'token_videos_on_demand'
+            template: 'token_videos_on_demand_2'
           });
         
         if (token) {
