@@ -831,8 +831,5 @@ const token = await session.getToken({
 });
 ```
 
-Make sure to replace `'my_custom_template'` with the actual name of your JWT template defined in Clerk.
-
-If the specified template does not exist, the hook will fall back to using the default token. It's important to ensure your template is set up correctly to avoid authentication issues.
 
 
