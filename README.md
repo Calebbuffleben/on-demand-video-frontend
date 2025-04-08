@@ -16,6 +16,18 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - Role-based access control
 - Protected API routes
 
+### User Profile & Settings
+- Customizable user profiles with avatar support
+- Personal information management
+- Account settings with dark mode toggle
+- Secure sign-out functionality
+
+### Dashboard Interface
+- Contextual navigation menu
+- User profile access from any page
+- Organization-specific dashboards
+- Responsive design for all device sizes
+
 ### Product Management
 - Create, read, update, and delete products
 - Organization-specific product catalogs
@@ -37,10 +49,14 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 src/
 ├── api-connection/    # API client setup
 ├── components/        # React components
+│   ├── ui/            # UI components
+│   └── DashboardMenu.tsx  # Application navigation menu
 ├── contexts/         # React contexts
 ├── hooks/           # Custom hooks
 ├── interfaces/      # TypeScript interfaces
 ├── pages/          # Next.js pages
+│   ├── profile/    # User profile pages
+│   └── [tenantId]/ # Tenant-specific routes
 ├── server/         # Server-side logic
 │   ├── database/   # Database operations
 │   └── services/   # Business logic
@@ -160,7 +176,9 @@ async findAll(organizationId: string) {
 - `/` - Home page
 - `/sign-in` - Authentication
 - `/create-organization` - Organization creation
+- `/profile` - User profile (non-tenant specific)
 - `/{tenant_id}/dashboard` - Organization dashboard
+- `/{tenant_id}/profile` - User profile (tenant context)
 - `/{tenant_id}/products` - Product management
 - `/{tenant_id}/products/{product_id}` - Product details
 - `/{tenant_id}/members` - Member management (admin only)
@@ -830,6 +848,79 @@ const token = await session.getToken({
   template: 'my_custom_template'
 });
 ```
+
+## User Interface Components
+
+### DashboardMenu
+
+The application includes a universal dashboard menu component that provides navigation and user functionality:
+
+```typescript
+import DashboardMenu from '@/components/DashboardMenu';
+
+// Usage in layout or page components
+<DashboardMenu />
+```
+
+Key features:
+- User avatar display with dropdown menu
+- Context-aware navigation to profile pages
+- Settings access
+- Secure sign-out functionality
+- Responsive design (mobile and desktop)
+
+### UserProfileCard
+
+Display and edit user information:
+
+```typescript
+import UserProfileCard from '@/components/UserProfileCard';
+
+// Usage in profile pages
+<UserProfileCard />
+```
+
+Features:
+- Display user avatar, name, email and creation date
+- Edit mode for updating profile information
+- Loading states and error handling
+
+### UserSettingsCard
+
+Manage user preferences and account settings:
+
+```typescript
+import UserSettingsCard from '@/components/UserSettingsCard';
+
+// Usage in profile or settings pages
+<UserSettingsCard />
+```
+
+Features:
+- Dark mode toggle
+- Email notification preferences
+- Security settings access
+- Sign-out functionality with confirmation
+
+## Profile Pages
+
+The application includes profile pages in both tenant and non-tenant contexts:
+
+### Global Profile
+
+Access your profile without organization context:
+- URL: `/profile`
+- Shows your Clerk user information
+- Edit personal details
+- Manage account settings
+
+### Tenant-specific Profile
+
+Access your profile within an organization:
+- URL: `/{tenant_id}/profile`
+- Shows your user information in organization context
+- Organization-specific settings and permissions
+- Tenant-aware navigation
 
 
 
