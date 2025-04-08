@@ -5,6 +5,12 @@ import { useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import dynamic from 'next/dynamic';
 
+// Import components for organization dashboard
+import OrganizationOverviewCard from '@/components/OrganizationOverviewCard';
+import OrganizationMembersCard from '@/components/OrganizationMembersCard';
+import SubscriptionStatusCard from '@/components/SubscriptionStatusCard';
+import DashboardMenu from '@/components/DashboardMenu';
+
 // Import SignOutComponent with no SSR
 const SignOutComponent = dynamic(
   () => import('@/components/ui/SignOutComponent/SignOutComponent'),
@@ -401,93 +407,138 @@ const DashboardPage = () => {
   };
 
   return (
-    <ClientOnly>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-        <SignOutComponent />
-
-        <div className="mt-6 p-4 border rounded-lg bg-white shadow">
-          <h2 className="text-xl font-semibold mb-2">Subscription</h2>
-          
-          {!orgLoaded && <p>Loading organization data...</p>}
-          
-          {loading && orgLoaded && <p>Loading subscription information...</p>}
-          
-          {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded mb-4">
-              <p>{error}</p>
-              <button 
-                onClick={handleRetry}
-                className="mt-2 bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm"
-              >
-                Retry
-              </button>
-            </div>
-          )}
-          
-          {!loading && !error && subscription && (
-            <div>
-              <p className="mb-2">Status: <span className="font-medium">{subscription?.status}</span></p>
-              <pre className="bg-gray-50 p-2 rounded text-xs mt-4 overflow-auto max-h-40">
-                {JSON.stringify(subscription, null, 2)}
-              </pre>
-            </div>
-          )}
-          
-          {!loading && !error && !subscription && orgLoaded && (
-            <p>No subscription found for this organization.</p>
-          )}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header with Dashboard Menu */}
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-xl font-semibold text-gray-900">
+              {organization?.name || 'Organization'} Dashboard
+            </h1>
+            <DashboardMenu />
+          </div>
         </div>
-        
-        {/* Direct API Testing */}
-        <div className="mt-6 p-4 border rounded-lg bg-white shadow">
-          <h2 className="text-xl font-semibold mb-2">API Diagnostics</h2>
-          <div className="flex gap-2 mb-3 flex-wrap">
-            <button 
-              onClick={testDirectApiCall}
-              disabled={apiTestLoading}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
-            >
-              {apiTestLoading ? 'Testing...' : 'Test Direct API Call'}
-            </button>
-            
-            <button 
-              onClick={testCreateOrganization}
-              disabled={apiTestLoading}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm"
-            >
-              {apiTestLoading ? 'Processing...' : 'Sync User Profile'}
-            </button>
-            
-            <button 
-              onClick={testTokenVerification}
-              disabled={apiTestLoading}
-              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 text-sm"
-            >
-              {apiTestLoading ? 'Processing...' : 'Verify Token'}
-            </button>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="p-6 max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8">Organization Dashboard</h1>
+          
+          {/* Organization Overview Section */}
+          <div className="mb-10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Organization Info Card */}
+              <div className="lg:col-span-2">
+                <OrganizationOverviewCard />
+              </div>
+              
+              {/* Subscription Status Card */}
+              <div>
+                <SubscriptionStatusCard />
+              </div>
+            </div>
           </div>
           
-          {apiTestResult && (
-            <div className="mt-3">
-              <h3 className="text-md font-medium">API Response:</h3>
-              <pre className="bg-gray-50 p-2 rounded text-xs mt-2 overflow-auto max-h-80">
-                {JSON.stringify(apiTestResult, null, 2)}
+          {/* Members Overview Section */}
+          <div className="mb-10">
+            <h2 className="text-2xl font-semibold mb-4">Team & Resources</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Members List */}
+              <div className="lg:col-span-2">
+                <OrganizationMembersCard maxDisplayed={5} />
+              </div>
+              
+              {/* Quick Stats Card */}
+              <div>
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold mb-4">Quick Stats</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Total Products</p>
+                      <p className="text-2xl font-bold">
+                        {/* Placeholder for product count */}
+                        0
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm text-gray-500">Storage Used</p>
+                      <p className="text-2xl font-bold">
+                        {/* Placeholder for storage used */}
+                        0 MB
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm text-gray-500">Active Users</p>
+                      <p className="text-2xl font-bold">
+                        {/* Placeholder for active user count */}
+                        1
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Debug Section - only show if error exists or specifically requested */}
+          {(error || (typeof window !== 'undefined' && window.location.search.includes('debug=true'))) && (
+            <div className="mt-10 border-t pt-6">
+              <h2 className="text-xl font-semibold mb-4">Debug Information</h2>
+              <pre className="bg-gray-100 p-4 rounded overflow-auto text-xs">
+                {JSON.stringify(debugInfo, null, 2)}
               </pre>
+              
+              {apiTestResult && (
+                <div className="mt-4">
+                  <h3 className="font-semibold mb-2">API Test Result</h3>
+                  <pre className="bg-gray-100 p-4 rounded overflow-auto text-xs">
+                    {JSON.stringify(apiTestResult, null, 2)}
+                  </pre>
+                </div>
+              )}
+              
+              <div className="mt-4 flex gap-2">
+                <button 
+                  onClick={handleRetry} 
+                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+                  disabled={loading}
+                >
+                  Retry Subscription Load
+                </button>
+                
+                <button 
+                  onClick={testCreateOrganization} 
+                  className="px-3 py-1 bg-green-500 text-white rounded text-sm"
+                  disabled={apiTestLoading}
+                >
+                  Test Create Organization
+                </button>
+                
+                <button 
+                  onClick={testDirectApiCall} 
+                  className="px-3 py-1 bg-purple-500 text-white rounded text-sm"
+                  disabled={apiTestLoading}
+                >
+                  Test Direct API Call
+                </button>
+                
+                <button 
+                  onClick={testTokenVerification} 
+                  className="px-3 py-1 bg-orange-500 text-white rounded text-sm"
+                  disabled={apiTestLoading}
+                >
+                  Test Token Verification
+                </button>
+              </div>
             </div>
           )}
         </div>
-        
-        {/* Debug information */}
-        <div className="mt-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
-          <h3 className="text-sm font-bold mb-2 text-gray-700">Debug Info</h3>
-          <pre className="text-xs overflow-auto max-h-40">
-            {JSON.stringify(debugInfo, null, 2)}
-          </pre>
-        </div>
-      </div>
-    </ClientOnly>
-  )
-}
+      </main>
+    </div>
+  );
+};
 
 export default DashboardPage;

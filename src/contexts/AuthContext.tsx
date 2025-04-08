@@ -51,7 +51,6 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
 export const useAuthService = () => {
   const { session, user } = useClerk();
 
