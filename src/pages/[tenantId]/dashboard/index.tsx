@@ -6,10 +6,10 @@ import { useRouter } from "next/router";
 import dynamic from 'next/dynamic';
 
 // Import components for organization dashboard
-import OrganizationOverviewCard from '@/components/OrganizationOverviewCard';
-import OrganizationMembersCard from '@/components/OrganizationMembersCard';
-import SubscriptionStatusCard from '@/components/SubscriptionStatusCard';
-import DashboardMenu from '@/components/DashboardMenu';
+import OrganizationOverviewCard from '@/components/Organization/OrganizationOverviewCard';
+import OrganizationMembersCard from '@/components/Organization/OrganizationMembersCard';
+import SubscriptionStatusCard from '@/components/Subscription/SubscriptionStatusCard';
+import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 
 // Import SignOutComponent with no SSR
 const SignOutComponent = dynamic(

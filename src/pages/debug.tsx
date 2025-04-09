@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/nextjs';
-import OrganizationDebugger from '../components/OrganizationDebugger';
+import OrganizationDebugger from '../components/Organization/OrganizationDebugger';
 import useClerkToken from '../hooks/useClerkToken';
 
 export default function DebugPage() {

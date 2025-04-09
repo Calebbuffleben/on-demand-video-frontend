@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@clerk/nextjs';
-import UserProfileCard from '@/components/UserProfileCard';
-import UserSettingsCard from '@/components/UserSettingsCard';
-import DashboardMenu from '@/components/DashboardMenu';
+import UserProfileCard from '@/components/Profile/UserProfileCard';
+import UserSettingsCard from '@/components/Profile/UserSettingsCard';
+import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 
 export default function TenantProfilePage() {
   const { isLoaded, isSignedIn } = useUser();
