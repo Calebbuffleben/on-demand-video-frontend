@@ -16,6 +16,10 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - Video status monitoring
 - HLS video playback
 - Secure video access control
+- Complete video library management interface
+- Detailed video information pages
+- Video search and filtering
+- Embed code generation for easy sharing
 
 ### Authentication & Authorization
 - Secure user authentication via Clerk
@@ -34,6 +38,7 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - User profile access from any page
 - Organization-specific dashboards
 - Responsive design for all device sizes
+- Video content section with quick access
 
 ### Product Management
 - Create, read, update, and delete products
@@ -58,16 +63,22 @@ src/
 ├── api-connection/    # API client setup
 ├── components/        # React components
 │   ├── ui/            # UI components
-│   ├── DashboardMenu.tsx  # Application navigation menu
-│   ├── CloudflareVideoUploader.tsx  # Video upload component
-│   └── CloudflareVideoPlayer.tsx    # Video player component
+│   ├── Dashboard/     # Dashboard components
+│   ├── Video/         # Video-related components
+│   │   ├── CloudflareVideoPlayer.tsx    # Video player component
+│   │   ├── CloudflareVideoUploader.tsx  # Video upload component
+│   │   ├── VideoCard.tsx                # Video card for grid display
+│   │   └── EmptyVideoState.tsx          # Empty state component
+│   └── Subscription/  # Subscription components
 ├── contexts/         # React contexts
 ├── hooks/           # Custom hooks
 ├── interfaces/      # TypeScript interfaces
 ├── pages/          # Next.js pages
 │   ├── profile/    # User profile pages
 │   ├── upload-video/  # Video upload page
-│   └── [tenantId]/ # Tenant-specific routes
+│   ├── my-videos/     # Video library page
+│   ├── videos/        # Video detail pages
+│   └── [tenantId]/    # Tenant-specific routes
 ├── server/         # Server-side logic
 │   ├── database/   # Database operations
 │   └── services/   # Business logic
@@ -82,6 +93,7 @@ model Organization {
   id          String    @id
   name        String
   products    Product[]
+  videos      Video[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -99,6 +111,23 @@ model Product {
   updatedAt       DateTime     @updatedAt
 
   @@unique([sku, organizationId])
+  @@index([organizationId])
+}
+
+model Video {
+  uid             String       @id
+  name            String
+  description     String?
+  thumbnail       String
+  playbackUrl     String
+  duration        Int
+  status          String
+  size            Int
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
   @@index([organizationId])
 }
 ```
@@ -143,52 +172,51 @@ npx prisma migrate dev
 npm run dev
 ```
 
-## Multi-tenant Implementation
+## Video Management Features
 
-### Middleware
-The application uses Clerk middleware to handle organization context:
-
-```typescript
-import { NextResponse } from "next/server";
-import { clerkMiddleware, getAuth } from "@clerk/nextjs/server";
-
-export default clerkMiddleware(async (_, event) => {
-  const { userId, orgId } = await getAuth(event);
-
-  // Organization routing and context handling
-  const pathOrgId = event.nextUrl.pathname.split('/').find((segment: string) => 
-    segment.startsWith('org_')
-  );
-
-  // ... organization context logic
-});
-```
-
-### API Routes
-All API routes are organization-aware:
+### Upload Video
+The application provides a robust video upload feature:
 
 ```typescript
-// Example API route
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const organizationId = req.headers['x-organization-id'] as string;
-  
-  if (!organizationId) {
-    return res.status(400).json({ message: "Organization ID is required" });
-  }
-
-  // Organization-specific logic
+// Video upload component
+export default function CloudflareVideoUploader({
+  maxDurationSeconds = 3600, // 1 hour default
+  onUploadSuccess,
+  onUploadProgress,
+}) {
+  // ...implementation
 }
 ```
 
-### Data Access
-Products are automatically scoped to organizations:
+### Video Library
+A comprehensive video management interface:
+
+- **Grid View**: Responsive grid display of all videos
+- **Search**: Filter videos by name
+- **Status Tracking**: Visual indicators for processing status
+- **Quick Actions**: Delete, view details, and copy stream URLs
+
+### Video Detail Page
+Detailed view for each video:
 
 ```typescript
-// Example repository method
-async findAll(organizationId: string) {
-  return await prisma.product.findMany({
-    where: { organizationId }
-  });
+// Video detail page
+export default function VideoDetailPage() {
+  const { videoId } = useRouter().query;
+  
+  // ... video fetching logic
+  
+  return (
+    <div>
+      <CloudflareVideoPlayer 
+        playback={video.playback}
+        thumbnail={video.thumbnail}
+        autoPlay={true}
+      />
+      
+      {/* Video metadata and actions */}
+    </div>
+  );
 }
 ```
 
@@ -198,6 +226,9 @@ async findAll(organizationId: string) {
 - `/sign-in` - Authentication
 - `/create-organization` - Organization creation
 - `/profile` - User profile (non-tenant specific)
+- `/upload-video` - Video upload page
+- `/my-videos` - Video library management
+- `/videos/:videoId` - Video detail page
 - `/{tenant_id}/dashboard` - Organization dashboard
 - `/{tenant_id}/profile` - User profile (tenant context)
 - `/{tenant_id}/products` - Product management
@@ -212,6 +243,7 @@ async findAll(organizationId: string) {
    - Each organization's data is completely isolated
    - Cross-organization access is prevented
    - SKUs are unique within organizations
+   - Videos are organization-scoped
 
 2. **Authentication**
    - JWT-based authentication
@@ -239,6 +271,11 @@ async findAll(organizationId: string) {
    - Always include organization filtering
    - Use transactions when necessary
    - Follow Prisma best practices
+
+4. **Video Management**
+   - Use the `videoService` for all video operations
+   - Handle loading/error states for video operations
+   - Maintain consistent UI between video features
 
 ## Contributing
 
