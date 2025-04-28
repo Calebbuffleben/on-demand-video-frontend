@@ -401,16 +401,114 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-xl font-semibold text-white">
-                {organization?.name || 'Organization'} Dashboard
-              </h1>
-              <p className="text-blue-100 text-sm mt-1">Manage your organization and content</p>
+      {/* Top Navigation Bar */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto">
+          {/* Top bar with branding and global actions */}
+          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            {/* Logo and organization selector */}
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <div className="text-2xl font-bold text-indigo-600 mr-1">VidStream</div>
+                <span className="hidden md:inline-block text-xs px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full">Beta</span>
+              </div>
+              
+              {/* Organization selector button */}
+              {organization?.name && (
+                <div className="hidden md:flex ml-6 items-center border-l pl-6 border-gray-200">
+                  <button className="group flex items-center text-gray-700 hover:text-indigo-600">
+                    <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-600 flex items-center justify-center mr-2 group-hover:bg-indigo-200 transition-colors">
+                      {organization.name.charAt(0)}
+                    </div>
+                    <span className="text-sm font-medium">{organization.name}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 text-gray-400 group-hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
-            <DashboardMenu />
+            
+            {/* Search and right navigation */}
+            <div className="flex items-center space-x-4">
+              {/* Search bar */}
+              <div className="hidden md:block relative">
+                <input
+                  type="text"
+                  placeholder="Search content..."
+                  className="w-64 bg-gray-100 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+                />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              
+              {/* Nav actions */}
+              <div className="flex items-center space-x-3">
+                {/* Help button */}
+                <button className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </button>
+                
+                {/* Notifications */}
+                <button className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-xs text-white font-bold rounded-full flex items-center justify-center">3</span>
+                </button>
+                
+                {/* Create button */}
+                <button className="hidden sm:flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>New</span>
+                </button>
+                
+                {/* User profile */}
+                <DashboardMenu className="ml-1" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Navigation tabs */}
+          <div className="px-4 sm:px-6 lg:px-8 border-t border-gray-200">
+            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <a 
+                href="#dashboard" 
+                className="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                aria-current="page"
+              >
+                Dashboard
+              </a>
+              <a 
+                href="/my-videos" 
+                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+              >
+                Videos
+              </a>
+              <a 
+                href="/analytics" 
+                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+              >
+                Analytics
+              </a>
+              <a 
+                href="/team" 
+                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+              >
+                Team
+              </a>
+              <a 
+                href="/settings" 
+                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+              >
+                Settings
+              </a>
+            </nav>
           </div>
         </div>
       </header>
