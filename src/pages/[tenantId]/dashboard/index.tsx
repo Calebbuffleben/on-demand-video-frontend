@@ -5,12 +5,16 @@ import { useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Import components for organization dashboard
 import OrganizationOverviewCard from '@/components/Organization/OrganizationOverviewCard';
 import OrganizationMembersCard from '@/components/Organization/OrganizationMembersCard';
 import SubscriptionStatusCard from '@/components/Subscription/SubscriptionStatusCard';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
+
+// Import video service
+import videoService from '@/api-connection/videos';
 
 // Import SignOutComponent with no SSR
 const SignOutComponent = dynamic(
