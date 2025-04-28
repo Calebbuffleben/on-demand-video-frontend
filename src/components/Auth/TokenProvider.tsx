@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import useClerkToken from '../hooks/useClerkToken';
+import useClerkToken from '@/hooks/useClerkToken';
 
 interface TokenProviderProps {
   children: ReactNode;

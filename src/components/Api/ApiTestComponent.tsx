@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import useApi from '../hooks/useApi';
+import useApi from '@/hooks/useApi';
 
 interface TestResponse {
   message: string;

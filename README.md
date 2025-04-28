@@ -10,6 +10,13 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - Automatic organization context handling
 - Organization-specific product management
 
+### Video Management
+- Direct video upload to Cloudflare Stream
+- Real-time upload progress tracking
+- Video status monitoring
+- HLS video playback
+- Secure video access control
+
 ### Authentication & Authorization
 - Secure user authentication via Clerk
 - Organization membership management
@@ -42,6 +49,7 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - **ORM**: Prisma 6.3.1
 - **Styling**: Tailwind CSS 3.4.1
 - **Type Safety**: TypeScript
+- **Video Streaming**: Cloudflare Stream
 
 ## Project Structure
 
@@ -50,12 +58,15 @@ src/
 ├── api-connection/    # API client setup
 ├── components/        # React components
 │   ├── ui/            # UI components
-│   └── DashboardMenu.tsx  # Application navigation menu
+│   ├── DashboardMenu.tsx  # Application navigation menu
+│   ├── CloudflareVideoUploader.tsx  # Video upload component
+│   └── CloudflareVideoPlayer.tsx    # Video player component
 ├── contexts/         # React contexts
 ├── hooks/           # Custom hooks
 ├── interfaces/      # TypeScript interfaces
 ├── pages/          # Next.js pages
 │   ├── profile/    # User profile pages
+│   ├── upload-video/  # Video upload page
 │   └── [tenantId]/ # Tenant-specific routes
 ├── server/         # Server-side logic
 │   ├── database/   # Database operations
@@ -110,6 +121,16 @@ npm install
 DATABASE_URL="postgresql://..."
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_..."
 CLERK_SECRET_KEY="sk_..."
+
+# API Backend URL
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+
+# App URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Cloudflare Configuration
+CLOUDFLARE_ACCOUNT_ID=your_account_id
+CLOUDFLARE_API_TOKEN=your_api_token
 ```
 
 4. Run database migrations:
@@ -921,6 +942,33 @@ Access your profile within an organization:
 - Shows your user information in organization context
 - Organization-specific settings and permissions
 - Tenant-aware navigation
+
+## Cloudflare Stream Integration
+
+The application integrates with Cloudflare Stream for video uploading and playback. The implementation consists of:
+
+1. **Frontend Components**
+   - `CloudflareVideoUploader`: Handles file selection and uploading to Cloudflare Stream
+   - `CloudflareVideoPlayer`: Plays videos from Cloudflare Stream using HLS.js
+
+2. **Backend Implementation**
+   - Direct Creator Upload URL generation
+   - Video status checking
+   - Secure API communication with Cloudflare
+
+3. **API Routes**
+   - `POST /api/videos/get-upload-url`: Gets a one-time upload URL from Cloudflare
+   - `GET /api/videos/status/:videoId`: Checks the status of an uploaded video
+
+4. **Environment Configuration**
+   Add these credentials to your NestJS backend's environment configuration:
+   - Cloudflare Account ID
+   - Cloudflare API Token with Stream permissions
+
+5. **Security Considerations**
+   - Frontend never has access to Cloudflare API tokens
+   - Backend validates all requests before contacting Cloudflare
+   - Direct Creator Upload URLs expire after 30 minutes if unused
 
 
 

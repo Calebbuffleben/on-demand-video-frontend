@@ -15,18 +15,30 @@ const Checkout: React.FC<CheckoutProps> = ({ priceId }) => {
   const handleCheckout = async () => {
     setIsLoading(true);
     try {
-      // Use the subscription service
-      const { sessionUrl } = await subscriptionService.createCheckoutSession(priceId);
+      console.log('Creating checkout session for priceId:', priceId);
       
-      // Redirect to the Stripe Checkout page using the URL provided by Stripe
-      if (sessionUrl) {
-        router.push(sessionUrl);
+      // Use the subscription service
+      const response = await subscriptionService.createCheckoutSession();
+      
+      // Log the response in case of issues
+      console.log('Checkout session response:', response);
+      
+      // Check if we have a sessionUrl
+      if (response && response.sessionUrl) {
+        // For local development/testing - redirect to a different page instead of Stripe
+        if (response.sessionUrl.startsWith('https://example.com')) {
+          console.log('Using mock checkout URL - redirecting to success page');
+          router.push('/subscriptions/success?mock=true');
+        } else {
+          // Redirect to the actual Stripe Checkout page
+          router.push(response.sessionUrl);
+        }
       } else {
-        console.error('No session URL returned from the API');
+        console.error('No session URL returned');
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Error creating Stripe Checkout session:', error);
+      console.error('Error creating checkout session:', error);
       setIsLoading(false);
     }
   };

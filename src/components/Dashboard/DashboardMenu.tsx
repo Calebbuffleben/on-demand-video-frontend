@@ -119,6 +119,30 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
           </Link>
           
           <Link 
+            href="/upload-video"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Upload Video
+          </Link>
+          
+          <Link 
+            href="/my-videos"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            My Videos
+          </Link>
+          
+          <Link 
+            href="/test-video"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Test Video
+          </Link>
+          
+          <Link 
             href="#settings"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
             onClick={() => setIsMenuOpen(false)}

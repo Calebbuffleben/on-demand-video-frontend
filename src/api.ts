@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api', 
+  baseURL: process.env.BACKEND_URL || 'http://localhost:4000/api', 
   headers: {
     'Content-Type': 'application/json'
   },
@@ -23,7 +23,7 @@ api.interceptors.response.use((response: AxiosResponse) => {
 }, async (error) => {
   const originalRequest = error.config;
 
-  if(error.response.status === 401 && !originalRequest._retry) {
+  if(error.response && error.response.status === 401 && !originalRequest._retry) {
       try {
           const response = await api.post('/refresh-token');
           const newAccessToken = response.data.accessToken;
