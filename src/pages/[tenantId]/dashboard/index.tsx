@@ -6,12 +6,15 @@ import { useRouter } from "next/router";
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
+import Head from 'next/head';
 
 // Import components for organization dashboard
 import OrganizationOverviewCard from '@/components/Organization/OrganizationOverviewCard';
 import OrganizationMembersCard from '@/components/Organization/OrganizationMembersCard';
 import SubscriptionStatusCard from '@/components/Subscription/SubscriptionStatusCard';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
+import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
+import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 
 // Import video service
 import videoService from '@/api-connection/videos';
@@ -399,393 +402,184 @@ const DashboardPage = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation Bar */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto">
-          {/* Top bar with branding and global actions */}
-          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-            {/* Logo and organization selector */}
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <div className="text-2xl font-bold text-indigo-600 mr-1">VidStream</div>
-                <span className="hidden md:inline-block text-xs px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full">Beta</span>
-              </div>
-              
-              {/* Organization selector button */}
-              {organization?.name && (
-                <div className="hidden md:flex ml-6 items-center border-l pl-6 border-gray-200">
-                  <button className="group flex items-center text-gray-700 hover:text-indigo-600">
-                    <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-600 flex items-center justify-center mr-2 group-hover:bg-indigo-200 transition-colors">
-                      {organization.name.charAt(0)}
-                    </div>
-                    <span className="text-sm font-medium">{organization.name}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 text-gray-400 group-hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
-            
-            {/* Search and right navigation */}
-            <div className="flex items-center space-x-4">
-              {/* Search bar */}
-              <div className="hidden md:block relative">
-                <input
-                  type="text"
-                  placeholder="Search content..."
-                  className="w-64 bg-gray-100 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
-                />
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              
-              {/* Nav actions */}
-              <div className="flex items-center space-x-3">
-                {/* Help button */}
-                <button className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </button>
-                
-                {/* Notifications */}
-                <button className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 relative">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-xs text-white font-bold rounded-full flex items-center justify-center">3</span>
-                </button>
-                
-                {/* Create button */}
-                <button className="hidden sm:flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  <span>New</span>
-                </button>
-                
-                {/* User profile */}
-                <DashboardMenu className="ml-1" />
-              </div>
-            </div>
-          </div>
-          
-          {/* Navigation tabs */}
-          <div className="px-4 sm:px-6 lg:px-8 border-t border-gray-200">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-              <a 
-                href="#dashboard" 
-                className="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                aria-current="page"
-              >
-                Dashboard
-              </a>
-              <a 
-                href="/my-videos" 
-                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-              >
-                Videos
-              </a>
-              <a 
-                href="/analytics" 
-                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-              >
-                Analytics
-              </a>
-              <a 
-                href="/team" 
-                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-              >
-                Team
-              </a>
-              <a 
-                href="/settings" 
-                className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-              >
-                Settings
-              </a>
-            </nav>
-          </div>
-        </div>
-      </header>
+  // Add the testCloudflareConnection function
+  const testCloudflareConnection = async () => {
+    try {
+      const response = await videoService.testCloudflareConnection();
+      console.log('Cloudflare connection test:', response);
+      setApiTestResult({
+        success: true,
+        message: "Cloudflare connection test successful",
+        response
+      });
+    } catch (err) {
+      console.error('Cloudflare connection test failed:', err);
+      setApiTestResult({
+        success: false,
+        message: "Cloudflare connection test failed", 
+        error: err instanceof Error ? err.message : String(err)
+      });
+    }
+  };
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="p-6 max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6 text-gray-800">Organization Dashboard</h1>
-          
-          <div className="mb-10">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-800">Organization Overview</h2>
-                  </div>
-                  <div className="p-6">
-                    <OrganizationOverviewCard />
-                  </div>
-                </div>
-              </div>
-              
+  return (
+    <ClientOnly>
+      <Head>
+        <title>Dashboard</title>
+      </Head>
+      <DashboardLayout sidebar={<DashboardSidebar />}>
+        <div className="p-4 md:p-6">
+          <header className="bg-white shadow-sm mb-6 rounded-lg">
+            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-800">Subscription Status</h2>
-                  </div>
-                  <div className="p-6">
-                    <SubscriptionStatusCard />
-                  </div>
-                </div>
+                <h1 className="text-2xl font-semibold">Dashboard</h1>
+                <p className="text-gray-600 text-sm mt-1">{organization?.name || 'Organization'}</p>
               </div>
+              <DashboardMenu />
+            </div>
+          </header>
+
+          {/* Organization Overview */}
+          <div className="mb-8">
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Organization Overview</h2>
+            <div className="grid grid-cols-1 gap-5">
+              <OrganizationOverviewCard />
             </div>
           </div>
-          
-          <div className="mb-10">
-            <div className="flex items-center mb-6">
-              <h2 className="text-2xl font-semibold text-gray-800">Team & Resources</h2>
-              <div className="ml-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                1 Active Member
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-800">Team Members</h3>
-                    <button className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                      Invite
-                    </button>
-                  </div>
-                  <div className="p-6">
-                    <OrganizationMembersCard maxDisplayed={5} />
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800">Quick Stats</h3>
-                  </div>
-                  
-                  <div className="p-6">
-                    <div className="space-y-6">
-                      <div>
-                        <p className="text-sm text-gray-500">Total Products</p>
-                        <div className="flex items-end mt-2">
-                          <p className="text-2xl font-bold text-gray-800">0</p>
-                          <span className="ml-2 text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
-                            New
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-gray-500">Storage Used</p>
-                        <div className="flex items-center mt-2">
-                          <p className="text-2xl font-bold text-gray-800">0 MB</p>
-                          <span className="text-xs text-gray-500 ml-2">of 1GB</span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-100 rounded-full mt-2">
-                          <div className="w-0 h-2 bg-blue-600 rounded-full"></div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-gray-500">Active Users</p>
-                        <div className="flex items-center mt-2">
-                          <p className="text-2xl font-bold text-gray-800">1</p>
-                          <span className="ml-2 text-xs px-2 py-1 bg-green-100 text-green-600 rounded">
-                            Online
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mb-10">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-gray-800">Video Content</h2>
-              <Link href="/upload-video" className="text-sm px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+          {/* Video Content Section */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-gray-900">Video Content</h2>
+              <Link 
+                href="/upload-video" 
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                New Video
+                Upload Video
               </Link>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/upload-video" className="block group">
-                <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-full border border-gray-100 group-hover:border-blue-300">
-                  <div className="p-6 flex flex-col h-full">
-                    <div className="bg-blue-50 p-4 rounded-lg mb-4 w-14 h-14 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between bg-gradient-to-b from-blue-50 to-white">
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-gray-900">My Videos</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">Access and manage all your uploaded videos</p>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">Upload Video</h3>
-                    <p className="text-gray-600 text-sm flex-grow">
-                      Upload and share videos with your team and customers using Cloudflare Stream.
-                    </p>
-                    <div className="mt-4 text-blue-600 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform">
-                      Get started
+                    <Link 
+                      href="/my-videos" 
+                      className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
+                    >
+                      View my videos
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
-                    </div>
+                    </Link>
                   </div>
-                </div>
-              </Link>
-              
-              <Link href="/my-videos" className="block group">
-                <div className="bg-white rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 overflow-hidden h-full border border-gray-100 group-hover:border-purple-300">
-                  <div className="p-6 flex flex-col h-full">
-                    <div className="bg-purple-50 p-4 rounded-lg mb-4 w-14 h-14 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
+
+                  <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between bg-gradient-to-b from-purple-50 to-white">
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-gray-900">Upload Video</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">Upload new videos to your account</p>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2 text-gray-800 group-hover:text-purple-600 transition-colors">My Videos</h3>
-                    <p className="text-gray-600 text-sm flex-grow">
-                      View and manage your uploaded videos.
-                    </p>
-                    <div className="mt-4 text-purple-600 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform">
-                      View library
+                    <Link 
+                      href="/upload-video" 
+                      className="text-purple-600 hover:text-purple-800 font-medium inline-flex items-center"
+                    >
+                      Upload now
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
+                    </Link>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between bg-gradient-to-b from-green-50 to-white">
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-gray-900">Analytics</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">View performance metrics for your videos</p>
                     </div>
-                  </div>
-                </div>
-              </Link>
-              
-              <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-full border border-gray-100">
-                <div className="p-6 flex flex-col h-full">
-                  <div className="bg-green-50 p-4 rounded-lg mb-4 w-14 h-14 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2 text-gray-800">Analytics</h3>
-                  <p className="text-gray-600 text-sm flex-grow">
-                    Track video performance and audience engagement.
-                  </p>
-                  <div className="mt-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      Coming Soon
+                    <span className="text-gray-500 inline-flex items-center">
+                      Coming soon
                     </span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
-          {(error || (typeof window !== 'undefined' && window.location.search.includes('debug=true'))) && (
-            <div className="mt-10 border-t pt-6">
-              <div className="flex items-center mb-4 justify-between">
-                <h2 className="text-xl font-semibold text-gray-800">Debug Information</h2>
-                <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                  Development Mode
-                </div>
-              </div>
-              
-              {error && (
-                <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-red-800">{error}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div className="bg-gray-800 p-4 rounded-lg overflow-auto text-xs mb-4">
-                <pre className="text-gray-300">
+
+          {/* Debug Information (optional) */}
+          <div className="mt-8">
+            <details className="bg-white shadow-sm rounded-lg">
+              <summary className="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">
+                Debug Information
+              </summary>
+              <div className="p-4 border-t border-gray-200">
+                <pre className="text-xs text-gray-700 overflow-x-auto">
                   {JSON.stringify(debugInfo, null, 2)}
                 </pre>
-              </div>
-              
-              {apiTestResult && (
-                <div className="mt-4">
-                  <h3 className="font-semibold mb-2 text-gray-700">API Test Result</h3>
-                  <div className="bg-gray-800 p-4 rounded-lg overflow-auto text-xs">
-                    <pre className="text-gray-300">
-                      {JSON.stringify(apiTestResult, null, 2)}
-                    </pre>
+                
+                {Object.keys(debugInfo).length > 0 && (
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <button
+                        onClick={testDirectApiCall}
+                        disabled={apiTestLoading}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 disabled:opacity-50"
+                      >
+                        {apiTestLoading ? 'Testing...' : 'Test Direct API Call to /auth/me'}
+                      </button>
+                      
+                      {apiTestResult && (
+                        <div className="mt-2">
+                          <p className="text-sm font-medium mb-1">API Response:</p>
+                          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
+                            {JSON.stringify(apiTestResult, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <button
+                        onClick={testTokenVerification}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                      >
+                        Verify Token from Session
+                      </button>
+                      
+                      <button
+                        onClick={testCloudflareConnection}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 ml-2"
+                      >
+                        Test Video API
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-              
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button 
-                  onClick={handleRetry} 
-                  className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors flex items-center space-x-1"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <svg className="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  )}
-                  <span>Retry Subscription Load</span>
-                </button>
-                
-                <button 
-                  onClick={testCreateOrganization} 
-                  className="px-3 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition-colors flex items-center"
-                  disabled={apiTestLoading}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                  Test Create Organization
-                </button>
-                
-                <button 
-                  onClick={testDirectApiCall} 
-                  className="px-3 py-2 bg-purple-600 text-white rounded-md text-sm hover:bg-purple-700 transition-colors flex items-center"
-                  disabled={apiTestLoading}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                  </svg>
-                  Test Direct API Call
-                </button>
-                
-                <button 
-                  onClick={testTokenVerification} 
-                  className="px-3 py-2 bg-orange-600 text-white rounded-md text-sm hover:bg-orange-700 transition-colors flex items-center"
-                  disabled={apiTestLoading}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  Test Token Verification
-                </button>
+                )}
               </div>
-            </div>
-          )}
+            </details>
+          </div>
         </div>
-      </main>
-    </div>
+      </DashboardLayout>
+    </ClientOnly>
   );
 };
 

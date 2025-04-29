@@ -2,20 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 
 interface VideoPlaybackSources {
   hls: string;
-  dash: string;
+  dash?: string;
 }
 
 interface CloudflareVideoPlayerProps {
-  playback: VideoPlaybackSources;
-  thumbnail: string;
+  src: VideoPlaybackSources;
   title?: string;
   autoPlay?: boolean;
   className?: string;
 }
 
 export default function CloudflareVideoPlayer({
-  playback,
-  thumbnail,
+  src,
   title,
   autoPlay = false,
   className = '',
@@ -40,7 +38,7 @@ export default function CloudflareVideoPlayer({
             lowLatencyMode: true,
           });
 
-          hls.loadSource(playback.hls);
+          hls.loadSource(src.hls);
           hls.attachMedia(videoRef.current);
           
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -70,17 +68,19 @@ export default function CloudflareVideoPlayer({
           });
         } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
           // For Safari which has built-in HLS support
-          videoRef.current.src = playback.hls;
-        } else {
+          videoRef.current.src = src.hls;
+        } else if (src.dash) {
           // Try DASH as fallback
           console.warn('HLS is not supported in this browser, trying DASH...');
-          videoRef.current.src = playback.dash;
+          videoRef.current.src = src.dash;
           
           // Add error handler for DASH fallback
           videoRef.current.onerror = (e) => {
             console.error('Video playback error:', e);
             setError('This browser does not support the video format.');
           };
+        } else {
+          setError('No compatible video format available for this browser.');
         }
       } catch (err) {
         console.error('Error setting up video player:', err);
@@ -101,7 +101,7 @@ export default function CloudflareVideoPlayer({
         videoRef.current.load();
       }
     };
-  }, [playback, autoPlay]);
+  }, [src, autoPlay]);
 
   return (
     <div className={`relative aspect-video bg-black rounded-lg overflow-hidden ${className}`}>
@@ -134,10 +134,10 @@ export default function CloudflareVideoPlayer({
         autoPlay={autoPlay} 
         playsInline
         className="w-full h-full"
-        poster={thumbnail}
+        poster=""
         title={title}
       >
-        <source src={playback.dash} type="application/dash+xml" />
+        {src.dash && <source src={src.dash} type="application/dash+xml" />}
         Your browser does not support the video tag.
       </video>
     </div>

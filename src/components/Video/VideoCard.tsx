@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { VideoData } from '@/api-connection/videos';
+import { VideoData } from '../../api-connection/videos';
 
 interface VideoCardProps {
   video: VideoData;
@@ -9,7 +9,7 @@ interface VideoCardProps {
 }
 
 export default function VideoCard({ video, onDelete, className = '' }: VideoCardProps) {
-  const [showOptions, setShowOptions] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   // Format duration
   const formatDuration = (seconds: number) => {
@@ -37,111 +37,137 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
   };
 
   return (
-    <Link href={`/videos/${video.uid}`} className={`block group ${className}`}>
-      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-full border border-gray-100 group-hover:border-blue-200">
-        <div className="aspect-video relative overflow-hidden bg-gray-100">
-          {/* Thumbnail */}
-          <img 
-            src={video.thumbnail} 
-            alt={video.meta?.name || 'Video thumbnail'} 
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-          />
-          
-          {/* Duration badge */}
-          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-            {formatDuration(video.duration || 0)}
-          </div>
-          
-          {/* Status badge */}
-          {!video.readyToStream && (
-            <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full flex items-center">
-              <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
-              Processing
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      {/* Thumbnail or placeholder */}
+      <Link href={`/videos/watch/${video.uid}`} className="block relative">
+        <div className="aspect-video bg-gray-100 relative">
+          {video.thumbnail ? (
+            <img 
+              src={video.thumbnail} 
+              alt={video.meta?.name || 'Video thumbnail'} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
             </div>
           )}
           
-          {/* Play button overlay */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="bg-blue-600/80 rounded-full p-3 transform group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="bg-white rounded-full p-3 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
+          
+          <div className="absolute top-2 right-2">
+            <span className={`text-xs px-2 py-1 rounded-full ${video.readyToStream ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+              {video.readyToStream ? 'Ready' : 'Processing'}
+            </span>
+          </div>
+        </div>
+      </Link>
+      
+      {/* Video info */}
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-medium text-gray-900 truncate">
+            <Link href={`/videos/watch/${video.uid}`} className="hover:underline">
+              {video.meta?.name || 'Untitled Video'}
+            </Link>
+          </h3>
+          
+          {/* Dropdown menu */}
+          <div className="relative">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+            </button>
+            
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+                <Link 
+                  href={`/videos/watch/${video.uid}`}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Watch video
+                </Link>
+                
+                <Link 
+                  href={`/embed/${video.uid}`} 
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Preview embed
+                </Link>
+                
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    const embedCode = `<iframe 
+  src="${window.location.origin}/embed/${video.uid}" 
+  width="640" 
+  height="360" 
+  frameborder="0" 
+  allow="autoplay; fullscreen" 
+  allowfullscreen>
+</iframe>`;
+                    navigator.clipboard.writeText(embedCode);
+                    alert('Embed code copied to clipboard!');
+                  }}
+                >
+                  Copy embed code
+                </button>
+                
+                {onDelete && (
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      if (confirm('Are you sure you want to delete this video?')) {
+                        onDelete(video.uid);
+                      }
+                    }}
+                  >
+                    Delete video
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         
-        <div className="p-4">
-          <div className="flex justify-between">
-            <h3 className="text-gray-800 font-medium truncate group-hover:text-blue-600 transition-colors">
-              {video.meta?.name || 'Untitled Video'}
-            </h3>
-            
-            <div className="relative ml-2">
-              <button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowOptions(!showOptions);
-                }}
-                className="text-gray-400 hover:text-gray-600 focus:outline-none p-1"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                </svg>
-              </button>
-              
-              {showOptions && (
-                <div 
-                  className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <a 
-                    href={`/videos/${video.uid}`}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    View Details
-                  </a>
-                  <a 
-                    href={video.playback.hls} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Open Stream URL
-                  </a>
-                  {onDelete && (
-                    <button 
-                      onClick={handleDelete}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      Delete Video
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+        <p className="text-gray-500 text-sm mb-3 truncate">
+          {video.meta?.filename || 'No filename available'}
+        </p>
+        
+        <div className="flex justify-between items-center text-xs text-gray-500">
+          <span>
+            {new Date(video.created).toLocaleDateString()}
+          </span>
           
-          <p className="text-gray-500 text-sm mt-1 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <Link 
+            href={`/videos/watch/${video.uid}`}
+            className="text-blue-600 hover:text-blue-800 flex items-center font-medium"
+          >
+            Watch
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            {formatDate(video.created)}
-          </p>
-          
-          {video.meta?.filetype && (
-            <p className="text-gray-500 text-xs mt-2 flex items-center">
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                {video.meta.filetype.toUpperCase()}
-              </span>
-              <span className="ml-2">{Math.round((video.size || 0) / (1024 * 1024))} MB</span>
-            </p>
-          )}
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 } 
