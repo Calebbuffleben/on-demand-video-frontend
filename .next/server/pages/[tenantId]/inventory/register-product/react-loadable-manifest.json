@@ -1,0 +1,10 @@
+{
+  "src/pages/[tenantId]/dashboard/index.tsx -> @/components/ui/SignOutComponent/SignOutComponent": {
+    "id": "src/pages/[tenantId]/dashboard/index.tsx -> @/components/ui/SignOutComponent/SignOutComponent",
+    "files": [
+      "static/chunks/node_modules_51c0ad._.js",
+      "static/chunks/src_components_ui_SignOutComponent_SignOutComponent_tsx_d0fbd7._.js",
+      "static/chunks/src_components_ui_SignOutComponent_SignOutComponent_tsx_bd64ad._.js"
+    ]
+  }
+}

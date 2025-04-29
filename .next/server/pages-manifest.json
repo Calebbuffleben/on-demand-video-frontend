@@ -1,0 +1,9 @@
+{
+  "/_app": "pages/_app.js",
+  "/_document": "pages/_document.js",
+  "/embed/[videoId]": "pages/embed/[videoId].js",
+  "/[tenantId]/dashboard": "pages/[tenantId]/dashboard.js",
+  "/my-videos": "pages/my-videos.js",
+  "/videos/watch/[videoId]": "pages/videos/watch/[videoId].js",
+  "/upload-video": "pages/upload-video.js"
+}

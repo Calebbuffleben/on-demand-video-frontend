@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/calebbuffleben/Desktop/projetos/stream/frontend/src/components/ui/SignOutComponent/SignOutComponent.tsx"],"sourcesContent":["'use client'\n\nimport { useClerk } from '@clerk/nextjs'\n\nconst SignOutComponent = () => {\n  const { signOut } = useClerk()\n\n  return (\n    // Clicking this button signs out a user\n    // and redirects them to the home page \"/\".\n    <button onClick={() => signOut({ redirectUrl: '/' })}>Sign out</button>\n  )\n}\n\nexport default SignOutComponent;\n"],"names":[],"mappings":";;;;AAEA;;;AAFA;;AAIA,MAAM,mBAAmB;;IACvB,MAAM,EAAE,OAAO,EAAE,GAAG,CAAA,GAAA,wJAAA,CAAA,WAAQ,AAAD;IAE3B,OACE,wCAAwC;IACxC,2CAA2C;kBAC3C,0JAAC;QAAO,SAAS,IAAM,QAAQ;gBAAE,aAAa;YAAI;kBAAI;;;;;;AAE1D;GARM;;QACgB,wJAAA,CAAA,WAAQ;;;KADxB;uCAUS"}},
+    {"offset": {"line": 44, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

@@ -1,0 +1,21 @@
+{
+  "devFiles": [],
+  "ampDevFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [],
+  "pages": {
+    "/organization-selector/[[...index]]": [
+      "static/chunks/node_modules_next_dist_f1b02b._.js",
+      "static/chunks/node_modules_react-dom_82bb97._.js",
+      "static/chunks/node_modules_@clerk_shared_dist_da7a10._.js",
+      "static/chunks/node_modules_swr_dist_ecfc1a._.js",
+      "static/chunks/node_modules_@clerk_clerk-react_dist_beafbe._.js",
+      "static/chunks/node_modules_893a2e._.js",
+      "static/chunks/[root of the server]__0aae3a._.js",
+      "static/chunks/src_pages_organization-selector_[[___index]]_tsx_5771e1._.js",
+      "static/chunks/src_pages_organization-selector_[[___index]]_tsx_348c16._.js"
+    ]
+  },
+  "ampFirstPages": []
+}

@@ -1,0 +1,21 @@
+{
+  "devFiles": [],
+  "ampDevFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [],
+  "pages": {
+    "/sign-up/[[...index]]": [
+      "static/chunks/node_modules_next_99e863._.js",
+      "static/chunks/node_modules_react-dom_82bb97._.js",
+      "static/chunks/node_modules_@clerk_shared_dist_5d64c5._.js",
+      "static/chunks/node_modules_swr_dist_ecfc1a._.js",
+      "static/chunks/node_modules_@clerk_clerk-react_dist_53ac15._.js",
+      "static/chunks/node_modules_c3aa35._.js",
+      "static/chunks/[root of the server]__7fa820._.js",
+      "static/chunks/src_pages_sign-up_[[___index]]_tsx_5771e1._.js",
+      "static/chunks/src_pages_sign-up_[[___index]]_tsx_81dcb7._.js"
+    ]
+  },
+  "ampFirstPages": []
+}

@@ -1,4 +1,4 @@
-// Watch video page - updated to handle API response formats
+//Watch video page - updated to handle API response formats
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
