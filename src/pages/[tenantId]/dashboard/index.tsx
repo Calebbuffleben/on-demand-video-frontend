@@ -55,6 +55,20 @@ const DashboardPage = () => {
   const [dbOrgId, setDbOrgId] = useState<string | null>(null);
   const [subscriptionService, setSubscriptionService] = useState<any>(null);
   
+  // Platform stats
+  const [platformStats, setPlatformStats] = useState({
+    totalVideos: 0,
+    totalViews: 0,
+    totalStorage: '0 GB',
+    totalBandwidth: '0 GB'
+  });
+  
+  // Recent uploads
+  const [recentUploads, setRecentUploads] = useState<any[]>([]);
+  
+  // Popular videos
+  const [popularVideos, setPopularVideos] = useState<any[]>([]);
+  
   // Load the subscription service module safely
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -422,13 +436,77 @@ const DashboardPage = () => {
     }
   };
 
+  // Simulate loading platform data
+  useEffect(() => {
+    // In a real implementation, this would fetch from an API
+    setPlatformStats({
+      totalVideos: 12,
+      totalViews: 1420,
+      totalStorage: '2.4 GB',
+      totalBandwidth: '5.7 GB'
+    });
+    
+    // Mock recent uploads
+    setRecentUploads([
+      {
+        id: 'video-1',
+        title: 'Introduction to Video Hosting',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&auto=format&fit=crop',
+        uploadDate: '2023-10-05',
+        size: '245 MB',
+        duration: '12:45',
+      },
+      {
+        id: 'video-2',
+        title: 'Content Creation Best Practices',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1574717024453-354056dafa4e?w=400&auto=format&fit=crop',
+        uploadDate: '2023-09-28',
+        size: '312 MB',
+        duration: '8:12',
+      },
+      {
+        id: 'video-3',
+        title: 'Video SEO Optimization',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&auto=format&fit=crop',
+        uploadDate: '2023-09-15',
+        size: '185 MB',
+        duration: '15:30',
+      }
+    ]);
+    
+    // Mock popular videos
+    setPopularVideos([
+      {
+        id: 'pop-1',
+        title: 'How to Grow Your Audience',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&auto=format&fit=crop',
+        views: 856,
+        duration: '18:30',
+      },
+      {
+        id: 'pop-2',
+        title: 'Streaming Setup Guide',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1551817958-d9d86fb29431?w=400&auto=format&fit=crop',
+        views: 721,
+        duration: '14:15',
+      },
+      {
+        id: 'pop-3',
+        title: 'Video Monetization Strategies',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=400&auto=format&fit=crop',
+        views: 632,
+        duration: '22:10',
+      }
+    ]);
+  }, []);
+
   return (
     <ClientOnly>
       <Head>
         <title>Dashboard</title>
       </Head>
       <DashboardLayout sidebar={<DashboardSidebar />}>
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 bg-gray-50">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
@@ -439,6 +517,226 @@ const DashboardPage = () => {
             </div>
           </header>
 
+          {/* Platform Overview Stats */}
+          <div className="mb-8">
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Platform Overview</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white shadow rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Videos</p>
+                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalVideos}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white shadow rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Views</p>
+                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalViews}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white shadow rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Storage Used</p>
+                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalStorage}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white shadow rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Bandwidth Used</p>
+                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalBandwidth}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg overflow-hidden shadow-md">
+            <div className="p-6 md:p-8">
+              <h2 className="text-xl font-bold text-white mb-2">Ready to upload new content?</h2>
+              <p className="text-blue-100 mb-6">Share your videos with your audience today.</p>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
+                  className="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md bg-white text-blue-600 hover:bg-blue-50"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Upload Video
+                </Link>
+                
+                <Link
+                  href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
+                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-blue-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  Manage Videos
+                </Link>
+                
+                <Link
+                  href={tenantId ? `/${tenantId}/analytics` : "/analytics"}
+                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-blue-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  View Analytics
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Uploads */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-gray-900">Recent Uploads</h2>
+              <Link
+                href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
+                className="text-sm font-medium text-blue-600 hover:text-blue-800"
+              >
+                View all
+              </Link>
+            </div>
+            <div className="overflow-hidden bg-white shadow rounded-lg">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Upload Date</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                    <th scope="col" className="relative px-6 py-3">
+                      <span className="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {recentUploads.map((video) => (
+                    <tr key={video.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-16 relative">
+                            {video.thumbnailUrl && (
+                              <Image
+                                src={video.thumbnailUrl}
+                                alt={video.title}
+                                fill
+                                className="rounded"
+                                style={{ objectFit: 'cover' }}
+                              />
+                            )}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{video.title}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.uploadDate}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.size}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.duration}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                        <button className="text-red-600 hover:text-red-900">Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Popular Videos */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-gray-900">Popular Videos</h2>
+              <Link
+                href={tenantId ? `/${tenantId}/analytics` : "/analytics"}
+                className="text-sm font-medium text-blue-600 hover:text-blue-800"
+              >
+                View analytics
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {popularVideos.map(video => (
+                <div key={video.id} className="bg-white rounded-lg shadow overflow-hidden group hover:shadow-md transition-shadow duration-200">
+                  <div className="relative">
+                    {video.thumbnailUrl && (
+                      <div className="aspect-video relative">
+                        <Image 
+                          src={video.thumbnailUrl}
+                          alt={video.title}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
+                      <div className="flex space-x-2">
+                        <button className="p-2 bg-white rounded-full text-blue-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                        <button className="p-2 bg-white rounded-full text-blue-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.172 13.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-medium text-gray-900 mb-1">{video.title}</h3>
+                    <div className="flex justify-between items-center">
+                      <p className="text-gray-500 text-xs">{video.duration}</p>
+                      <div className="flex items-center text-gray-500 text-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {video.views} views
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Organization Overview */}
           <div className="mb-8">
             <h2 className="text-lg font-medium mb-4 text-gray-900">Organization Overview</h2>
@@ -447,82 +745,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Video Content Section */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-900">Video Content</h2>
-              <Link
-                href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Upload Video
-              </Link>
-            </div>
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between bg-gradient-to-b from-blue-50 to-white">
-                    <div>
-                      <div className="flex items-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <h3 className="text-lg font-medium text-gray-900">My Videos</h3>
-                      </div>
-                      <p className="text-gray-600 mb-4">Access and manage all your uploaded videos</p>
-                    </div>
-                    <Link 
-                      href={tenantId ? `/${tenantId}/videos` : "/my-videos"} 
-                      className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
-                    >
-                      View my videos
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between bg-gradient-to-b from-purple-50 to-white">
-                    <div>
-                      <div className="flex items-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        <h3 className="text-lg font-medium text-gray-900">Upload Video</h3>
-                      </div>
-                      <p className="text-gray-600 mb-4">Upload new videos to your account</p>
-                    </div>
-                    <Link
-                      href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      Upload your first video
-                    </Link>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between bg-gradient-to-b from-green-50 to-white">
-                    <div>
-                      <div className="flex items-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        <h3 className="text-lg font-medium text-gray-900">Analytics</h3>
-                      </div>
-                      <p className="text-gray-600 mb-4">View performance metrics for your videos</p>
-                    </div>
-                    <span className="text-gray-500 inline-flex items-center">
-                      Coming soon
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Debug Information (optional) */}
+          {/* Debug Information (kept intact) */}
           <div className="mt-8">
             <details className="bg-white shadow-sm rounded-lg">
               <summary className="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">

@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       'img.clerk.com',  // Allow images from Clerk
-      'images.clerk.dev' // Alternative Clerk image domain
+      'images.clerk.dev', // Alternative Clerk image domain
+      'images.unsplash.com' // Allow images from Unsplash
     ],
   },
 };
