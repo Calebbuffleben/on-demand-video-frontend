@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { VideoData } from '../../api-connection/videos';
+import { useRouter } from 'next/router';
 
 interface VideoEmbedCodesProps {
   video: VideoData;
@@ -8,10 +9,16 @@ interface VideoEmbedCodesProps {
 export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
   const [activeTab, setActiveTab] = useState<'iframe' | 'direct' | 'hls'>('iframe');
   const [copied, setCopied] = useState(false);
+  const router = useRouter();
+  const { tenantId } = router.query;
   
   const baseUrl = typeof window !== 'undefined' 
     ? `${window.location.protocol}//${window.location.host}`
     : 'https://yourdomain.com';
+
+  const getVideoWatchUrl = (uid: string) => {
+    return tenantId ? `${baseUrl}/${tenantId}/videos/watch/${uid}` : `${baseUrl}/videos/watch/${uid}`;
+  };
   
   const embedUrls = {
     iframe: `<iframe 
@@ -22,7 +29,7 @@ export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
   allow="autoplay; fullscreen" 
   allowfullscreen>
 </iframe>`,
-    direct: `${baseUrl}/videos/watch/${video.uid}`,
+    direct: getVideoWatchUrl(video.uid),
     hls: video.playback?.hls || 'HLS stream not available'
   };
 

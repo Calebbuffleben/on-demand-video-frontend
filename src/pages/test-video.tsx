@@ -95,8 +95,7 @@ export default function TestVideoPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <CloudflareVideoPlayer 
-                playback={videoData.playback}
-                thumbnail={videoData.thumbnail}
+                src={videoData.playback}
                 title={videoData.meta.name}
                 autoPlay={true}
                 className="mb-6"

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { VideoData } from '../../api-connection/videos';
 
 interface VideoCardProps {
@@ -10,6 +11,21 @@ interface VideoCardProps {
 
 export default function VideoCard({ video, onDelete, className = '' }: VideoCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const { tenantId } = router.query;
+  
+  // Helper functions to get tenant-aware URLs
+  const getVideoWatchUrl = (uid: string) => {
+    return tenantId ? `/${tenantId}/videos/watch/${uid}` : `/videos/watch/${uid}`;
+  };
+
+  const getVideoDetailsUrl = (uid: string) => {
+    return tenantId ? `/${tenantId}/videos/${uid}` : `/videos/${uid}`;
+  };
+  
+  const getEmbedUrl = (uid: string) => {
+    return tenantId ? `/embed/${uid}?tenantId=${tenantId}` : `/embed/${uid}`;
+  };
   
   // Format duration
   const formatDuration = (seconds: number) => {
@@ -39,7 +55,7 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       {/* Thumbnail or placeholder */}
-      <Link href={`/videos/watch/${video.uid}`} className="block relative">
+      <Link href={getVideoWatchUrl(video.uid)} className="block relative">
         <div className="aspect-video bg-gray-100 relative">
           {video.thumbnail ? (
             <img 
@@ -75,7 +91,7 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-medium text-gray-900 truncate">
-            <Link href={`/videos/watch/${video.uid}`} className="hover:underline">
+            <Link href={getVideoWatchUrl(video.uid)} className="hover:underline">
               {video.meta?.name || 'Untitled Video'}
             </Link>
           </h3>
@@ -92,17 +108,17 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
             </button>
             
             {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+              <div className="absolute right-full mr-2 top-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
                 <Link 
-                  href={`/videos/watch/${video.uid}`}
+                  href={getVideoWatchUrl(video.uid)}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Watch video
+                  Video details
                 </Link>
                 
                 <Link 
-                  href={`/embed/${video.uid}`} 
+                  href={getEmbedUrl(video.uid)} 
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -116,7 +132,7 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
                   onClick={() => {
                     setIsMenuOpen(false);
                     const embedCode = `<iframe 
-  src="${window.location.origin}/embed/${video.uid}" 
+  src="${window.location.origin}${getEmbedUrl(video.uid)}" 
   width="640" 
   height="360" 
   frameborder="0" 
@@ -158,7 +174,7 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
           </span>
           
           <Link 
-            href={`/videos/watch/${video.uid}`}
+            href={getVideoWatchUrl(video.uid)}
             className="text-blue-600 hover:text-blue-800 flex items-center font-medium"
           >
             Watch

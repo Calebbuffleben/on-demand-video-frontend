@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import DashboardLayout from '../components/Dashboard/DashboardLayout';
-import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
-import VideoUploader from '../components/Video/VideoUploader';
-import CloudflareVideoPlayer from '../components/Video/CloudflareVideoPlayer';
-import Button from '../components/Button';
-import videoService from '../api-connection/videos';
+import DashboardLayout from '../../components/Dashboard/DashboardLayout';
+import DashboardSidebar from '../../components/Dashboard/DashboardSidebar';
+import VideoUploader from '../../components/Video/VideoUploader';
+import CloudflareVideoPlayer from '../../components/Video/CloudflareVideoPlayer';
+import Button from '../../components/Button';
+import videoService from '../../api-connection/videos';
 
 export default function UploadVideoPage() {
   const router = useRouter();
@@ -17,18 +17,6 @@ export default function UploadVideoPage() {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [videoPlaybackSrc, setVideoPlaybackSrc] = useState<{hls: string, dash?: string} | null>(null);
-
-  // Redirect to tenant-specific version if tenantId is available
-  useEffect(() => {
-    if (tenantId && typeof tenantId === 'string') {
-      router.replace(`/${tenantId}/upload-video`);
-    }
-  }, [tenantId, router]);
-
-  // Helper function to get the videos page URL based on tenant context
-  const getVideosUrl = () => {
-    return tenantId ? `/${tenantId}/videos` : '/my-videos';
-  };
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -83,7 +71,7 @@ export default function UploadVideoPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => router.push(getVideosUrl())}
+              onClick={() => router.push(tenantId ? `/${tenantId}/videos` : '/my-videos')}
               className="mr-4"
             >
               Back to Videos
@@ -117,6 +105,14 @@ export default function UploadVideoPage() {
                 <h2 className="text-xl font-medium mb-4">Video Ready!</h2>
                 <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
                   <CloudflareVideoPlayer src={videoPlaybackSrc} />
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    variant="primary"
+                    onClick={() => router.push(tenantId ? `/${tenantId}/videos/${videoUid}` : `/videos/${videoUid}`)}
+                  >
+                    View Video Details
+                  </Button>
                 </div>
               </div>
             )}

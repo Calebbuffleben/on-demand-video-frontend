@@ -6,56 +6,43 @@ import videoService, { VideoData } from '../../api-connection/videos';
 
 export default function VideoEmbedPage() {
   const router = useRouter();
-  const { videoId } = router.query;
+  const { videoId, tenantId } = router.query;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [videoData, setVideoData] = useState<VideoData | null>(null);
 
+  // Get the base URL for constructing embed URLs
+  const getBaseUrl = () => {
+    if (typeof window === 'undefined') return 'https://yourdomain.com';
+    return `${window.location.protocol}//${window.location.host}`;
+  };
+
+  // Get tenant-aware video watch URL
+  const getVideoWatchUrl = (uid: string) => {
+    const baseUrl = getBaseUrl();
+    return tenantId ? `${baseUrl}/${tenantId}/videos/watch/${uid}` : `${baseUrl}/videos/watch/${uid}`;
+  };
+
   useEffect(() => {
     async function fetchVideo() {
-      if (!videoId || typeof videoId !== 'string') return;
+      if (!videoId) return;
       
       try {
         setLoading(true);
-        console.log('Fetching video with ID:', videoId);
-        const response = await videoService.getVideoByUid(videoId);
-        console.log('API Response:', JSON.stringify(response, null, 2));
-        
-        if (response.success && response.data) {
+        const response = await videoService.getVideoByUid(videoId as string);
+        if (response.success && response.data && response.data.result) {
           // Handle both array and object responses
-          let video: VideoData | null = null;
-          
-          if (response.data.result && Array.isArray(response.data.result) && response.data.result.length > 0) {
-            // If result is an array, get the first element
-            video = response.data.result[0];
-          } else if (response.data.result && typeof response.data.result === 'object') {
-            // If result is a direct object, use it
-            video = response.data.result as unknown as VideoData;
-          }
-          
-          if (video) {
-            console.log('Video data:', JSON.stringify(video, null, 2));
-            console.log('Playback info:', video.playback);
-            setVideoData(video);
-          } else {
-            throw new Error('No video data available');
-          }
+          const videoResult = Array.isArray(response.data.result) 
+            ? response.data.result[0] 
+            : response.data.result;
+          setVideoData(videoResult as VideoData);
         } else {
-          // Only throw an error if the response indicates a failure
-          if (!response.success) {
-            const errorMessage = response.message || 'Failed to load video';
-            console.error('API response error:', response);
-            throw new Error(errorMessage);
-          } else {
-            // Handle case where response is successful but no video data
-            console.error('API response has no video data:', response);
-            throw new Error('No video data available');
-          }
+          setError('No video data available');
         }
+        setLoading(false);
       } catch (err) {
-        console.error('Error loading video:', err);
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      } finally {
+        console.error('Error fetching video:', err);
+        setError('Failed to load video');
         setLoading(false);
       }
     }

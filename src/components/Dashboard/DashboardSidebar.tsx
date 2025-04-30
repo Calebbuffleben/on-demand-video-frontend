@@ -4,14 +4,20 @@ import { useRouter } from 'next/router';
 
 const DashboardSidebar: React.FC = () => {
   const router = useRouter();
+  const { tenantId } = router.query;
   
   const isActive = (path: string) => {
     return router.pathname === path || router.pathname.startsWith(`${path}/`);
   };
 
+  // Helper function to get URL with tenant context if available
+  const getUrl = (path: string) => {
+    return tenantId ? `/${tenantId}${path}` : path;
+  };
+
   const navigationItems = [
     { name: 'Dashboard', href: '/dashboard', icon: 'home' },
-    { name: 'My Videos', href: '/my-videos', icon: 'video' },
+    { name: 'My Videos', href: tenantId ? '/videos' : '/my-videos', icon: 'video' },
     { name: 'Upload Video', href: '/upload-video', icon: 'upload' },
     { name: 'Settings', href: '/settings', icon: 'settings' },
   ];
@@ -20,7 +26,7 @@ const DashboardSidebar: React.FC = () => {
     <div className="h-full flex flex-col">
       {/* Logo and brand */}
       <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-200">
-        <Link href="/dashboard">
+        <Link href={getUrl('/dashboard')}>
           <span className="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
@@ -36,7 +42,7 @@ const DashboardSidebar: React.FC = () => {
           {navigationItems.map((item) => (
             <Link
               key={item.name}
-              href={item.href}
+              href={getUrl(item.href)}
               className={`
                 group flex items-center px-2 py-2 text-sm font-medium rounded-md
                 ${isActive(item.href)

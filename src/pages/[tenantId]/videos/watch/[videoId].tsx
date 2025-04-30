@@ -1,14 +1,14 @@
-// Watch video page - updated to handle API response formats
+// Watch video page - updated for tenant-specific routes
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
-import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
-import DashboardMenu from '../../../components/Dashboard/DashboardMenu';
-import CloudflareVideoPlayer from '../../../components/Video/CloudflareVideoPlayer';
-import VideoEmbedCodes from '../../../components/Video/VideoEmbedCodes';
-import videoService, { VideoData } from '../../../api-connection/videos';
+import DashboardLayout from '../../../../components/Dashboard/DashboardLayout';
+import DashboardSidebar from '../../../../components/Dashboard/DashboardSidebar';
+import DashboardMenu from '../../../../components/Dashboard/DashboardMenu';
+import CloudflareVideoPlayer from '../../../../components/Video/CloudflareVideoPlayer';
+import VideoEmbedCodes from '../../../../components/Video/VideoEmbedCodes';
+import videoService, { VideoData } from '../../../../api-connection/videos';
 
 export default function VideoWatchPage() {
   const router = useRouter();
@@ -17,21 +17,6 @@ export default function VideoWatchPage() {
   const [error, setError] = useState<string | null>(null);
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [showEmbedCodes, setShowEmbedCodes] = useState(false);
-
-  // Helper function to get the videos page URL based on tenant context
-  const getVideosUrl = () => {
-    return tenantId ? `/${tenantId}/videos` : '/my-videos';
-  };
-
-  // Helper function to get edit URL based on tenant context
-  const getEditUrl = (id: string) => {
-    return tenantId ? `/${tenantId}/videos/edit/${id}` : `/videos/edit/${id}`;
-  };
-
-  // Helper function to get upload URL based on tenant context
-  const getUploadUrl = () => {
-    return tenantId ? `/${tenantId}/upload-video` : '/upload-video';
-  };
 
   useEffect(() => {
     async function fetchVideo() {
@@ -83,6 +68,10 @@ export default function VideoWatchPage() {
 
     fetchVideo();
   }, [videoId]);
+
+  const getVideosUrl = () => {
+    return tenantId ? `/${tenantId}/videos` : '/my-videos';
+  };
 
   return (
     <>
@@ -195,7 +184,7 @@ export default function VideoWatchPage() {
                           href={getVideosUrl()}
                           className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
-                          Back to Videos
+                          Back to library
                         </Link>
                       </div>
                     </div>
@@ -264,6 +253,13 @@ export default function VideoWatchPage() {
                         </div>
                       </div>
                     )}
+
+                    <div>
+                      <span className="text-gray-500">Organization:</span>
+                      <div className="mt-1">
+                        {tenantId || 'Personal'}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <p className="text-gray-500 text-sm">No video details available</p>
@@ -275,7 +271,7 @@ export default function VideoWatchPage() {
                 <ul className="space-y-2">
                   <li>
                     <Link 
-                      href={getEditUrl(typeof videoId === 'string' ? videoId : '')}
+                      href={tenantId ? `/${tenantId}/videos/edit/${videoId}` : `/videos/edit/${videoId}`}
                       className="flex items-center text-blue-600 hover:text-blue-800 text-sm"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -286,7 +282,7 @@ export default function VideoWatchPage() {
                   </li>
                   <li>
                     <Link 
-                      href={getUploadUrl()}
+                      href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
                       className="flex items-center text-blue-600 hover:text-blue-800 text-sm"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

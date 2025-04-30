@@ -12,9 +12,8 @@ export default function VideoDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { videoId } = router.query;
+  const { videoId, tenantId } = router.query;
   const { organization } = useOrganization();
-  const { tenantId } = router.query;
 
   useEffect(() => {
     if (videoId && typeof videoId === 'string') {
@@ -27,12 +26,39 @@ export default function VideoDetailPage() {
       setLoading(true);
       setError(null);
       
+      console.log('Fetching video with ID:', id);
       const response = await videoService.getVideoByUid(id);
+      console.log('API Response:', JSON.stringify(response, null, 2));
       
-      if (response.success && response.data.result && response.data.result.length > 0) {
-        setVideo(response.data.result[0]);
+      if (response.success && response.data) {
+        // Handle both array and object responses
+        let videoData: VideoData | null = null;
+        
+        if (response.data.result && Array.isArray(response.data.result) && response.data.result.length > 0) {
+          // If result is an array, get the first element
+          videoData = response.data.result[0];
+        } else if (response.data.result && typeof response.data.result === 'object') {
+          // If result is a direct object, use it
+          videoData = response.data.result as unknown as VideoData;
+        }
+        
+        if (videoData) {
+          console.log('Video data:', JSON.stringify(videoData, null, 2));
+          setVideo(videoData);
+        } else {
+          throw new Error('No video data available');
+        }
       } else {
-        throw new Error('Video not found');
+        // Only throw an error if the response indicates a failure
+        if (!response.success) {
+          const errorMessage = response.message || 'Failed to load video';
+          console.error('API response error:', response);
+          throw new Error(errorMessage);
+        } else {
+          // Handle case where response is successful but no video data
+          console.error('API response has no video data:', response);
+          throw new Error('No video data available');
+        }
       }
     } catch (err: any) {
       console.error('Error fetching video:', err);
@@ -44,7 +70,7 @@ export default function VideoDetailPage() {
 
   // Helper function to navigate back to videos
   const getVideosUrl = () => {
-    return '/my-videos';
+    return tenantId ? `/${tenantId}/videos` : '/my-videos';
   };
 
   // Format file size
@@ -81,7 +107,7 @@ export default function VideoDetailPage() {
     if (window.confirm('Are you sure you want to delete this video? This cannot be undone.')) {
       // In a real implementation, you'd call an API to delete the video
       // For now, we'll just redirect back to the videos page
-      router.push('/my-videos');
+      router.push(getVideosUrl());
       // TODO: Implement actual deletion API call when backend supports it
     }
   };
@@ -118,7 +144,7 @@ export default function VideoDetailPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to My Videos
+            Back to Videos
           </Link>
         </div>
 
@@ -162,11 +188,23 @@ export default function VideoDetailPage() {
             {/* Video Player Column */}
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <CloudflareVideoPlayer 
-                  src={video.playback}
-                  title={video.meta?.name}
-                  autoPlay={true}
-                />
+                {video.playback?.hls ? (
+                  <CloudflareVideoPlayer 
+                    src={video.playback}
+                    title={video.meta?.name}
+                    autoPlay={true}
+                  />
+                ) : (
+                  <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
+                    <div className="text-center p-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p>Video playback not available</p>
+                      <p className="text-sm text-gray-400 mt-1">The video may still be processing</p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="bg-white rounded-lg shadow-md p-6">
@@ -174,7 +212,7 @@ export default function VideoDetailPage() {
                 
                 <div className="flex flex-wrap gap-3 mb-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {video.meta?.filetype.toUpperCase()}
+                    {video.meta?.filetype ? video.meta.filetype.toUpperCase() : 'UNKNOWN TYPE'}
                   </span>
                   
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -241,7 +279,7 @@ export default function VideoDetailPage() {
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
                       <dt className="text-sm font-medium text-gray-500">Original File</dt>
-                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{video.meta?.filename}</dd>
+                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{video.meta?.filename || 'Unknown'}</dd>
                     </div>
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
@@ -251,7 +289,9 @@ export default function VideoDetailPage() {
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
                       <dt className="text-sm font-medium text-gray-500">Resolution</dt>
-                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{video.input?.width || 0} x {video.input?.height || 0}</dd>
+                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {video.input ? `${video.input.width || 0} x ${video.input.height || 0}` : 'Unknown'}
+                      </dd>
                     </div>
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
@@ -273,39 +313,59 @@ export default function VideoDetailPage() {
                         </dd>
                       </div>
                     )}
+
+                    <div className="sm:grid sm:grid-cols-3 sm:gap-4">
+                      <dt className="text-sm font-medium text-gray-500">Organization</dt>
+                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {tenantId || 'Personal'}
+                      </dd>
+                    </div>
                   </dl>
                 </div>
               </div>
               
-              <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-medium text-gray-900">Embed Code</h3>
-                </div>
-                
-                <div className="p-6">
-                  <p className="text-sm text-gray-500 mb-4">Use this code to embed the video on your website:</p>
+              {video.playback?.hls ? (
+                <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-medium text-gray-900">Embed Code</h3>
+                  </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-md font-mono text-xs overflow-x-auto">
-                    {`<iframe
+                  <div className="p-6">
+                    <p className="text-sm text-gray-500 mb-4">Use this code to embed the video on your website:</p>
+                    
+                    <div className="bg-gray-50 p-4 rounded-md font-mono text-xs overflow-x-auto">
+                      {`<iframe
   src="${video.playback.hls}"
   style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"
   frameborder="0"
   allow="autoplay; fullscreen"
   allowfullscreen
 ></iframe>`}
+                    </div>
+                    
+                    <button 
+                      onClick={() => copyToClipboard(`<iframe src="${video.playback.hls}" style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`)}
+                      className="mt-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      Copy Embed Code
+                    </button>
                   </div>
-                  
-                  <button 
-                    onClick={() => copyToClipboard(`<iframe src="${video.playback.hls}" style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`)}
-                    className="mt-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    Copy Embed Code
-                  </button>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-medium text-gray-900">Embed Code</h3>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-sm text-gray-500">
+                      Embed code not available. The video may still be processing.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -1,208 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useOrganization } from '@clerk/nextjs';
 import Head from 'next/head';
 import Link from 'next/link';
-import DashboardMenu from '@/components/Dashboard/DashboardMenu';
-import DashboardLayout from '../components/Dashboard/DashboardLayout';
-import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
-import VideoCard from '@/components/Video/VideoCard';
-import EmptyVideoState from '@/components/Video/EmptyVideoState';
-import videoService, { VideoData } from '@/api-connection/videos';
 
-export default function MyVideosPage() {
-  const [videos, setVideos] = useState<VideoData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+export default function MyVideosRedirectPage() {
   const router = useRouter();
   const { organization } = useOrganization();
   const { tenantId } = router.query;
 
-  // Get filtered videos based on search term
-  const filteredVideos = videos.filter(video => 
-    video.meta?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Helper function to navigate back to dashboard
-  const getDashboardUrl = () => {
-    if (tenantId && typeof tenantId === 'string') {
-      return `/${tenantId}/dashboard`;
-    }
-    return organization?.id ? `/${organization.id}/dashboard` : '/dashboard';
-  };
-
-  const fetchVideos = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await videoService.getAllVideos();
-      
-      if (response.success && response.data.result) {
-        setVideos(response.data.result);
-      } else {
-        throw new Error('Failed to fetch videos');
-      }
-    } catch (err: any) {
-      console.error('Error fetching videos:', err);
-      setError(err.message || 'Failed to load videos');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Redirect to tenant-specific version if tenantId is available
   useEffect(() => {
-    fetchVideos();
-  }, []);
-
-  const handleDeleteVideo = async (videoId: string) => {
-    // In a real implementation, you'd call an API to delete the video
-    // For now, we'll just remove it from the local state
-    setVideos(prev => prev.filter(video => video.uid !== videoId));
-    // TODO: Implement actual deletion API call when backend supports it
-  };
+    if (tenantId && typeof tenantId === 'string') {
+      router.replace(`/${tenantId}/videos`);
+    } else if (organization?.id) {
+      // If no tenant ID in URL but user has an organization, redirect to that org's videos
+      router.replace(`/${organization.id}/videos`);
+    }
+  }, [tenantId, organization, router]);
 
   return (
-    <>
-      <Head>
-        <title>My Videos - Cloudflare Stream</title>
-      </Head>
-      
-      <DashboardLayout sidebar={<DashboardSidebar />}>
-        <div className="p-4 md:p-6">
-          <header className="bg-white shadow-sm mb-6 rounded-lg">
-            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-semibold">My Videos</h1>
-                <p className="text-gray-600 text-sm mt-1">Manage your uploaded videos</p>
-              </div>
-              <DashboardMenu />
-            </div>
-          </header>
-
-          {/* Breadcrumb */}
-          <div className="mb-6">
-            <Link href={getDashboardUrl()} className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Dashboard
-            </Link>
-          </div>
-
-          {/* Search and Actions Bar */}
-          <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="relative w-full sm:w-64">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search videos..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Videos Page</h1>
+          <p className="text-gray-500 mb-6">Please select an organization to view your videos.</p>
+          
+          {organization ? (
             <Link 
-              href="/upload-video" 
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+              href={`/${organization.id}/videos`}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Upload New Video
+              Go to {organization.name} Videos
             </Link>
-          </div>
-
-          {/* Content (loading, error, empty, or videos grid) */}
-          {loading && (
-            <div className="bg-white p-12 rounded-lg shadow-sm flex flex-col items-center justify-center">
-              <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-              <p className="text-gray-600">Loading your videos...</p>
-            </div>
-          )}
-
-          {/* Error State */}
-          {!loading && error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">
-                    {error}
-                  </p>
-                  <div className="mt-2">
-                    <button 
-                      onClick={fetchVideos}
-                      className="text-sm text-red-700 underline hover:text-red-800"
-                    >
-                      Try again
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!loading && !error && filteredVideos.length === 0 && (
-            searchTerm ? (
-              <div className="text-center py-12">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No videos match your search</h3>
-                <p className="text-gray-500 mb-4">
-                  Try using different keywords or clear your search
-                </p>
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  Clear search
-                </button>
-              </div>
-            ) : (
-              <EmptyVideoState />
-            )
-          )}
-
-          {/* Videos Grid */}
-          {!loading && !error && filteredVideos.length > 0 && (
-            <div>
-              <div className="mb-4 flex justify-between items-center">
-                <h2 className="text-lg font-medium text-gray-900">
-                  {searchTerm 
-                    ? `Search results (${filteredVideos.length})` 
-                    : `All Videos (${videos.length})`
-                  }
-                </h2>
-                <div className="text-sm text-gray-500">
-                  {videos.filter(v => v.readyToStream).length} of {videos.length} ready to stream
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredVideos.map(video => (
-                  <VideoCard 
-                    key={video.uid} 
-                    video={video}
-                    onDelete={handleDeleteVideo}
-                  />
-                ))}
-              </div>
-            </div>
+          ) : (
+            <p className="text-amber-600">No organization selected. Please select an organization first.</p>
           )}
         </div>
-      </DashboardLayout>
-    </>
+      </div>
+    </div>
   );
 } 

@@ -71,6 +71,22 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
     return '/profile';
   };
 
+  // Build the proper upload video URL with tenant context if available
+  const getUploadVideoUrl = () => {
+    if (tenantId && typeof tenantId === 'string') {
+      return `/${tenantId}/upload-video`;
+    }
+    return '/upload-video';
+  };
+
+  // Build the proper my videos URL with tenant context if available
+  const getMyVideosUrl = () => {
+    if (tenantId && typeof tenantId === 'string') {
+      return `/${tenantId}/videos`;
+    }
+    return '/my-videos';
+  };
+
   if (!isLoaded) {
     return (
       <div className={`relative ${className}`}>
@@ -207,7 +223,7 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
             </div>
             
             <Link 
-              href="/upload-video"
+              href={getUploadVideoUrl()}
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -218,7 +234,7 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
             </Link>
             
             <Link 
-              href="/my-videos"
+              href={getMyVideosUrl()}
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
               onClick={() => setIsMenuOpen(false)}
             >
