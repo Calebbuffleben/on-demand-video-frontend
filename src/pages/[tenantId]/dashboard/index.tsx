@@ -18,6 +18,8 @@ import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 
 // Import video service
 import videoService from '@/api-connection/videos';
+import analyticsService from '@/api-connection/analytics';
+import api from '@/api';
 
 // Import SignOutComponent with no SSR
 const SignOutComponent = dynamic(
@@ -68,6 +70,10 @@ const DashboardPage = () => {
   
   // Popular videos
   const [popularVideos, setPopularVideos] = useState<any[]>([]);
+  
+  // Analytics loading state
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   
   // Load the subscription service module safely
   useEffect(() => {
@@ -436,9 +442,83 @@ const DashboardPage = () => {
     }
   };
 
-  // Simulate loading platform data
-  useEffect(() => {
-    // In a real implementation, this would fetch from an API
+  // Test backend status
+  const testBackendStatus = async () => {
+    setApiTestLoading(true);
+    setApiTestResult(null);
+    
+    try {
+      // Make a simple request to the backend root
+      const response = await fetch('http://localhost:4000/api');
+      
+      const responseText = await response.text();
+      let responseData;
+      
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        responseData = { text: responseText };
+      }
+      
+      setApiTestResult({
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries([...response.headers.entries()]),
+        data: responseData,
+        apiBaseUrl: api.defaults.baseURL
+      });
+    } catch (err: any) {
+      setApiTestResult({
+        error: err.message,
+        stack: err.stack,
+        apiBaseUrl: api.defaults.baseURL
+      });
+    } finally {
+      setApiTestLoading(false);
+    }
+  };
+
+  // Load analytics data
+  const loadAnalytics = async () => {
+    if (typeof window === 'undefined') return;
+    
+    setAnalyticsLoading(true);
+    setAnalyticsError(null);
+    
+    try {
+      // Get all dashboard analytics in one request
+      const dashboardData = await analyticsService.getDashboardAnalytics();
+      
+      if (dashboardData.success) {
+        setPlatformStats(dashboardData.data.platformStats);
+        setRecentUploads(dashboardData.data.recentUploads);
+        setPopularVideos(dashboardData.data.popularVideos);
+        console.log('Loaded analytics data from API:', dashboardData);
+      } else if (dashboardData.error) {
+        // Handle error response from the analytics service
+        console.warn('Analytics service returned an error:', dashboardData.error);
+        setAnalyticsError(dashboardData.error.message || 'Failed to load analytics data');
+        
+        // Still use the fallback data that was provided
+        setPlatformStats(dashboardData.data.platformStats);
+        setRecentUploads(dashboardData.data.recentUploads);
+        setPopularVideos(dashboardData.data.popularVideos);
+      } else {
+        throw new Error('Failed to load analytics data');
+      }
+    } catch (error: any) {
+      console.error('Error loading analytics:', error);
+      setAnalyticsError(error?.message || 'Failed to load analytics data');
+      
+      // Load mock data as fallback
+      loadMockData();
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+  
+  // Load mock data as fallback
+  const loadMockData = () => {
     setPlatformStats({
       totalVideos: 12,
       totalViews: 1420,
@@ -446,7 +526,6 @@ const DashboardPage = () => {
       totalBandwidth: '5.7 GB'
     });
     
-    // Mock recent uploads
     setRecentUploads([
       {
         id: 'video-1',
@@ -474,7 +553,6 @@ const DashboardPage = () => {
       }
     ]);
     
-    // Mock popular videos
     setPopularVideos([
       {
         id: 'pop-1',
@@ -498,7 +576,15 @@ const DashboardPage = () => {
         duration: '22:10',
       }
     ]);
-  }, []);
+  };
+
+  // Load analytics on mount and when organization context is ready
+  useEffect(() => {
+    // Only load analytics if we're authenticated and have org context
+    if (subscriptionRequested.current && !loading && subscription) {
+      loadAnalytics();
+    }
+  }, [subscriptionRequested.current, loading, subscription]);
 
   return (
     <ClientOnly>
@@ -519,7 +605,23 @@ const DashboardPage = () => {
 
           {/* Platform Overview Stats */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Platform Overview</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-gray-900">Platform Overview</h2>
+              {analyticsLoading && (
+                <div className="text-sm text-gray-500">Loading data...</div>
+              )}
+              {analyticsError && (
+                <div className="text-sm text-red-500">{analyticsError}</div>
+              )}
+              {!analyticsLoading && (
+                <button 
+                  onClick={loadAnalytics} 
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Refresh
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white shadow rounded-lg p-4">
                 <div className="flex items-center">
@@ -790,6 +892,13 @@ const DashboardPage = () => {
                         className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 ml-2"
                       >
                         Test Video API
+                      </button>
+                      
+                      <button
+                        onClick={testBackendStatus}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 ml-2"
+                      >
+                        Check Backend Status
                       </button>
                     </div>
                   </div>
