@@ -50,20 +50,24 @@ export interface UploadUrlResponse {
 
 export interface VideoStatusResponse {
   success: boolean;
+  status: number;
+  message: string;
   readyToStream: boolean;
-  status: string;
   video: {
     uid: string;
     readyToStream: boolean;
-    thumbnail: string;
-    playback: {
-      hls: string;
-      dash: string;
+    thumbnail?: string;
+    playback?: {
+      hls?: string;
+      dash?: string;
     };
-    created: string;
-    duration: number;
-    status: {
+    created?: string;
+    duration?: number;
+    status?: {
       state: string;
+      pctComplete?: string;
+      errorReasonCode?: string;
+      errorReasonText?: string;
     };
   };
 }
@@ -129,8 +133,14 @@ const videoService = {
       });
       console.log('Upload URL response:', response.data);
       
-      if (!response.data.success || !response.data.data.uploadURL) {
+      if (!response.data.success) {
+        console.error('Failed to get upload URL:', response.data);
         throw new Error(response.data.message || 'Failed to get upload URL');
+      }
+
+      if (!response.data.data?.uploadURL || !response.data.data?.uid) {
+        console.error('Invalid upload URL response:', response.data);
+        throw new Error('Invalid upload URL response from server');
       }
       
       return response.data.data;
@@ -170,22 +180,54 @@ const videoService = {
     onUploadProgress?: (progress: number) => void
   ): Promise<void> => {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      if (!uploadURL) {
+        throw new Error('Upload URL is required');
+      }
 
-      await axios.post(uploadURL, formData, {
+      if (!file) {
+        throw new Error('File is required');
+      }
+
+      console.log('Starting video upload to Mux:', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        uploadURL: uploadURL
+      });
+
+      // For Mux, we need to send the file directly without FormData
+      await axios.put(uploadURL, file, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': file.type,
         },
+        // Set a longer timeout for large file uploads (5 minutes)
+        timeout: 300000,
+        // Increase max content length to handle large files
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total && onUploadProgress) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             onUploadProgress(progress);
+            console.log(`Upload progress: ${progress}%`);
           }
         },
       });
+
+      console.log('Video upload completed successfully');
     } catch (error) {
       console.error('Error uploading video file:', error);
+      
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED') {
+          throw new Error('Upload timed out. Please try again with a smaller file or better internet connection.');
+        } else if (error.code === 'ERR_NETWORK') {
+          throw new Error('Network error. Please check your internet connection and try again.');
+        } else if (error.response) {
+          throw new Error(`Upload failed: ${error.response.status} - ${error.response.data?.message || error.message}`);
+        }
+      }
+      
       throw error;
     }
   },
@@ -196,10 +238,64 @@ const videoService = {
    */
   checkVideoStatus: async (videoId: string): Promise<VideoStatusResponse> => {
     try {
-      const response = await api.get<VideoStatusResponse>(`videos/status/${videoId}`);
+      if (!videoId) {
+        throw new Error('Video ID is required');
+      }
+
+      console.log('Checking video status for ID:', videoId);
+      
+      const response = await api.get<VideoStatusResponse>(`videos/${videoId}/status`);
+      console.log('Raw status response:', response.data);
+      
+      // Ensure we have a valid response structure
+      if (!response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      // If the response doesn't have a video object, create a basic one
+      if (!response.data.video) {
+        console.warn('No video data in response, creating basic structure');
+        response.data.video = {
+          uid: videoId,
+          readyToStream: false,
+          status: {
+            state: 'processing'
+          }
+        };
+      }
+
+      // Ensure the video object has the required fields
+      if (!response.data.video.uid) {
+        response.data.video.uid = videoId;
+      }
+
+      if (response.data.video.readyToStream === undefined) {
+        response.data.video.readyToStream = false;
+      }
+
+      if (!response.data.video.status) {
+        response.data.video.status = {
+          state: 'processing'
+        };
+      }
+
+      console.log('Processed status response:', response.data);
       return response.data;
     } catch (error) {
       console.error(`Error checking status for video ${videoId}:`, error);
+      
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          throw new Error('Invalid video ID or the video does not exist');
+        } else if (error.response?.status === 404) {
+          throw new Error('Video not found');
+        } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
+        } else if (error.response) {
+          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
+        }
+      }
+      
       throw error;
     }
   }
