@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
 import VideoUploader from '../components/Video/VideoUploader';
-import CloudflareVideoPlayer from '../components/Video/CloudflareVideoPlayer';
+import MuxVideoPlayer from '../components/Video/MuxVideoPlayer';
 import Button from '../components/Button';
 import videoService from '../api-connection/videos';
 
@@ -37,7 +37,7 @@ export default function UploadVideoPage() {
       intervalId = setInterval(async () => {
         try {
           const response = await videoService.checkVideoStatus(videoUid);
-          if (response.status === 'ready') {
+          if (response.status === 1) {
             setIsProcessing(false);
             setIsReady(true);
             clearInterval(intervalId);
@@ -116,7 +116,7 @@ export default function UploadVideoPage() {
               <div className="mt-8">
                 <h2 className="text-xl font-medium mb-4">Video Ready!</h2>
                 <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                  <CloudflareVideoPlayer src={videoPlaybackSrc} />
+                  <MuxVideoPlayer src={videoPlaybackSrc} />
                 </div>
               </div>
             )}

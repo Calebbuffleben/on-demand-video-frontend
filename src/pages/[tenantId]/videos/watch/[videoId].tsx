@@ -6,7 +6,7 @@ import Link from 'next/link';
 import DashboardLayout from '../../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '../../../../components/Dashboard/DashboardMenu';
-import CloudflareVideoPlayer from '../../../../components/Video/CloudflareVideoPlayer';
+import MuxVideoPlayer from '../../../../components/Video/MuxVideoPlayer';
 import VideoEmbedCodes from '../../../../components/Video/VideoEmbedCodes';
 import videoService, { VideoData } from '../../../../api-connection/videos';
 
@@ -130,14 +130,10 @@ export default function VideoWatchPage() {
                     </div>
                   </div>
                 ) : videoData?.playback && videoData.playback.hls ? (
-                  <CloudflareVideoPlayer
-                    src={{
-                      hls: videoData.playback.hls,
-                      dash: videoData.playback.dash,
-                    }}
-                    title={videoData.meta?.name || 'Video'}
-                    autoPlay={false}
-                    className="aspect-video"
+                  <MuxVideoPlayer 
+                    src={videoData.playback}
+                    title={videoData.meta?.name}
+                    autoPlay={true}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">

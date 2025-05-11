@@ -4,7 +4,7 @@ import { useOrganization } from '@clerk/nextjs';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
-import CloudflareVideoPlayer from '@/components/Video/CloudflareVideoPlayer';
+import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
 import videoService, { VideoData } from '@/api-connection/videos';
 
 export default function VideoDetailPage() {
@@ -162,7 +162,7 @@ export default function VideoDetailPage() {
             {/* Video Player Column */}
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <CloudflareVideoPlayer 
+                <MuxVideoPlayer 
                   src={video.playback}
                   title={video.meta?.name}
                   autoPlay={true}

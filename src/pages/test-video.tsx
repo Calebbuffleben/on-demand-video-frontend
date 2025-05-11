@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import CloudflareVideoPlayer from '@/components/Video/CloudflareVideoPlayer';
+import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
 import VideoInfoCard from '@/components/Video/VideoInfoCard';
 import videoService, { VideoData } from '@/api-connection/videos';
 
@@ -94,11 +94,10 @@ export default function TestVideoPage() {
         {!loading && !error && videoData && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <CloudflareVideoPlayer 
+              <MuxVideoPlayer 
                 src={videoData.playback}
-                title={videoData.meta.name}
+                title={videoData.meta?.name}
                 autoPlay={true}
-                className="mb-6"
               />
             </div>
             

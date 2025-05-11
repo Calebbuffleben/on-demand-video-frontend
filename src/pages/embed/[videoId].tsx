@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import CloudflareVideoPlayer from '../../components/Video/CloudflareVideoPlayer';
+import MuxVideoPlayer from '../../components/Video/MuxVideoPlayer';
 import videoService, { VideoData } from '../../api-connection/videos';
 
 export default function VideoEmbedPage() {
@@ -100,11 +100,8 @@ export default function VideoEmbedPage() {
           </div>
         ) : videoData && videoData.playback && videoData.playback.hls ? (
           <>
-            <CloudflareVideoPlayer
-              src={{
-                hls: videoData.playback.hls,
-                dash: videoData.playback.dash
-              }}
+            <MuxVideoPlayer
+              src={videoData.playback}
               title={videoData.meta?.name || 'Video'}
               autoPlay={true}
               className="w-full h-full"
