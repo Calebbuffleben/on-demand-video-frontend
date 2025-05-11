@@ -155,12 +155,12 @@ export default function VideoUploader({
 
       // Set initial processing state
       const initialInfo: VideoEmbedInfo = {
-        uid: uid,
-        status: 'processing'
-      };
+          uid: uid,
+          status: 'processing'
+        };
       setEmbedInfo(initialInfo);
-      
-      if (onUploadSuccess) {
+        
+        if (onUploadSuccess) {
         onUploadSuccess(initialInfo);
       }
 
