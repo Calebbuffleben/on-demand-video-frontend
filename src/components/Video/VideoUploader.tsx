@@ -9,6 +9,7 @@ interface VideoUploaderProps {
   onUploadSuccess?: (embedInfo: VideoEmbedInfo) => void;
   onUploadError?: (error: Error) => void;
   onUploadProgress?: (progress: number) => void;
+  organizationId?: string;
 }
 
 interface VideoEmbedInfo {
@@ -26,6 +27,7 @@ export default function VideoUploader({
   onUploadSuccess,
   onUploadError,
   onUploadProgress,
+  organizationId = '659b9a2c-4f58-4590-bc18-d2d1385b0fb0', // Default organization ID
 }: VideoUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -49,29 +51,39 @@ export default function VideoUploader({
     try {
       console.log('Checking video status for:', uid);
       const statusResponse = await videoService.checkVideoStatus(uid);
-      console.log('Status response:', statusResponse);
+      console.log('Status response in VideoUploader:', JSON.stringify(statusResponse, null, 2));
 
       if (statusResponse.success && statusResponse.video) {
         const videoData = statusResponse.video;
-        const isReady = videoData.readyToStream && videoData.playback?.hls;
+        // Check both readyToStream flag and status state for readiness
+        const isReady = videoData.readyToStream === true || 
+                         (videoData.status?.state === 'ready');
+        
+        console.log('Video status check - isReady:', isReady, 
+                    'readyToStream:', videoData.readyToStream, 
+                    'state:', videoData.status?.state);
         
         const embedInfo: VideoEmbedInfo = {
           uid: uid,
           hls: videoData.playback?.hls,
           dash: videoData.playback?.dash,
           thumbnailUrl: videoData.thumbnail,
-          readyToStream: videoData.readyToStream,
+          readyToStream: videoData.readyToStream || (videoData.status?.state === 'ready'),
           status: videoData.status?.state || 'processing'
         };
 
+        console.log('Setting embedInfo to:', embedInfo);
         setEmbedInfo(embedInfo);
         
         if (isReady) {
+          console.log('Video is ready! Setting isProcessing to false');
           setIsProcessing(false);
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
+            console.log('Cleared polling interval');
           }
           if (onUploadSuccess) {
+            console.log('Calling onUploadSuccess with ready video:', embedInfo);
             onUploadSuccess(embedInfo);
           }
         }
@@ -109,6 +121,11 @@ export default function VideoUploader({
       return;
     }
 
+    if (!organizationId) {
+      setError('Organization ID is required');
+      return;
+    }
+
     setUploading(true);
     setUploadProgress(0);
     setError(null);
@@ -117,8 +134,12 @@ export default function VideoUploader({
 
     try {
       // Step 1: Request a one-time upload URL from our backend
-      console.log('Requesting upload URL with maxDurationSeconds:', maxDurationSeconds);
-      const uploadResponse = await videoService.getUploadUrl(maxDurationSeconds);
+      console.log('Requesting upload URL with params:', { 
+        maxDurationSeconds, 
+        organizationId,
+        fileName: videoFile.name
+      });
+      const uploadResponse = await videoService.getUploadUrl(maxDurationSeconds, organizationId);
       console.log('Upload URL response:', uploadResponse);
 
       const { uploadURL, uid } = uploadResponse;
@@ -156,11 +177,15 @@ export default function VideoUploader({
       // Set initial processing state
       const initialInfo: VideoEmbedInfo = {
           uid: uid,
-          status: 'processing'
+          status: 'processing',
+          readyToStream: false
         };
       setEmbedInfo(initialInfo);
-        
-        if (onUploadSuccess) {
+      
+      console.log('Initial video info set:', initialInfo);
+      
+      if (onUploadSuccess) {
+        console.log('Calling onUploadSuccess with:', initialInfo);
         onUploadSuccess(initialInfo);
       }
 
@@ -175,7 +200,7 @@ export default function VideoUploader({
     } finally {
       setUploading(false);
     }
-  }, [videoFile, maxDurationSeconds, onUploadSuccess, onUploadError, onUploadProgress, startPolling]);
+  }, [videoFile, maxDurationSeconds, onUploadSuccess, onUploadError, onUploadProgress, startPolling, organizationId]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -299,10 +324,10 @@ export default function VideoUploader({
               />
             </svg>
             <p className="text-gray-700 font-medium mb-2">
-              {isProcessing ? 'Video is being processed...' : 'Upload Successful!'}
+              {isProcessing ? 'Video is being processed...' : (embedInfo.readyToStream || embedInfo.status === 'ready' ? 'Upload Successful!' : 'Processing Complete')}
             </p>
             <p className="text-sm text-gray-500 mb-2">
-              {isProcessing ? 'This may take a few minutes' : 'Video is ready for embedding'}
+              {isProcessing ? 'This may take a few minutes' : (embedInfo.hls ? 'Video is ready for embedding' : 'Video will be available shortly')}
             </p>
             
             {embedInfo.hls && (

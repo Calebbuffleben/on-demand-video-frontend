@@ -1,4 +1,4 @@
-import MuxPlayer from '@mux/mux-player-react';
+import { useRef, useState, useEffect } from 'react';
 
 interface VideoPlaybackSources {
   hls: string;
@@ -18,8 +18,121 @@ export default function MuxVideoPlayer({
   autoPlay = false,
   className = '',
 }: MuxVideoPlayerProps) {
-  // Extract the playback ID from the HLS URL
-  const playbackId = src.hls.split('/').pop()?.split('.')[0] || '';
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [customProgress, setCustomProgress] = useState(0);
+  
+  // Calculate non-linear progress (starts slow, speeds up toward the end)
+  const calculateCustomProgress = (current: number, total: number) => {
+    if (total === 0) return 0;
+    const linearProgress = current / total;
+    // Use an exponential curve for non-linear progress
+    return Math.pow(linearProgress, 0.65) * 100;
+  };
+
+  // Update progress and state when video time updates
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+      if (video.duration && video.duration !== Infinity) {
+        setDuration(video.duration);
+        setCustomProgress(calculateCustomProgress(video.currentTime, video.duration));
+      }
+    };
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleLoadedMetadata = () => setDuration(video.duration);
+
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [videoRef.current]);
+
+  // Format time in MM:SS
+  const formatTime = (seconds: number) => {
+    if (!seconds || seconds === Infinity) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  // Handle play/pause toggle
+  const togglePlayPause = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    
+    if (video.paused) {
+      video.play().catch(err => console.error('Error playing video:', err));
+    } else {
+      video.pause();
+    }
+  };
+
+  // Handle seeking when clicking on the progress bar
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const video = videoRef.current;
+    if (!video || !duration) return;
+    
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const clickPosition = (e.clientX - rect.left) / rect.width;
+    
+    // Convert from non-linear progress to linear position
+    const linearPosition = Math.pow(clickPosition, 1/0.65);
+    const targetTime = linearPosition * duration;
+    
+    if (targetTime >= 0 && targetTime <= duration) {
+      video.currentTime = targetTime;
+    }
+  };
+
+  // Set up HLS.js for browsers that don't support HLS natively
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const setupHls = async () => {
+      try {
+        // Check if browser supports HLS natively (like Safari)
+        if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = src.hls;
+        } else {
+          // For other browsers, use HLS.js
+          const Hls = (await import('hls.js')).default;
+          if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(src.hls);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              if (autoPlay) {
+                video.play().catch(e => console.warn('Autoplay prevented:', e));
+              }
+            });
+          } else {
+            console.error('HLS is not supported in this browser and no fallback is available');
+          }
+        }
+      } catch (err) {
+        console.error('Error setting up video player:', err);
+      }
+    };
+
+    setupHls();
+  }, [src.hls, autoPlay]);
 
   return (
     <div className={`relative aspect-video bg-black rounded-lg overflow-hidden ${className}`}>
@@ -29,24 +142,62 @@ export default function MuxVideoPlayer({
         </div>
       )}
       
-      <MuxPlayer
-        streamType="on-demand"
-        playbackId={playbackId}
-        metadata={{
-          video_title: title || 'Video',
-        }}
+      <video
+        ref={videoRef}
         autoPlay={autoPlay}
         muted={autoPlay}
-        theme="dark"
+        playsInline
+        className="w-full h-full object-contain"
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          color: '#ffffff',
-          width: '100%',
-          height: '100%',
           objectFit: 'contain',
-          '--controls': 'none'
-        } as React.CSSProperties}
+          maxHeight: '100%',
+          maxWidth: '100%'
+        }}
       />
+
+      {/* Custom progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 z-20">
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={togglePlayPause}
+            className="text-white w-8 h-8 flex items-center justify-center"
+          >
+            {isPlaying ? (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+              </svg>
+            )}
+          </button>
+          
+          <div 
+            className="relative w-full h-3 bg-gray-700 rounded-full overflow-hidden cursor-pointer"
+            onClick={handleSeek}
+          >
+            <div 
+              className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-width duration-100"
+              style={{ width: `${customProgress}%` }}
+            ></div>
+          </div>
+          
+          <span className="text-white text-xs min-w-[70px] text-right">
+            {formatTime(currentTime)} / {formatTime(duration)}
+          </span>
+        </div>
+      </div>
+      
+      {/* Debug info - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="absolute top-0 right-0 bg-black/70 text-white text-xs p-2 z-30">
+          Progress: {customProgress.toFixed(2)}%<br />
+          Time: {currentTime.toFixed(2)}s / {duration.toFixed(2)}s<br />
+          Player: {isPlaying ? 'Playing' : 'Paused'}<br />
+          URL: {src.hls.substring(0, 20)}...
+        </div>
+      )}
     </div>
   );
 } 

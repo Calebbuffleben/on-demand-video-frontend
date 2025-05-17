@@ -36,11 +36,28 @@ export default function UploadVideoPage() {
     if (videoUid && isProcessing) {
       intervalId = setInterval(async () => {
         try {
+          console.log('Checking status for video:', videoUid);
           const response = await videoService.checkVideoStatus(videoUid);
-          if (response.status === 1) {
+          console.log('Status response:', JSON.stringify(response, null, 2));
+          
+          // Check if the video is ready to stream
+          if (response.success && response.video && response.video.readyToStream) {
+            console.log('Video is ready to stream!', response.video);
             setIsProcessing(false);
             setIsReady(true);
+            
+            // Update the playback URLs if available
+            if (response.video.playback && response.video.playback.hls) {
+              console.log('Setting playback URLs:', response.video.playback);
+              setVideoPlaybackSrc({
+                hls: response.video.playback.hls,
+                dash: response.video.playback.dash
+              });
+            }
+            
             clearInterval(intervalId);
+          } else {
+            console.log('Video still processing. Status:', response.video?.status?.state || 'unknown', 'Ready to stream:', response.video?.readyToStream);
           }
         } catch (err) {
           console.error('Error checking video status:', err);

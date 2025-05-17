@@ -124,12 +124,24 @@ const videoService = {
   /**
    * Get a one-time upload URL for direct creator uploads
    * @param maxDurationSeconds The maximum duration for the video in seconds
+   * @param organizationId The organization ID for the upload
    */
-  getUploadUrl: async (maxDurationSeconds: number = 3600): Promise<UploadUrlResponse> => {
+  getUploadUrl: async (maxDurationSeconds: number = 3600, organizationId: string): Promise<UploadUrlResponse> => {
     try {
-      console.log('Requesting upload URL with maxDurationSeconds:', maxDurationSeconds);
+      if (!organizationId) {
+        throw new Error('Organization ID is required');
+      }
+      
+      console.log('Requesting upload URL with params:', {
+        maxDurationSeconds,
+        organizationId
+      });
+      
       const response = await api.post<{ success: boolean; status: number; message: string; data: UploadUrlResponse }>('videos/get-upload-url', {
         maxDurationSeconds,
+        organizationId,
+        name: 'Uploaded video',
+        description: 'Uploaded through the web interface'
       });
       console.log('Upload URL response:', response.data);
       
