@@ -31,7 +31,8 @@ export default function EditVideoPage() {
     showMetadata: true,
     allowFullscreen: true,
     responsive: true,
-    showBranding: true
+    showBranding: true,
+    showTechnicalInfo: false
   });
   
   const router = useRouter();
@@ -248,6 +249,7 @@ export default function EditVideoPage() {
                     muted={displayOptions.muted}
                     loop={displayOptions.loop}
                     hideProgress={!displayOptions.showProgressBar}
+                    showTechnicalInfo={embedOptions.showTechnicalInfo}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -582,6 +584,20 @@ export default function EditVideoPage() {
                           />
                           <label htmlFor="show-branding" className="ml-3 block text-sm font-medium text-gray-700">
                             Show branding
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="show-technical-info"
+                            name="showTechnicalInfo"
+                            type="checkbox"
+                            checked={embedOptions.showTechnicalInfo}
+                            onChange={() => handleToggleEmbedOption('showTechnicalInfo')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-technical-info" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show technical information (progress, time, etc.)
                           </label>
                         </div>
                       </div>

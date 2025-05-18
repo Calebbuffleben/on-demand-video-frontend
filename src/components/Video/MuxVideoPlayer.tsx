@@ -14,6 +14,7 @@ interface MuxVideoPlayerProps {
   showControls?: boolean;
   muted?: boolean;
   loop?: boolean;
+  showTechnicalInfo?: boolean;
 }
 
 export default function MuxVideoPlayer({
@@ -25,6 +26,7 @@ export default function MuxVideoPlayer({
   showControls = true,
   muted = false,
   loop = false,
+  showTechnicalInfo = false,
 }: MuxVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -222,8 +224,8 @@ export default function MuxVideoPlayer({
         </div>
       )}
       
-      {/* Debug info - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* Technical information display */}
+      {showTechnicalInfo && (
         <div className="absolute top-0 right-0 bg-black/70 text-white text-xs p-2 z-30">
           Progress: {customProgress.toFixed(2)}%<br />
           Time: {currentTime.toFixed(2)}s / {duration.toFixed(2)}s<br />
