@@ -10,6 +10,10 @@ interface MuxVideoPlayerProps {
   title?: string;
   autoPlay?: boolean;
   className?: string;
+  hideProgress?: boolean;
+  showControls?: boolean;
+  muted?: boolean;
+  loop?: boolean;
 }
 
 export default function MuxVideoPlayer({
@@ -17,6 +21,10 @@ export default function MuxVideoPlayer({
   title,
   autoPlay = false,
   className = '',
+  hideProgress = false,
+  showControls = true,
+  muted = false,
+  loop = false,
 }: MuxVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -145,7 +153,8 @@ export default function MuxVideoPlayer({
       <video
         ref={videoRef}
         autoPlay={autoPlay}
-        muted={autoPlay}
+        muted={muted}
+        loop={loop}
         playsInline
         className="w-full h-full object-contain"
         style={{
@@ -156,11 +165,49 @@ export default function MuxVideoPlayer({
       />
 
       {/* Custom progress bar */}
-      <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 z-20">
-        <div className="flex items-center space-x-2">
+      {showControls && !hideProgress && (
+        <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 z-20">
+          <div className="flex items-center space-x-2">
+            {showControls && (
+              <button 
+                onClick={togglePlayPause}
+                className="text-white w-8 h-8 flex items-center justify-center"
+              >
+                {isPlaying ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                  </svg>
+                )}
+              </button>
+            )}
+            
+            <div 
+              className="relative w-full h-3 bg-gray-700 rounded-full overflow-hidden cursor-pointer"
+              onClick={handleSeek}
+            >
+              <div 
+                className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-width duration-100"
+                style={{ width: `${customProgress}%` }}
+              ></div>
+            </div>
+            
+            <span className="text-white text-xs min-w-[70px] text-right">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+          </div>
+        </div>
+      )}
+      
+      {/* Simple controls if progress bar is hidden but controls are shown */}
+      {showControls && hideProgress && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
           <button 
             onClick={togglePlayPause}
-            className="text-white w-8 h-8 flex items-center justify-center"
+            className="bg-black/50 text-white rounded-full p-2"
           >
             {isPlaying ? (
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -172,22 +219,8 @@ export default function MuxVideoPlayer({
               </svg>
             )}
           </button>
-          
-          <div 
-            className="relative w-full h-3 bg-gray-700 rounded-full overflow-hidden cursor-pointer"
-            onClick={handleSeek}
-          >
-            <div 
-              className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-width duration-100"
-              style={{ width: `${customProgress}%` }}
-            ></div>
-          </div>
-          
-          <span className="text-white text-xs min-w-[70px] text-right">
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </span>
         </div>
-      </div>
+      )}
       
       {/* Debug info - remove in production */}
       {process.env.NODE_ENV === 'development' && (

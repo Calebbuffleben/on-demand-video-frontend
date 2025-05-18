@@ -16,6 +16,23 @@ export default function EditVideoPage() {
     name: '',
     description: ''
   });
+  const [displayOptions, setDisplayOptions] = useState({
+    showProgressBar: true,
+    showTitle: true,
+    showPlaybackControls: true,
+    autoPlay: false,
+    muted: false,
+    loop: false
+  });
+  
+  const [embedOptions, setEmbedOptions] = useState({
+    showVideoTitle: true,
+    showUploadDate: true,
+    showMetadata: true,
+    allowFullscreen: true,
+    responsive: true,
+    showBranding: true
+  });
   
   const router = useRouter();
   const { videoId, tenantId } = router.query;
@@ -50,6 +67,36 @@ export default function EditVideoPage() {
             name: videoData.meta?.name || '',
             description: ''
           });
+          
+          // Load display options from video metadata if available
+          if (videoData.meta && (videoData.meta as any).displayOptions) {
+            try {
+              const savedDisplayOptions = JSON.parse((videoData.meta as any).displayOptions);
+              if (savedDisplayOptions && typeof savedDisplayOptions === 'object') {
+                setDisplayOptions(prev => ({
+                  ...prev,
+                  ...savedDisplayOptions
+                }));
+              }
+            } catch (err) {
+              console.warn('Failed to parse saved display options:', err);
+            }
+          }
+          
+          // Load embed options from video metadata if available
+          if (videoData.meta && (videoData.meta as any).embedOptions) {
+            try {
+              const savedEmbedOptions = JSON.parse((videoData.meta as any).embedOptions);
+              if (savedEmbedOptions && typeof savedEmbedOptions === 'object') {
+                setEmbedOptions(prev => ({
+                  ...prev,
+                  ...savedEmbedOptions
+                }));
+              }
+            } catch (err) {
+              console.warn('Failed to parse saved embed options:', err);
+            }
+          }
         } else {
           throw new Error('No video data available');
         }
@@ -76,6 +123,20 @@ export default function EditVideoPage() {
     }));
   };
 
+  const handleToggleOption = (option: keyof typeof displayOptions) => {
+    setDisplayOptions(prev => ({
+      ...prev,
+      [option]: !prev[option]
+    }));
+  };
+
+  const handleToggleEmbedOption = (option: keyof typeof embedOptions) => {
+    setEmbedOptions(prev => ({
+      ...prev,
+      [option]: !prev[option]
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -85,6 +146,12 @@ export default function EditVideoPage() {
       
       // TODO: Implement the actual API call to update video information
       // For now, we'll just simulate a successful update
+      console.log('Submitting form with data:', {
+        ...formData,
+        displayOptions,
+        embedOptions
+      });
+      
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Redirect back to the video detail page
@@ -175,7 +242,12 @@ export default function EditVideoPage() {
                 {video.playback?.hls ? (
                   <MuxVideoPlayer 
                     src={video.playback}
-                    title={video.meta?.name}
+                    title={displayOptions.showTitle ? video.meta?.name : undefined}
+                    autoPlay={displayOptions.autoPlay}
+                    showControls={displayOptions.showPlaybackControls}
+                    muted={displayOptions.muted}
+                    loop={displayOptions.loop}
+                    hideProgress={!displayOptions.showProgressBar}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -327,6 +399,232 @@ export default function EditVideoPage() {
                         Control who can view your video.
                       </p>
                     </div>
+                    
+                    {/* Player Display Options */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Player Display Options
+                      </label>
+                      <div className="space-y-3">
+                        <div className="flex items-center">
+                          <input
+                            id="show-progress-bar"
+                            name="showProgressBar"
+                            type="checkbox"
+                            checked={displayOptions.showProgressBar}
+                            onChange={() => handleToggleOption('showProgressBar')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-progress-bar" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show progress bar
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="show-title"
+                            name="showTitle"
+                            type="checkbox"
+                            checked={displayOptions.showTitle}
+                            onChange={() => handleToggleOption('showTitle')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-title" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show video title
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="show-playback-controls"
+                            name="showPlaybackControls"
+                            type="checkbox"
+                            checked={displayOptions.showPlaybackControls}
+                            onChange={() => handleToggleOption('showPlaybackControls')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-playback-controls" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show playback controls
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="autoplay"
+                            name="autoPlay"
+                            type="checkbox"
+                            checked={displayOptions.autoPlay}
+                            onChange={() => handleToggleOption('autoPlay')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="autoplay" className="ml-3 block text-sm font-medium text-gray-700">
+                            Autoplay
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="muted"
+                            name="muted"
+                            type="checkbox"
+                            checked={displayOptions.muted}
+                            onChange={() => handleToggleOption('muted')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="muted" className="ml-3 block text-sm font-medium text-gray-700">
+                            Muted
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="loop"
+                            name="loop"
+                            type="checkbox"
+                            checked={displayOptions.loop}
+                            onChange={() => handleToggleOption('loop')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="loop" className="ml-3 block text-sm font-medium text-gray-700">
+                            Loop video
+                          </label>
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Customize how the video player appears to viewers.
+                      </p>
+                    </div>
+                    
+                    {/* Embed Options */}
+                    <div className="mt-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Embed Page Options
+                      </label>
+                      <div className="space-y-3">
+                        <div className="flex items-center">
+                          <input
+                            id="show-video-title"
+                            name="showVideoTitle"
+                            type="checkbox"
+                            checked={embedOptions.showVideoTitle}
+                            onChange={() => handleToggleEmbedOption('showVideoTitle')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-video-title" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show video title on embed page
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="show-upload-date"
+                            name="showUploadDate"
+                            type="checkbox"
+                            checked={embedOptions.showUploadDate}
+                            onChange={() => handleToggleEmbedOption('showUploadDate')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-upload-date" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show upload date
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="show-metadata"
+                            name="showMetadata"
+                            type="checkbox"
+                            checked={embedOptions.showMetadata}
+                            onChange={() => handleToggleEmbedOption('showMetadata')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-metadata" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show video metadata (resolution, size, etc.)
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="allow-fullscreen"
+                            name="allowFullscreen"
+                            type="checkbox"
+                            checked={embedOptions.allowFullscreen}
+                            onChange={() => handleToggleEmbedOption('allowFullscreen')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="allow-fullscreen" className="ml-3 block text-sm font-medium text-gray-700">
+                            Allow fullscreen
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="responsive"
+                            name="responsive"
+                            type="checkbox"
+                            checked={embedOptions.responsive}
+                            onChange={() => handleToggleEmbedOption('responsive')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="responsive" className="ml-3 block text-sm font-medium text-gray-700">
+                            Responsive embed (adapts to container)
+                          </label>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            id="show-branding"
+                            name="showBranding"
+                            type="checkbox"
+                            checked={embedOptions.showBranding}
+                            onChange={() => handleToggleEmbedOption('showBranding')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-branding" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show branding
+                          </label>
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Customize how your video appears when embedded on other websites.
+                      </p>
+                    </div>
+                    
+                    {/* Embed Code Preview */}
+                    {video.playback?.hls && (
+                      <div className="mt-6 p-4 bg-gray-50 rounded-md">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">Embed Code Preview</h3>
+                        <div className="bg-gray-100 p-3 rounded text-xs font-mono overflow-x-auto">
+                          {`<iframe 
+  src="${video.playback.hls}${displayOptions.autoPlay ? '?autoplay=1' : ''}${displayOptions.muted ? '&muted=1' : ''}${displayOptions.loop ? '&loop=1' : ''}"
+  style="${embedOptions.responsive ? 'width:100%;height:100%;position:absolute;left:0px;top:0px;' : 'width:640px;height:360px;'}overflow:hidden;"
+  frameborder="0"
+  ${embedOptions.allowFullscreen ? 'allow="autoplay; fullscreen" allowfullscreen' : ''}
+  title="${formData.name}"
+></iframe>`}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const embedCode = `<iframe 
+  src="${video.playback.hls}${displayOptions.autoPlay ? '?autoplay=1' : ''}${displayOptions.muted ? '&muted=1' : ''}${displayOptions.loop ? '&loop=1' : ''}"
+  style="${embedOptions.responsive ? 'width:100%;height:100%;position:absolute;left:0px;top:0px;' : 'width:640px;height:360px;'}overflow:hidden;"
+  frameborder="0"
+  ${embedOptions.allowFullscreen ? 'allow="autoplay; fullscreen" allowfullscreen' : ''}
+  title="${formData.name}"
+></iframe>`;
+                            navigator.clipboard.writeText(embedCode);
+                            alert('Embed code copied to clipboard!');
+                          }}
+                          className="mt-2 inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          Copy Embed Code
+                        </button>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="mt-8 flex justify-end">
