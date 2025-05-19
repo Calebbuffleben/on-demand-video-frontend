@@ -24,7 +24,7 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
   };
   
   const getEmbedUrl = (uid: string) => {
-    return tenantId ? `/embed/${uid}?tenantId=${tenantId}` : `/embed/${uid}`;
+    return tenantId ? `/${tenantId}/embed/${uid}` : `/embed/${uid}`;
   };
   
   // Format duration

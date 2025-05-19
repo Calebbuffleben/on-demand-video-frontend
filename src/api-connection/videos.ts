@@ -1,6 +1,25 @@
 import api from '../api';
 import axios from 'axios';
 
+export interface DisplayOptions {
+  showProgressBar: boolean;
+  showTitle: boolean;
+  showPlaybackControls: boolean;
+  autoPlay: boolean;
+  muted: boolean;
+  loop: boolean;
+}
+
+export interface EmbedOptions {
+  showVideoTitle: boolean;
+  showUploadDate: boolean;
+  showMetadata: boolean;
+  allowFullscreen: boolean;
+  responsive: boolean;
+  showBranding: boolean;
+  showTechnicalInfo: boolean;
+}
+
 export interface VideoData {
   uid: string;
   thumbnail: string;
@@ -19,6 +38,8 @@ export interface VideoData {
     name: string;
     relativePath: string;
     type: string;
+    displayOptions?: DisplayOptions;
+    embedOptions?: EmbedOptions;
   };
   duration: number;
   created: string;
@@ -310,7 +331,61 @@ const videoService = {
       
       throw error;
     }
-  }
+  },
+
+  /**
+   * Update video display and embed options
+   * @param uid The video's unique identifier
+   * @param displayOptions The display options for the video player
+   * @param embedOptions The embed options for the video
+   */
+  updateVideoOptions: async (
+    uid: string,
+    displayOptions: DisplayOptions,
+    embedOptions: EmbedOptions
+  ): Promise<VideoApiResponse> => {
+    try {
+      console.log('Updating video options:', {
+        uid,
+        displayOptions,
+        embedOptions
+      });
+      
+      const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, {
+        displayOptions: displayOptions,
+        embedOptions: embedOptions
+      });
+      
+      console.log('Update response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating video options for UID ${uid}:`, error);
+      
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
+        } else if (error.response) {
+          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
+        }
+      }
+      
+      throw error;
+    }
+  },
+
+  /**
+   * Get video details for embed page (uses backend's embed endpoint)
+   * @param videoId The video's unique identifier
+   */
+  getVideoForEmbed: async (videoId: string): Promise<any> => {
+    try {
+      const response = await api.get(`/videos/embed/${videoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching embed video for ID ${videoId}:`, error);
+      throw error;
+    }
+  },
 };
 
 export default videoService; 

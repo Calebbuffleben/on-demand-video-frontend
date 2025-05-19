@@ -22,13 +22,9 @@ export default function VideoEmbedPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await videoService.getVideoByUid(videoId);
-      if (response.success && response.data && response.data.result) {
-        // Handle both array and object responses
-        const videoResult = Array.isArray(response.data.result) 
-          ? response.data.result[0] 
-          : response.data.result;
-        setVideoData(videoResult as VideoData);
+      const response = await videoService.getVideoForEmbed(videoId);
+      if (response.success && response.result) {
+        setVideoData(response.result as VideoData);
       } else {
         setError('No video data available');
       }
@@ -77,8 +73,13 @@ export default function VideoEmbedPage() {
         {!loading && !error && videoData && videoData.playback && videoData.playback.hls && (
           <MuxVideoPlayer
             src={videoData.playback}
-            title={videoData.meta?.name || 'Video'}
-            autoPlay={true}
+            title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
+            autoPlay={videoData.meta?.displayOptions?.autoPlay}
+            showControls={videoData.meta?.displayOptions?.showPlaybackControls}
+            muted={videoData.meta?.displayOptions?.muted}
+            loop={videoData.meta?.displayOptions?.loop}
+            hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
+            showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
             className="w-full h-full"
           />
         )}

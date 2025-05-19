@@ -70,9 +70,12 @@ export default function EditVideoPage() {
           });
           
           // Load display options from video metadata if available
-          if (videoData.meta && (videoData.meta as any).displayOptions) {
+          if (videoData.meta && videoData.meta.displayOptions) {
             try {
-              const savedDisplayOptions = JSON.parse((videoData.meta as any).displayOptions);
+              const savedDisplayOptions = typeof videoData.meta.displayOptions === 'string' 
+                ? JSON.parse(videoData.meta.displayOptions) 
+                : videoData.meta.displayOptions;
+              
               if (savedDisplayOptions && typeof savedDisplayOptions === 'object') {
                 setDisplayOptions(prev => ({
                   ...prev,
@@ -85,9 +88,12 @@ export default function EditVideoPage() {
           }
           
           // Load embed options from video metadata if available
-          if (videoData.meta && (videoData.meta as any).embedOptions) {
+          if (videoData.meta && videoData.meta.embedOptions) {
             try {
-              const savedEmbedOptions = JSON.parse((videoData.meta as any).embedOptions);
+              const savedEmbedOptions = typeof videoData.meta.embedOptions === 'string'
+                ? JSON.parse(videoData.meta.embedOptions) 
+                : videoData.meta.embedOptions;
+              
               if (savedEmbedOptions && typeof savedEmbedOptions === 'object') {
                 setEmbedOptions(prev => ({
                   ...prev,
@@ -145,18 +151,28 @@ export default function EditVideoPage() {
       setSaving(true);
       setError(null);
       
-      // TODO: Implement the actual API call to update video information
-      // For now, we'll just simulate a successful update
-      console.log('Submitting form with data:', {
+      // Save the display and embed options
+      const formattedData = {
         ...formData,
         displayOptions,
         embedOptions
-      });
+      };
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Submitting form with data:', formattedData);
       
-      // Redirect back to the video detail page
-      router.push(`/${tenantId}/videos/${videoId}`);
+      // Call the API to update the video
+      if (video && video.uid) {
+        await videoService.updateVideoOptions(
+          video.uid,
+          displayOptions,
+          embedOptions
+        );
+        
+        // Redirect back to the video detail page after successful save
+        router.push(`/${tenantId}/videos/${videoId}`);
+      } else {
+        throw new Error('Video data is missing');
+      }
     } catch (err: any) {
       console.error('Error updating video:', err);
       setError(err.message || 'Failed to update video');

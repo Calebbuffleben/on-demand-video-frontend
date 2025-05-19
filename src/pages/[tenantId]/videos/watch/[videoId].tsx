@@ -132,8 +132,13 @@ export default function VideoWatchPage() {
                 ) : videoData?.playback && videoData.playback.hls ? (
                   <MuxVideoPlayer 
                     src={videoData.playback}
-                    title={videoData.meta?.name}
-                    autoPlay={true}
+                    title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
+                    autoPlay={videoData.meta?.displayOptions?.autoPlay}
+                    showControls={videoData.meta?.displayOptions?.showPlaybackControls}
+                    muted={videoData.meta?.displayOptions?.muted}
+                    loop={videoData.meta?.displayOptions?.loop}
+                    hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
+                    showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">
