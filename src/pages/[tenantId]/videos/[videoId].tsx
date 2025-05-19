@@ -198,6 +198,7 @@ export default function VideoDetailPage() {
                     loop={video.meta?.displayOptions?.loop}
                     hideProgress={!video.meta?.displayOptions?.showProgressBar}
                     showTechnicalInfo={video.meta?.embedOptions?.showTechnicalInfo}
+                    useOriginalProgressBar={video.meta?.displayOptions?.useOriginalProgressBar}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">

@@ -22,7 +22,8 @@ export default function EditVideoPage() {
     showPlaybackControls: true,
     autoPlay: false,
     muted: false,
-    loop: false
+    loop: false,
+    useOriginalProgressBar: false,
   });
   
   const [embedOptions, setEmbedOptions] = useState({
@@ -266,6 +267,7 @@ export default function EditVideoPage() {
                     loop={displayOptions.loop}
                     hideProgress={!displayOptions.showProgressBar}
                     showTechnicalInfo={embedOptions.showTechnicalInfo}
+                    useOriginalProgressBar={displayOptions.useOriginalProgressBar}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -438,6 +440,19 @@ export default function EditVideoPage() {
                           />
                           <label htmlFor="loop" className="ml-3 block text-sm font-medium text-gray-700">
                             Loop video
+                          </label>
+                        </div>
+                        <div className="flex items-center">
+                          <input
+                            id="use-original-progress-bar"
+                            name="useOriginalProgressBar"
+                            type="checkbox"
+                            checked={displayOptions.useOriginalProgressBar}
+                            onChange={() => handleToggleOption('useOriginalProgressBar')}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="use-original-progress-bar" className="ml-3 block text-sm font-medium text-gray-700">
+                            Use original Mux progress bar
                           </label>
                         </div>
                       </div>

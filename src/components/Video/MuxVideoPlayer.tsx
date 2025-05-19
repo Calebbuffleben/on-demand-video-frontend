@@ -15,6 +15,7 @@ interface MuxVideoPlayerProps {
   muted?: boolean;
   loop?: boolean;
   showTechnicalInfo?: boolean;
+  useOriginalProgressBar?: boolean;
 }
 
 export default function MuxVideoPlayer({
@@ -27,6 +28,7 @@ export default function MuxVideoPlayer({
   muted = false,
   loop = false,
   showTechnicalInfo = false,
+  useOriginalProgressBar = false,
 }: MuxVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -164,10 +166,11 @@ export default function MuxVideoPlayer({
           maxHeight: '100%',
           maxWidth: '100%'
         }}
+        controls={useOriginalProgressBar && showControls}
       />
 
       {/* Custom progress bar */}
-      {showControls && !hideProgress && (
+      {showControls && !hideProgress && !useOriginalProgressBar && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 z-20">
           <div className="flex items-center space-x-2">
             {showControls && (
@@ -205,7 +208,7 @@ export default function MuxVideoPlayer({
       )}
       
       {/* Simple controls if progress bar is hidden but controls are shown */}
-      {showControls && hideProgress && (
+      {showControls && hideProgress && !useOriginalProgressBar && (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
           <button 
             onClick={togglePlayPause}

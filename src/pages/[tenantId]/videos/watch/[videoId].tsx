@@ -139,6 +139,7 @@ export default function VideoWatchPage() {
                     loop={videoData.meta?.displayOptions?.loop}
                     hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
                     showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
+                    useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">

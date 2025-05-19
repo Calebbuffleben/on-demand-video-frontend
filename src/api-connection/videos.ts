@@ -8,6 +8,7 @@ export interface DisplayOptions {
   autoPlay: boolean;
   muted: boolean;
   loop: boolean;
+  useOriginalProgressBar: boolean;
 }
 
 export interface EmbedOptions {

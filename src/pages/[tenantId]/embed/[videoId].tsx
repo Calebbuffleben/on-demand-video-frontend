@@ -80,6 +80,7 @@ export default function VideoEmbedPage() {
             loop={videoData.meta?.displayOptions?.loop}
             hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
             showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
+            useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
             className="w-full h-full"
           />
         )}
