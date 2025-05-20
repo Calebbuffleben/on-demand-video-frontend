@@ -218,7 +218,7 @@ export default function MuxVideoPlayer({
               <button 
                 onClick={togglePlayPause}
                 className="flex items-center justify-center"
-                style={{ color: playButtonColor, width: playButtonSize, height: playButtonSize }}
+                style={{ color: '#fff', width: 32, height: 32 }}
               >
                 {isPlaying ? (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
