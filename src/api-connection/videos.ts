@@ -9,6 +9,8 @@ export interface DisplayOptions {
   muted: boolean;
   loop: boolean;
   useOriginalProgressBar: boolean;
+  progressBarColor: string;
+  progressEasing: number;
 }
 
 export interface EmbedOptions {
