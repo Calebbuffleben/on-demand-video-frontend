@@ -7,15 +7,19 @@ import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
 import videoService, { VideoData } from '@/api-connection/videos';
 
+// Edit Video Page allows users to update video details and player options
 export default function EditVideoPage() {
+  // State for video data, loading, saving, and error handling
   const [video, setVideo] = useState<VideoData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // State for form fields (title, description)
   const [formData, setFormData] = useState({
     name: '',
     description: ''
   });
+  // State for player display options (progress bar, color, etc.)
   const [displayOptions, setDisplayOptions] = useState({
     showProgressBar: true,
     showTitle: true,
@@ -27,7 +31,7 @@ export default function EditVideoPage() {
     progressBarColor: '#3b82f6',
     progressEasing: 0.65,
   });
-  
+  // State for embed options (how video appears when embedded)
   const [embedOptions, setEmbedOptions] = useState({
     showVideoTitle: true,
     showUploadDate: true,
@@ -42,12 +46,14 @@ export default function EditVideoPage() {
   const { videoId, tenantId } = router.query;
   const { organization } = useOrganization();
 
+  // Fetch video data when videoId changes
   useEffect(() => {
     if (videoId && typeof videoId === 'string') {
       fetchVideo(videoId);
     }
   }, [videoId]);
 
+  // Fetch video details from API and populate state
   const fetchVideo = async (id: string) => {
     try {
       setLoading(true);
@@ -125,6 +131,7 @@ export default function EditVideoPage() {
     }
   };
 
+  // Handle changes to text inputs (title, description)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -133,6 +140,7 @@ export default function EditVideoPage() {
     }));
   };
 
+  // Toggle boolean display options (checkboxes)
   const handleToggleOption = (option: keyof typeof displayOptions) => {
     setDisplayOptions(prev => ({
       ...prev,
@@ -140,6 +148,7 @@ export default function EditVideoPage() {
     }));
   };
 
+  // Toggle boolean embed options (checkboxes)
   const handleToggleEmbedOption = (option: keyof typeof embedOptions) => {
     setEmbedOptions(prev => ({
       ...prev,
@@ -147,6 +156,7 @@ export default function EditVideoPage() {
     }));
   };
 
+  // Handle form submission to save video details and options
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -183,7 +193,7 @@ export default function EditVideoPage() {
     }
   };
 
-  // Helper function to navigate back to video details
+  // Helper to get the video details URL for navigation
   const getVideoDetailsUrl = () => {
     return tenantId ? `/${tenantId}/videos/${videoId}` : `/videos/${videoId}`;
   };
@@ -191,9 +201,11 @@ export default function EditVideoPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Head>
+        {/* Page title for SEO and browser tab */}
         <title>{loading ? 'Edit Video' : `Edit: ${video?.meta?.name}`} - Stream</title>
       </Head>
 
+      {/* Header with navigation and menu */}
       <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
@@ -209,7 +221,7 @@ export default function EditVideoPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
+        {/* Breadcrumb navigation */}
         <div className="mb-6">
           <Link href={getVideoDetailsUrl()} className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -253,12 +265,13 @@ export default function EditVideoPage() {
           </div>
         )}
 
-        {/* Edit Form */}
+        {/* Edit Form Section */}
         {!loading && !error && video && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Video Preview Column */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                {/* Video preview using MuxVideoPlayer with live options */}
                 {video.playback?.hls ? (
                   <MuxVideoPlayer 
                     src={video.playback}
@@ -285,6 +298,7 @@ export default function EditVideoPage() {
                 )}
               </div>
               
+              {/* Video information summary */}
               <div className="bg-white rounded-lg shadow-md p-6 mt-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Video Information</h3>
                 <dl className="space-y-2 text-sm">
@@ -315,6 +329,7 @@ export default function EditVideoPage() {
                   <h2 className="text-lg font-medium text-gray-900">Edit Video Details</h2>
                 </div>
                 
+                {/* Main edit form for video details and options */}
                 <form onSubmit={handleSubmit} className="p-6">
                   <div className="space-y-6">
                     {/* Video Title */}
@@ -357,12 +372,13 @@ export default function EditVideoPage() {
                       </p>
                     </div>
                     
-                    {/* Player Display Options */}
+                    {/* Player Display Options Section */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
                         Player Display Options
                       </label>
                       <div className="space-y-3">
+                        {/* Show progress bar toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-progress-bar"
@@ -377,6 +393,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Show title toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-title"
@@ -391,6 +408,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Show playback controls toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-playback-controls"
@@ -405,6 +423,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Autoplay toggle */}
                         <div className="flex items-center">
                           <input
                             id="autoplay"
@@ -419,6 +438,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Muted toggle */}
                         <div className="flex items-center">
                           <input
                             id="muted"
@@ -433,6 +453,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Loop toggle */}
                         <div className="flex items-center">
                           <input
                             id="loop"
@@ -446,6 +467,7 @@ export default function EditVideoPage() {
                             Loop video
                           </label>
                         </div>
+                        {/* Use original Mux progress bar toggle */}
                         <div className="flex items-center">
                           <input
                             id="use-original-progress-bar"
@@ -459,6 +481,7 @@ export default function EditVideoPage() {
                             Use original Mux progress bar
                           </label>
                         </div>
+                        {/* Progress bar color picker */}
                         <div className="flex items-center">
                           <label htmlFor="progress-bar-color" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
                             Progress bar color
@@ -472,6 +495,7 @@ export default function EditVideoPage() {
                             className="h-6 w-12 p-0 border-0 bg-transparent cursor-pointer"
                           />
                         </div>
+                        {/* Progress bar easing slider */}
                         <div className="flex items-center mt-2">
                           <label htmlFor="progress-easing" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
                             Progress bar easing
@@ -495,12 +519,13 @@ export default function EditVideoPage() {
                       </p>
                     </div>
                     
-                    {/* Embed Options */}
+                    {/* Embed Options Section */}
                     <div className="mt-6">
                       <label className="block text-sm font-medium text-gray-700 mb-3">
                         Embed Page Options
                       </label>
                       <div className="space-y-3">
+                        {/* Show video title on embed page toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-video-title"
@@ -515,6 +540,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Show upload date toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-upload-date"
@@ -529,6 +555,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Show metadata toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-metadata"
@@ -543,6 +570,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Allow fullscreen toggle */}
                         <div className="flex items-center">
                           <input
                             id="allow-fullscreen"
@@ -557,6 +585,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Responsive embed toggle */}
                         <div className="flex items-center">
                           <input
                             id="responsive"
@@ -571,6 +600,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Show branding toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-branding"
@@ -585,6 +615,7 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         
+                        {/* Show technical info toggle */}
                         <div className="flex items-center">
                           <input
                             id="show-technical-info"
@@ -604,7 +635,7 @@ export default function EditVideoPage() {
                       </p>
                     </div>
                     
-                    {/* Embed Code Preview */}
+                    {/* Embed Code Preview Section */}
                     {video.playback?.hls && (
                       <div className="mt-6 p-4 bg-gray-50 rounded-md">
                         <h3 className="text-sm font-medium text-gray-700 mb-2">Embed Code Preview</h3>
@@ -641,6 +672,7 @@ export default function EditVideoPage() {
                     )}
                   </div>
                   
+                  {/* Save/Cancel Buttons */}
                   <div className="mt-8 flex justify-end">
                     <Link
                       href={getVideoDetailsUrl()}
@@ -667,6 +699,7 @@ export default function EditVideoPage() {
                 </form>
               </div>
               
+              {/* Danger Zone for deleting the video */}
               <div className="bg-white rounded-lg shadow-md p-6 mt-6">
                 <h3 className="text-lg font-medium text-red-600 mb-4">Danger Zone</h3>
                 <p className="text-sm text-gray-500 mb-4">
