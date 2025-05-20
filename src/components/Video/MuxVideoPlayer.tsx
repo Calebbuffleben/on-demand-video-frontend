@@ -16,6 +16,8 @@ interface MuxVideoPlayerProps {
   loop?: boolean;
   showTechnicalInfo?: boolean;
   useOriginalProgressBar?: boolean;
+  progressBarColor?: string; // HEX or CSS color
+  progressEasing?: number; // Exponent for easing, 1 = linear, <1 = fast start, >1 = slow start
 }
 
 export default function MuxVideoPlayer({
@@ -29,6 +31,8 @@ export default function MuxVideoPlayer({
   loop = false,
   showTechnicalInfo = false,
   useOriginalProgressBar = false,
+  progressBarColor = '#3b82f6', // Tailwind blue-500
+  progressEasing = 0.65,
 }: MuxVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -36,12 +40,11 @@ export default function MuxVideoPlayer({
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [customProgress, setCustomProgress] = useState(0);
   
-  // Calculate non-linear progress (starts slow, speeds up toward the end)
+  // Calculate non-linear progress (customizable easing)
   const calculateCustomProgress = (current: number, total: number) => {
     if (total === 0) return 0;
     const linearProgress = current / total;
-    // Use an exponential curve for non-linear progress
-    return Math.pow(linearProgress, 0.65) * 100;
+    return Math.pow(linearProgress, progressEasing) * 100;
   };
 
   // Update progress and state when video time updates
@@ -195,8 +198,8 @@ export default function MuxVideoPlayer({
               onClick={handleSeek}
             >
               <div 
-                className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-width duration-100"
-                style={{ width: `${customProgress}%` }}
+                className="absolute top-0 left-0 h-full rounded-full transition-width duration-100"
+                style={{ width: `${customProgress}%`, background: progressBarColor }}
               ></div>
             </div>
             

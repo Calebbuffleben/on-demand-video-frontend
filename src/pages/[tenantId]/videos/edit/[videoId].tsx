@@ -24,6 +24,8 @@ export default function EditVideoPage() {
     muted: false,
     loop: false,
     useOriginalProgressBar: false,
+    progressBarColor: '#3b82f6',
+    progressEasing: 0.65,
   });
   
   const [embedOptions, setEmbedOptions] = useState({
@@ -268,6 +270,8 @@ export default function EditVideoPage() {
                     hideProgress={!displayOptions.showProgressBar}
                     showTechnicalInfo={embedOptions.showTechnicalInfo}
                     useOriginalProgressBar={displayOptions.useOriginalProgressBar}
+                    progressBarColor={displayOptions.progressBarColor}
+                    progressEasing={displayOptions.progressEasing}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -454,6 +458,36 @@ export default function EditVideoPage() {
                           <label htmlFor="use-original-progress-bar" className="ml-3 block text-sm font-medium text-gray-700">
                             Use original Mux progress bar
                           </label>
+                        </div>
+                        <div className="flex items-center">
+                          <label htmlFor="progress-bar-color" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                            Progress bar color
+                          </label>
+                          <input
+                            id="progress-bar-color"
+                            name="progressBarColor"
+                            type="color"
+                            value={displayOptions.progressBarColor}
+                            onChange={e => setDisplayOptions(prev => ({ ...prev, progressBarColor: e.target.value }))}
+                            className="h-6 w-12 p-0 border-0 bg-transparent cursor-pointer"
+                          />
+                        </div>
+                        <div className="flex items-center mt-2">
+                          <label htmlFor="progress-easing" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                            Progress bar easing
+                          </label>
+                          <input
+                            id="progress-easing"
+                            name="progressEasing"
+                            type="range"
+                            min="0.2"
+                            max="5"
+                            step="0.01"
+                            value={displayOptions.progressEasing}
+                            onChange={e => setDisplayOptions(prev => ({ ...prev, progressEasing: parseFloat(e.target.value) }))}
+                            className="w-32 ml-2"
+                          />
+                          <span className="ml-2 text-xs text-gray-500">{displayOptions.progressEasing}</span>
                         </div>
                       </div>
                       <p className="mt-2 text-sm text-gray-500">
