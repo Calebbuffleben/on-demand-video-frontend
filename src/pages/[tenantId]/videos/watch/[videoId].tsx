@@ -140,6 +140,10 @@ export default function VideoWatchPage() {
                     hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
                     showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
                     useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
+                    progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
+                    progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
+                    playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
+                    playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">

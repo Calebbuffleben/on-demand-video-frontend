@@ -164,8 +164,18 @@ export default function VideoDetailPage() {
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <MuxVideoPlayer 
                   src={video.playback}
-                  title={video.meta?.name}
-                  autoPlay={true}
+                  title={video.meta?.displayOptions?.showTitle ? video.meta?.name : undefined}
+                  autoPlay={video.meta?.displayOptions?.autoPlay}
+                  showControls={video.meta?.displayOptions?.showPlaybackControls}
+                  muted={video.meta?.displayOptions?.muted}
+                  loop={video.meta?.displayOptions?.loop}
+                  hideProgress={!video.meta?.displayOptions?.showProgressBar}
+                  showTechnicalInfo={video.meta?.embedOptions?.showTechnicalInfo}
+                  useOriginalProgressBar={video.meta?.displayOptions?.useOriginalProgressBar}
+                  progressBarColor={video.meta?.displayOptions?.progressBarColor || '#3b82f6'}
+                  progressEasing={typeof video.meta?.displayOptions?.progressEasing === 'number' ? video.meta.displayOptions.progressEasing : 0.65}
+                  playButtonColor={video.meta?.displayOptions?.playButtonColor || '#fff'}
+                  playButtonSize={typeof video.meta?.displayOptions?.playButtonSize === 'number' ? video.meta.displayOptions.playButtonSize : 32}
                 />
               </div>
               

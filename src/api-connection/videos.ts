@@ -11,6 +11,8 @@ export interface DisplayOptions {
   useOriginalProgressBar: boolean;
   progressBarColor: string;
   progressEasing: number;
+  playButtonColor?: string;
+  playButtonSize?: number;
 }
 
 export interface EmbedOptions {

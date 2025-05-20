@@ -30,6 +30,8 @@ export default function EditVideoPage() {
     useOriginalProgressBar: false,
     progressBarColor: '#3b82f6',
     progressEasing: 0.65,
+    playButtonColor: '#fff',
+    playButtonSize: 32,
   });
   // State for embed options (how video appears when embedded)
   const [embedOptions, setEmbedOptions] = useState({
@@ -285,6 +287,8 @@ export default function EditVideoPage() {
                     useOriginalProgressBar={displayOptions.useOriginalProgressBar}
                     progressBarColor={displayOptions.progressBarColor}
                     progressEasing={displayOptions.progressEasing}
+                    playButtonColor={displayOptions.playButtonColor}
+                    playButtonSize={displayOptions.playButtonSize}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -512,6 +516,38 @@ export default function EditVideoPage() {
                             className="w-32 ml-2"
                           />
                           <span className="ml-2 text-xs text-gray-500">{displayOptions.progressEasing}</span>
+                        </div>
+                        {/* Play button color picker */}
+                        <div className="flex items-center mt-2">
+                          <label htmlFor="play-button-color" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                            Play button color
+                          </label>
+                          <input
+                            id="play-button-color"
+                            name="playButtonColor"
+                            type="color"
+                            value={displayOptions.playButtonColor}
+                            onChange={e => setDisplayOptions(prev => ({ ...prev, playButtonColor: e.target.value }))}
+                            className="h-6 w-12 p-0 border-0 bg-transparent cursor-pointer"
+                          />
+                        </div>
+                        {/* Play button size slider */}
+                        <div className="flex items-center mt-2">
+                          <label htmlFor="play-button-size" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                            Play button size
+                          </label>
+                          <input
+                            id="play-button-size"
+                            name="playButtonSize"
+                            type="range"
+                            min="16"
+                            max="96"
+                            step="1"
+                            value={displayOptions.playButtonSize}
+                            onChange={e => setDisplayOptions(prev => ({ ...prev, playButtonSize: parseInt(e.target.value) }))}
+                            className="w-32 ml-2"
+                          />
+                          <span className="ml-2 text-xs text-gray-500">{displayOptions.playButtonSize}px</span>
                         </div>
                       </div>
                       <p className="mt-2 text-sm text-gray-500">

@@ -143,8 +143,18 @@ export default function VideoWatchPage() {
                 ) : videoData?.playback && videoData.playback.hls ? (
                   <MuxVideoPlayer 
                     src={videoData.playback}
-                    title={videoData.meta?.name}
-                    autoPlay={true}
+                    title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
+                    autoPlay={videoData.meta?.displayOptions?.autoPlay}
+                    showControls={videoData.meta?.displayOptions?.showPlaybackControls}
+                    muted={videoData.meta?.displayOptions?.muted}
+                    loop={videoData.meta?.displayOptions?.loop}
+                    hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
+                    showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
+                    useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
+                    progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
+                    progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
+                    playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
+                    playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">

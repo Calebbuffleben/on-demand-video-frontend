@@ -18,6 +18,8 @@ interface MuxVideoPlayerProps {
   useOriginalProgressBar?: boolean;
   progressBarColor?: string; // HEX or CSS color
   progressEasing?: number; // Exponent for easing, 1 = linear, <1 = fast start, >1 = slow start
+  playButtonColor?: string; // HEX or CSS color
+  playButtonSize?: number; // px size for play/pause button
 }
 
 export default function MuxVideoPlayer({
@@ -33,6 +35,8 @@ export default function MuxVideoPlayer({
   useOriginalProgressBar = false,
   progressBarColor = '#3b82f6', // Tailwind blue-500
   progressEasing = 0.65,
+  playButtonColor = '#fff',
+  playButtonSize = 24,
 }: MuxVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -149,12 +153,46 @@ export default function MuxVideoPlayer({
     setupHls();
   }, [src.hls, autoPlay]);
 
+  // Central Play Button Overlay
+  useEffect(() => {
+    if (!isPlaying) {
+      console.log('Central Play Button Color:', playButtonColor);
+    }
+  }, [isPlaying, playButtonColor]);
+
   return (
     <div className={`relative aspect-video bg-black rounded-lg overflow-hidden ${className}`}>
       {title && (
         <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-4 z-10">
           <h3 className="text-white text-sm font-medium truncate">{title}</h3>
         </div>
+      )}
+      
+      {/* Central Play Button Overlay */}
+      {!isPlaying && (
+        <button
+          onClick={togglePlayPause}
+          className="absolute inset-0 flex items-center justify-center z-30 focus:outline-none"
+          style={{ pointerEvents: 'auto' }}
+          aria-label="Play video"
+        >
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: playButtonSize * 2,
+              height: playButtonSize * 2,
+              background: 'rgba(0,0,0,0.5)',
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width={playButtonSize} height={playButtonSize} style={{ fill: String(playButtonColor) }}>
+              <polygon points="16,12 40,24 16,36" />
+            </svg>
+          </span>
+        </button>
       )}
       
       <video
@@ -179,7 +217,8 @@ export default function MuxVideoPlayer({
             {showControls && (
               <button 
                 onClick={togglePlayPause}
-                className="text-white w-8 h-8 flex items-center justify-center"
+                className="flex items-center justify-center"
+                style={{ color: playButtonColor, width: playButtonSize, height: playButtonSize }}
               >
                 {isPlaying ? (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
