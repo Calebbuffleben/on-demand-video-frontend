@@ -155,6 +155,7 @@ export default function VideoWatchPage() {
                     progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
                     playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
                     playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
+                    playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">

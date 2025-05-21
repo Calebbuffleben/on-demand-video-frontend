@@ -20,6 +20,7 @@ interface MuxVideoPlayerProps {
   progressEasing?: number; // Exponent for easing, 1 = linear, <1 = fast start, >1 = slow start
   playButtonColor?: string; // HEX or CSS color
   playButtonSize?: number; // px size for play/pause button
+  playButtonBgColor?: string; // HEX or CSS color for play button background
 }
 
 export default function MuxVideoPlayer({
@@ -34,10 +35,19 @@ export default function MuxVideoPlayer({
   showTechnicalInfo = false,
   useOriginalProgressBar = false,
   progressBarColor = '#3b82f6', // Tailwind blue-500
-  progressEasing = 0.65,
+  progressEasing = 0.2, // Use lowest value for maximum fast-start effect
   playButtonColor = '#fff',
   playButtonSize = 24,
+  playButtonBgColor = '#000000', // Default to black
 }: MuxVideoPlayerProps) {
+  // Log props for debugging
+  console.log('[DEBUG] MuxVideoPlayer props:', { 
+    playButtonColor, 
+    playButtonSize, 
+    playButtonBgColor,
+    progressEasing
+  });
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -48,6 +58,9 @@ export default function MuxVideoPlayer({
   const calculateCustomProgress = (current: number, total: number) => {
     if (total === 0) return 0;
     const linearProgress = current / total;
+    
+    // For values close to our minimum (0.2), we want a very fast start and slow end
+    // The closer to 0, the more dramatic this effect
     return Math.pow(linearProgress, progressEasing) * 100;
   };
 
@@ -79,7 +92,7 @@ export default function MuxVideoPlayer({
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
-  }, [videoRef.current]);
+  }, [videoRef.current, progressEasing]);
 
   // Format time in MM:SS
   const formatTime = (seconds: number) => {
@@ -111,11 +124,13 @@ export default function MuxVideoPlayer({
     const clickPosition = (e.clientX - rect.left) / rect.width;
     
     // Convert from non-linear progress to linear position
-    const linearPosition = Math.pow(clickPosition, 1/0.65);
+    // This is the inverse of the calculateCustomProgress function
+    const linearPosition = Math.pow(clickPosition, 1/progressEasing);
     const targetTime = linearPosition * duration;
     
     if (targetTime >= 0 && targetTime <= duration) {
       video.currentTime = targetTime;
+      console.log('[DEBUG] Seeking to:', targetTime, 'seconds with easing:', progressEasing);
     }
   };
 
@@ -153,13 +168,6 @@ export default function MuxVideoPlayer({
     setupHls();
   }, [src.hls, autoPlay]);
 
-  // Central Play Button Overlay
-  useEffect(() => {
-    if (!isPlaying) {
-      console.log('Central Play Button Color:', playButtonColor);
-    }
-  }, [isPlaying, playButtonColor]);
-
   return (
     <div className={`relative aspect-video bg-black rounded-lg overflow-hidden ${className}`}>
       {title && (
@@ -183,12 +191,12 @@ export default function MuxVideoPlayer({
               justifyContent: 'center',
               width: playButtonSize * 2,
               height: playButtonSize * 2,
-              background: 'rgba(0,0,0,0.5)',
+              background: playButtonBgColor,
               borderRadius: '50%',
               boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width={playButtonSize} height={playButtonSize} style={{ fill: String(playButtonColor) }}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width={playButtonSize} height={playButtonSize} style={{ fill: playButtonColor }}>
               <polygon points="16,12 40,24 16,36" />
             </svg>
           </span>

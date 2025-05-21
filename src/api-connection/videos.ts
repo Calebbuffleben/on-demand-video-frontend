@@ -13,6 +13,7 @@ export interface DisplayOptions {
   progressEasing: number;
   playButtonColor?: string;
   playButtonSize?: number;
+  playButtonBgColor?: string;
 }
 
 export interface EmbedOptions {
@@ -350,15 +351,66 @@ const videoService = {
     embedOptions: EmbedOptions
   ): Promise<VideoApiResponse> => {
     try {
+      // Make a copy to avoid modifying original objects
+      const formattedDisplayOptions = { ...displayOptions };
+      const formattedEmbedOptions = { ...embedOptions };
+      
+      // Ensure color values have # prefix
+      if (formattedDisplayOptions.progressBarColor && !formattedDisplayOptions.progressBarColor.startsWith('#')) {
+        formattedDisplayOptions.progressBarColor = '#' + formattedDisplayOptions.progressBarColor;
+      }
+      
+      if (formattedDisplayOptions.playButtonColor && !formattedDisplayOptions.playButtonColor.startsWith('#')) {
+        formattedDisplayOptions.playButtonColor = '#' + formattedDisplayOptions.playButtonColor;
+      }
+      
+      if (formattedDisplayOptions.playButtonBgColor && !formattedDisplayOptions.playButtonBgColor.startsWith('#')) {
+        formattedDisplayOptions.playButtonBgColor = '#' + formattedDisplayOptions.playButtonBgColor;
+      }
+      
+      // Ensure numeric values are actually numbers
+      if (typeof formattedDisplayOptions.progressEasing === 'string') {
+        formattedDisplayOptions.progressEasing = parseFloat(formattedDisplayOptions.progressEasing);
+      }
+      
+      if (typeof formattedDisplayOptions.playButtonSize === 'string') {
+        formattedDisplayOptions.playButtonSize = parseInt(formattedDisplayOptions.playButtonSize, 10);
+      }
+      
+      // Ensure boolean values are actually booleans
+      const booleanFields = [
+        'showProgressBar', 'showTitle', 'showPlaybackControls', 
+        'autoPlay', 'muted', 'loop', 'useOriginalProgressBar'
+      ] as const;
+      
+      booleanFields.forEach(field => {
+        if (field in formattedDisplayOptions) {
+          formattedDisplayOptions[field] = 
+            !!formattedDisplayOptions[field];
+        }
+      });
+      
+      const embedBooleanFields = [
+        'showVideoTitle', 'showUploadDate', 'showMetadata',
+        'allowFullscreen', 'responsive', 'showBranding', 'showTechnicalInfo'
+      ] as const;
+      
+      embedBooleanFields.forEach(field => {
+        if (field in formattedEmbedOptions) {
+          formattedEmbedOptions[field] = 
+            !!formattedEmbedOptions[field];
+        }
+      });
+      
       console.log('Updating video options:', {
         uid,
-        displayOptions,
-        embedOptions
+        displayOptions: formattedDisplayOptions,
+        embedOptions: formattedEmbedOptions
       });
       
       const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, {
-        displayOptions: displayOptions,
-        embedOptions: embedOptions
+        displayOptions: formattedDisplayOptions,
+        embedOptions: formattedEmbedOptions
       });
       
       console.log('Update response:', response.data);
@@ -367,6 +419,8 @@ const videoService = {
       console.error(`Error updating video options for UID ${uid}:`, error);
       
       if (axios.isAxiosError(error)) {
+        console.error('Error details:', error.response?.data);
+        
         if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
           throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
         } else if (error.response) {

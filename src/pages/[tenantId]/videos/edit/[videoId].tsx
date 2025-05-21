@@ -6,6 +6,7 @@ import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
 import videoService, { VideoData } from '@/api-connection/videos';
+import ColorPicker from '@/components/ui/ColorPicker';
 
 // Edit Video Page allows users to update video details and player options
 export default function EditVideoPage() {
@@ -32,6 +33,7 @@ export default function EditVideoPage() {
     progressEasing: 0.65,
     playButtonColor: '#fff',
     playButtonSize: 32,
+    playButtonBgColor: '#000000',
   });
   // State for embed options (how video appears when embedded)
   const [embedOptions, setEmbedOptions] = useState({
@@ -47,6 +49,11 @@ export default function EditVideoPage() {
   const router = useRouter();
   const { videoId, tenantId } = router.query;
   const { organization } = useOrganization();
+
+  // Log displayOptions whenever it changes
+  useEffect(() => {
+    console.log('[DEBUG] displayOptions state in parent has changed to:', displayOptions);
+  }, [displayOptions]);
 
   // Fetch video data when videoId changes
   useEffect(() => {
@@ -173,10 +180,29 @@ export default function EditVideoPage() {
         embedOptions
       };
       
-      console.log('Submitting form with data:', formattedData);
+      console.log('[DEBUG] Submitting form with data:', {
+        ...formattedData,
+        displayOptions: {
+          ...displayOptions,
+          // Log the button colors explicitly
+          playButtonColor: displayOptions.playButtonColor,
+          playButtonBgColor: displayOptions.playButtonBgColor
+        }
+      });
       
       // Call the API to update the video
       if (video && video.uid) {
+        // Log the actual payload being sent to the API
+        console.log('[DEBUG] Sending to API:', {
+          displayOptions: {
+            ...displayOptions,
+            playButtonColor: displayOptions.playButtonColor,
+            playButtonBgColor: displayOptions.playButtonBgColor,
+            playButtonSize: displayOptions.playButtonSize
+          },
+          embedOptions
+        });
+        
         await videoService.updateVideoOptions(
           video.uid,
           displayOptions,
@@ -289,6 +315,7 @@ export default function EditVideoPage() {
                     progressEasing={displayOptions.progressEasing}
                     playButtonColor={displayOptions.playButtonColor}
                     playButtonSize={displayOptions.playButtonSize}
+                    playButtonBgColor={displayOptions.playButtonBgColor}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -486,19 +513,15 @@ export default function EditVideoPage() {
                           </label>
                         </div>
                         {/* Progress bar color picker */}
-                        <div className="flex items-center">
-                          <label htmlFor="progress-bar-color" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
-                            Progress bar color
-                          </label>
-                          <input
-                            id="progress-bar-color"
-                            name="progressBarColor"
-                            type="color"
-                            value={displayOptions.progressBarColor}
-                            onChange={e => setDisplayOptions(prev => ({ ...prev, progressBarColor: e.target.value }))}
-                            className="h-6 w-12 p-0 border-0 bg-transparent cursor-pointer"
-                          />
-                        </div>
+                        <ColorPicker
+                          label="Progress bar color"
+                          id="progress-bar-color"
+                          value={displayOptions.progressBarColor}
+                          onChange={color => {
+                            console.log(`[DEBUG] ColorPicker onChange for progressBarColor triggered. New color: ${color}`);
+                            setDisplayOptions(prev => ({ ...prev, progressBarColor: color }));
+                          }}
+                        />
                         {/* Progress bar easing slider */}
                         <div className="flex items-center mt-2">
                           <label htmlFor="progress-easing" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
@@ -518,19 +541,15 @@ export default function EditVideoPage() {
                           <span className="ml-2 text-xs text-gray-500">{displayOptions.progressEasing}</span>
                         </div>
                         {/* Play button color picker */}
-                        <div className="flex items-center mt-2">
-                          <label htmlFor="play-button-color" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
-                            Play button color
-                          </label>
-                          <input
-                            id="play-button-color"
-                            name="playButtonColor"
-                            type="color"
-                            value={displayOptions.playButtonColor}
-                            onChange={e => setDisplayOptions(prev => ({ ...prev, playButtonColor: e.target.value }))}
-                            className="h-6 w-12 p-0 border-0 bg-transparent cursor-pointer"
-                          />
-                        </div>
+                        <ColorPicker
+                          label="Play button color"
+                          id="play-button-color"
+                          value={displayOptions.playButtonColor}
+                          onChange={color => {
+                            console.log(`[DEBUG] ColorPicker onChange for playButtonColor triggered. New color: ${color}`);
+                            setDisplayOptions(prev => ({ ...prev, playButtonColor: color }));
+                          }}
+                        />
                         {/* Play button size slider */}
                         <div className="flex items-center mt-2">
                           <label htmlFor="play-button-size" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
@@ -549,6 +568,16 @@ export default function EditVideoPage() {
                           />
                           <span className="ml-2 text-xs text-gray-500">{displayOptions.playButtonSize}px</span>
                         </div>
+                        {/* Play button background color picker */}
+                        <ColorPicker
+                          label="Play button background"
+                          id="play-button-bg-color"
+                          value={displayOptions.playButtonBgColor}
+                          onChange={color => {
+                            console.log(`[DEBUG] ColorPicker onChange for playButtonBgColor triggered. New color: ${color}`);
+                            setDisplayOptions(prev => ({ ...prev, playButtonBgColor: color }));
+                          }}
+                        />
                       </div>
                       <p className="mt-2 text-sm text-gray-500">
                         Customize how the video player appears to viewers.

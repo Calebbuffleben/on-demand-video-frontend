@@ -203,6 +203,7 @@ export default function VideoDetailPage() {
                     progressEasing={typeof video.meta?.displayOptions?.progressEasing === 'number' ? video.meta.displayOptions.progressEasing : 0.65}
                     playButtonColor={video.meta?.displayOptions?.playButtonColor || '#fff'}
                     playButtonSize={typeof video.meta?.displayOptions?.playButtonSize === 'number' ? video.meta.displayOptions.playButtonSize : 32}
+                    playButtonBgColor={video.meta?.displayOptions?.playButtonBgColor || '#000000'}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
