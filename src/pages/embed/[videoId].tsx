@@ -111,7 +111,7 @@ export default function VideoEmbedPage() {
               showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
               useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
               progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
-              progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.2}
+              progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : -3}
               playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
               playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
               playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}

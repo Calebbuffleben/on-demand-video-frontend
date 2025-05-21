@@ -30,7 +30,7 @@ export default function EditVideoPage() {
     loop: false,
     useOriginalProgressBar: false,
     progressBarColor: '#3b82f6',
-    progressEasing: 0.65,
+    progressEasing: 0,
     playButtonColor: '#fff',
     playButtonSize: 32,
     playButtonBgColor: '#000000',
@@ -531,9 +531,9 @@ export default function EditVideoPage() {
                             id="progress-easing"
                             name="progressEasing"
                             type="range"
-                            min="0.2"
-                            max="5"
-                            step="0.01"
+                            min="-5"
+                            max="1"
+                            step="0.1"
                             value={displayOptions.progressEasing}
                             onChange={e => setDisplayOptions(prev => ({ ...prev, progressEasing: parseFloat(e.target.value) }))}
                             className="w-32 ml-2"

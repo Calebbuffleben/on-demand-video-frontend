@@ -35,7 +35,7 @@ export default function MuxVideoPlayer({
   showTechnicalInfo = false,
   useOriginalProgressBar = false,
   progressBarColor = '#3b82f6', // Tailwind blue-500
-  progressEasing = 0.2, // Use lowest value for maximum fast-start effect
+  progressEasing = -3, // Default to a strong fast-start, slow-end effect
   playButtonColor = '#fff',
   playButtonSize = 24,
   playButtonBgColor = '#000000', // Default to black
@@ -57,11 +57,27 @@ export default function MuxVideoPlayer({
   // Calculate non-linear progress (customizable easing)
   const calculateCustomProgress = (current: number, total: number) => {
     if (total === 0) return 0;
+    
     const linearProgress = current / total;
     
-    // For values close to our minimum (0.2), we want a very fast start and slow end
-    // The closer to 0, the more dramatic this effect
-    return Math.pow(linearProgress, progressEasing) * 100;
+    // New easing function handling -5 to 1 range:
+    // - Value of 0: linear progress (no easing)
+    // - Values from 0 to 1: slow start, fast end (power function)
+    // - Values from -5 to 0: fast start, slow end (using different function)
+    
+    if (progressEasing === 0) {
+      // Linear progress
+      return linearProgress * 100;
+    } else if (progressEasing > 0) {
+      // Slow start, fast end (0 to 1 range)
+      return Math.pow(linearProgress, 1 + progressEasing) * 100;
+    } else {
+      // Fast start, slow end (-5 to 0 range)
+      // Use a modified easing function that gets more dramatic as we approach -5
+      const easingFactor = Math.abs(progressEasing);
+      // Apply an easeOutQuad-like function with variable strength
+      return (1 - Math.pow(1 - linearProgress, 1 + easingFactor)) * 100;
+    }
   };
 
   // Update progress and state when video time updates
@@ -123,9 +139,22 @@ export default function MuxVideoPlayer({
     const rect = progressBar.getBoundingClientRect();
     const clickPosition = (e.clientX - rect.left) / rect.width;
     
-    // Convert from non-linear progress to linear position
-    // This is the inverse of the calculateCustomProgress function
-    const linearPosition = Math.pow(clickPosition, 1/progressEasing);
+    // Calculate the inverse of the easing function based on the progressEasing value
+    let linearPosition;
+    
+    if (progressEasing === 0) {
+      // Linear (no conversion needed)
+      linearPosition = clickPosition;
+    } else if (progressEasing > 0) {
+      // Inverse of the power function used for slow-start, fast-end
+      linearPosition = Math.pow(clickPosition, 1/(1 + progressEasing));
+    } else {
+      // Inverse of the easeOutQuad-like function used for fast-start, slow-end
+      const easingFactor = Math.abs(progressEasing);
+      // Inverse of (1 - Math.pow(1 - linearProgress, 1 + easingFactor))
+      linearPosition = 1 - Math.pow(1 - clickPosition, 1/(1 + easingFactor));
+    }
+    
     const targetTime = linearPosition * duration;
     
     if (targetTime >= 0 && targetTime <= duration) {
