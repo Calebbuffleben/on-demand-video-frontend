@@ -31,19 +31,19 @@ export interface VideoData {
   thumbnail: string;
   preview: string;
   readyToStream: boolean;
-  readyToStreamAt: string;
+  readyToStreamAt?: string;
   status: {
     state: string;
-    pctComplete: string;
-    errorReasonCode: string;
-    errorReasonText: string;
+    pctComplete?: string;
+    errorReasonCode?: string;
+    errorReasonText?: string;
   };
   meta: {
-    filename: string;
-    filetype: string;
+    filename?: string;
+    filetype?: string;
     name: string;
-    relativePath: string;
-    type: string;
+    relativePath?: string;
+    type?: string;
     displayOptions?: DisplayOptions;
     embedOptions?: EmbedOptions;
   };
@@ -51,7 +51,7 @@ export interface VideoData {
   created: string;
   modified: string;
   size: number;
-  input: {
+  input?: {
     width: number;
     height: number;
   };
@@ -140,7 +140,32 @@ const videoService = {
    */
   getVideoByUid: async (uid: string): Promise<VideoApiResponse> => {
     try {
+      console.log(`Fetching video with UID: ${uid}`);
       const response = await api.get<VideoApiResponse>(`videos/${uid}`);
+      console.log('Raw API response:', response.data);
+      
+      // Log the display and embed options if they exist
+      if (response.data.success && response.data.data?.result) {
+        const videoData = Array.isArray(response.data.data.result) 
+          ? response.data.data.result[0] 
+          : response.data.data.result;
+          
+        if (videoData && videoData.meta) {
+          console.log('Video meta data:', videoData.meta);
+          if (videoData.meta.displayOptions) {
+            console.log('Display options from API:', videoData.meta.displayOptions);
+          } else {
+            console.log('No display options in API response');
+          }
+          
+          if (videoData.meta.embedOptions) {
+            console.log('Embed options from API:', videoData.meta.embedOptions);
+          } else {
+            console.log('No embed options in API response');
+          }
+        }
+      }
+      
       return response.data;
     } catch (error) {
       console.error(`Error fetching video with UID ${uid}:`, error);

@@ -69,6 +69,7 @@ export default function EditVideoPage() {
       setError(null);
       
       const response = await videoService.getVideoByUid(id);
+      console.log('[DEBUG] Video data from API:', response);
       
       if (response.success && response.data) {
         // Handle both array and object responses
@@ -87,39 +88,37 @@ export default function EditVideoPage() {
             description: ''
           });
           
+          console.log('[DEBUG] Video metadata:', videoData.meta);
+          
           // Load display options from video metadata if available
           if (videoData.meta && videoData.meta.displayOptions) {
-            try {
-              const savedDisplayOptions = typeof videoData.meta.displayOptions === 'string' 
-                ? JSON.parse(videoData.meta.displayOptions) 
-                : videoData.meta.displayOptions;
-              
-              if (savedDisplayOptions && typeof savedDisplayOptions === 'object') {
-                setDisplayOptions(prev => ({
-                  ...prev,
-                  ...savedDisplayOptions
-                }));
-              }
-            } catch (err) {
-              console.warn('Failed to parse saved display options:', err);
+            console.log('[DEBUG] Display options from API:', videoData.meta.displayOptions);
+            
+            // Don't try to parse - the displayOptions are already an object
+            const savedDisplayOptions = videoData.meta.displayOptions;
+            
+            if (savedDisplayOptions && typeof savedDisplayOptions === 'object') {
+              console.log('[DEBUG] Setting displayOptions to:', savedDisplayOptions);
+              setDisplayOptions(prev => ({
+                ...prev,
+                ...savedDisplayOptions
+              }));
             }
           }
           
           // Load embed options from video metadata if available
           if (videoData.meta && videoData.meta.embedOptions) {
-            try {
-              const savedEmbedOptions = typeof videoData.meta.embedOptions === 'string'
-                ? JSON.parse(videoData.meta.embedOptions) 
-                : videoData.meta.embedOptions;
-              
-              if (savedEmbedOptions && typeof savedEmbedOptions === 'object') {
-                setEmbedOptions(prev => ({
-                  ...prev,
-                  ...savedEmbedOptions
-                }));
-              }
-            } catch (err) {
-              console.warn('Failed to parse saved embed options:', err);
+            console.log('[DEBUG] Embed options from API:', videoData.meta.embedOptions);
+            
+            // Don't try to parse - the embedOptions are already an object
+            const savedEmbedOptions = videoData.meta.embedOptions;
+            
+            if (savedEmbedOptions && typeof savedEmbedOptions === 'object') {
+              console.log('[DEBUG] Setting embedOptions to:', savedEmbedOptions);
+              setEmbedOptions(prev => ({
+                ...prev,
+                ...savedEmbedOptions
+              }));
             }
           }
         } else {
