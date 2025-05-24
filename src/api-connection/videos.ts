@@ -306,19 +306,20 @@ const videoService = {
         throw new Error('Video ID is required');
       }
 
-      console.log('Checking video status for ID:', videoId);
+        console.log('[VideoService] Checking video status for ID:', videoId);
       
       const response = await api.get<VideoStatusResponse>(`videos/${videoId}/status`);
-      console.log('Raw status response:', response.data);
+      console.log('[VideoService] Raw status response:', JSON.stringify(response.data, null, 2));
       
       // Ensure we have a valid response structure
       if (!response.data) {
+        console.warn('[VideoService] No data in response');
         throw new Error('Invalid response from server');
       }
 
       // If the response doesn't have a video object, create a basic one
       if (!response.data.video) {
-        console.warn('No video data in response, creating basic structure');
+        console.warn('[VideoService] No video data in response, creating basic structure');
         response.data.video = {
           uid: videoId,
           readyToStream: false,
@@ -327,6 +328,15 @@ const videoService = {
           }
         };
       }
+
+      // Detailed logging about video status
+      console.log('[VideoService] Video Status Details:', {
+        uid: response.data.video.uid,
+        readyToStream: response.data.video.readyToStream,
+        status: response.data.video.status?.state,
+        playback: response.data.video.playback,
+        thumbnail: response.data.video.thumbnail
+      });
 
       // Ensure the video object has the required fields
       if (!response.data.video.uid) {
@@ -343,10 +353,10 @@ const videoService = {
         };
       }
 
-      console.log('Processed status response:', response.data);
+      console.log('[VideoService] Processed status response:', JSON.stringify(response.data, null, 2));
       return response.data;
     } catch (error) {
-      console.error(`Error checking status for video ${videoId}:`, error);
+      console.error(`[VideoService] Error checking status for video ${videoId}:`, error);
       
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
@@ -467,6 +477,42 @@ const videoService = {
       return response.data;
     } catch (error) {
       console.error(`Error fetching embed video for ID ${videoId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Upload a cover image for a video
+   * @param videoId The video's unique identifier
+   * @param coverFile The cover image file
+   */
+  uploadCover: async (videoId: string, coverFile: File): Promise<VideoApiResponse> => {
+    try {
+      const formData = new FormData();
+      formData.append('cover', coverFile);
+
+      const response = await api.post<VideoApiResponse>(`videos/${videoId}/cover`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading video cover:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Clear the thumbnail for a video
+   * @param uid The video's unique identifier
+   */
+  clearThumbnail: async (uid: string): Promise<void> => {
+    try {
+      await api.delete(`videos/${uid}/cover`);
+    } catch (error) {
+      console.error('Error clearing video thumbnail:', error);
       throw error;
     }
   },

@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import React from 'react';
 
 interface VideoPlaybackSources {
   hls: string;
@@ -21,6 +22,8 @@ interface MuxVideoPlayerProps {
   playButtonColor?: string; // HEX or CSS color
   playButtonSize?: number; // px size for play/pause button
   playButtonBgColor?: string; // HEX or CSS color for play button background
+  poster?: string; // URL for the video poster/thumbnail image
+  editableCta?: boolean; // If true, show Add/Edit CTA button and editor
 }
 
 export default function MuxVideoPlayer({
@@ -39,6 +42,8 @@ export default function MuxVideoPlayer({
   playButtonColor = '#fff',
   playButtonSize = 24,
   playButtonBgColor = '#000000', // Default to black
+  poster,
+  editableCta = false,
 }: MuxVideoPlayerProps) {
   // Log props for debugging
   console.log('[DEBUG] MuxVideoPlayer props:', { 
@@ -53,7 +58,39 @@ export default function MuxVideoPlayer({
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [customProgress, setCustomProgress] = useState(0);
+  const [cta, setCta] = useState<{
+    text: string;
+    buttonText: string;
+    link: string;
+    startTime: number;
+    endTime: number;
+  } | null>(null);
+  const [showEdit, setShowEdit] = useState(false);
+  // Local state for editing CTA
+  const [editCta, setEditCta] = useState<{
+    text: string;
+    buttonText: string;
+    link: string;
+    startTime: string;
+    endTime: string;
+  } | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
   
+  // For click-outside-to-close
+  const editPanelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!showEdit) return;
+    function handleClick(e: MouseEvent) {
+      if (editPanelRef.current && !editPanelRef.current.contains(e.target as Node)) {
+        setShowEdit(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showEdit]);
+
+  const [posterUrl, setPosterUrl] = useState(poster || '');
+
   // Calculate non-linear progress (customizable easing)
   const calculateCustomProgress = (current: number, total: number) => {
     if (total === 0) return 0;
@@ -197,6 +234,31 @@ export default function MuxVideoPlayer({
     setupHls();
   }, [src.hls, autoPlay]);
 
+  // Show CTA overlay only if CTA is set and currentTime is between startTime and endTime
+  const showCta = cta && currentTime >= cta.startTime && currentTime <= cta.endTime;
+
+  // Open editor with current CTA or blank
+  const openEdit = () => {
+    setEditCta(
+      cta
+        ? {
+            text: cta.text,
+            buttonText: cta.buttonText,
+            link: cta.link,
+            startTime: String(cta.startTime),
+            endTime: String(cta.endTime),
+          }
+        : {
+            text: '',
+            buttonText: '',
+            link: '',
+            startTime: '',
+            endTime: '',
+          }
+    );
+    setShowEdit(true);
+  };
+
   return (
     <div className={`relative aspect-video bg-black rounded-lg overflow-hidden ${className}`}>
       {title && (
@@ -238,6 +300,7 @@ export default function MuxVideoPlayer({
         muted={muted}
         loop={loop}
         playsInline
+        poster={posterUrl}
         className="w-full h-full object-contain"
         style={{
           objectFit: 'contain',
@@ -314,6 +377,180 @@ export default function MuxVideoPlayer({
           Player: {isPlaying ? 'Playing' : 'Paused'}<br />
           URL: {src.hls.substring(0, 20)}...
         </div>
+      )}
+
+      {/* CTA Overlay */}
+      {showCta && cta && (
+        <div className="pointer-events-none select-none absolute bottom-6 right-6 z-20">
+          <div className="pointer-events-auto select-auto bg-white/90 rounded-lg shadow-lg p-4 flex flex-col items-center min-w-[220px] max-w-xs">
+            <p className="mb-2 text-base font-semibold text-gray-900 text-center">{cta.text}</p>
+            <a
+              href={cta.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm"
+              style={{ pointerEvents: 'auto' }}
+            >
+              {cta.buttonText}
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit CTA Button (outside video area, top-right) */}
+      {editableCta && (
+        <div className="absolute top-4 right-4 z-30">
+          {!cta ? (
+            <button
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition shadow"
+              onClick={openEdit}
+              type="button"
+            >
+              Add CTA
+            </button>
+          ) : (
+            <button
+              className="p-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition shadow flex items-center"
+              onClick={openEdit}
+              type="button"
+              aria-label="Edit CTA"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487a2.1 2.1 0 113.02 2.92L7.5 19.789l-4 1 1-4 12.362-12.302z" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* CTA Editing UI (modal style, click outside to close) */}
+      {editableCta && showEdit && editCta && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-30">
+          <div ref={editPanelRef} className="bg-white p-6 rounded shadow-lg w-96 flex flex-col gap-3 relative">
+            {/* Close button */}
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+              onClick={() => { setShowEdit(false); setEditError(null); }}
+              aria-label="Close CTA Editor"
+              type="button"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 className="text-lg font-semibold mb-2">{cta ? 'Edit CTA' : 'Add CTA'}</h3>
+            {/* Validation error message */}
+            {editError && (
+              <div className="mb-2 text-red-600 text-sm font-medium">{editError}</div>
+            )}
+            <label className="flex flex-col text-sm font-medium text-gray-700">
+              CTA Text
+              <input
+                className="mt-1 p-2 border rounded"
+                value={editCta.text}
+                onChange={e => setEditCta({ ...editCta, text: e.target.value })}
+                placeholder="Enter CTA text"
+              />
+            </label>
+            <label className="flex flex-col text-sm font-medium text-gray-700">
+              Button Text
+              <input
+                className="mt-1 p-2 border rounded"
+                value={editCta.buttonText}
+                onChange={e => setEditCta({ ...editCta, buttonText: e.target.value })}
+                placeholder="Enter button text"
+              />
+            </label>
+            <label className="flex flex-col text-sm font-medium text-gray-700">
+              Link (URL)
+              <input
+                className="mt-1 p-2 border rounded"
+                value={editCta.link}
+                onChange={e => setEditCta({ ...editCta, link: e.target.value })}
+                type="url"
+                placeholder="https://..."
+              />
+            </label>
+            <div className="flex gap-2">
+              <label className="flex flex-col text-sm font-medium text-gray-700 w-1/2">
+                Start (s)
+                <input
+                  className="mt-1 p-2 border rounded"
+                  value={editCta.startTime}
+                  onChange={e => {
+                    const val = e.target.value.replace(/^0+(?=\d)/, '');
+                    setEditCta({ ...editCta, startTime: val });
+                  }}
+                  type="number"
+                  min={0}
+                  step={1}
+                  placeholder="e.g. 10"
+                />
+              </label>
+              <label className="flex flex-col text-sm font-medium text-gray-700 w-1/2">
+                End (s)
+                <input
+                  className="mt-1 p-2 border rounded"
+                  value={editCta.endTime}
+                  onChange={e => {
+                    const val = e.target.value.replace(/^0+(?=\d)/, '');
+                    setEditCta({ ...editCta, endTime: val });
+                  }}
+                  type="number"
+                  min={0}
+                  step={1}
+                  placeholder="e.g. 20"
+                />
+              </label>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                onClick={() => {
+                  // Validate
+                  const start = Number(editCta.startTime);
+                  const end = Number(editCta.endTime);
+                  if (!editCta.text || !editCta.buttonText || !editCta.link || isNaN(start) || isNaN(end) || start >= end) {
+                    setEditError('Please fill all fields correctly. Start time must be less than end time.');
+                    return;
+                  }
+                  setCta({
+                    text: editCta.text,
+                    buttonText: editCta.buttonText,
+                    link: editCta.link,
+                    startTime: start,
+                    endTime: end,
+                  });
+                  setShowEdit(false);
+                  setEditError(null);
+                }}
+                type="button"
+              >
+                Save
+              </button>
+              {cta && (
+                <button
+                  className="px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition"
+                  onClick={() => { setCta(null); setShowEdit(false); setEditError(null); }}
+                  type="button"
+                >
+                  Remove CTA
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Thumbnail Button */}
+      {posterUrl && (
+        <button
+          className="absolute top-4 left-4 z-30 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition shadow"
+          onClick={() => setPosterUrl('')}
+          type="button"
+        >
+          Remove Thumbnail
+        </button>
       )}
     </div>
   );

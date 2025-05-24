@@ -5,6 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
+import CoverUploader from '@/components/Video/CoverUploader';
 import videoService, { VideoData } from '@/api-connection/videos';
 import ColorPicker from '@/components/ui/ColorPicker';
 
@@ -15,6 +16,7 @@ export default function EditVideoPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   // State for form fields (title, description)
   const [formData, setFormData] = useState({
     name: '',
@@ -225,6 +227,23 @@ export default function EditVideoPage() {
     return tenantId ? `/${tenantId}/videos/${videoId}` : `/videos/${videoId}`;
   };
 
+  const handleCoverUpload = async (file: File) => {
+    if (!video?.uid) return;
+
+    try {
+      setIsUploadingCover(true);
+      const response = await videoService.uploadCover(video.uid, file);
+      if (response.success && response.data.result.length > 0) {
+        setVideo(response.data.result[0]);
+      }
+    } catch (err: any) {
+      console.error('Error uploading cover:', err);
+      alert('Failed to upload cover image. Please try again.');
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Head>
@@ -315,6 +334,8 @@ export default function EditVideoPage() {
                     playButtonColor={displayOptions.playButtonColor}
                     playButtonSize={displayOptions.playButtonSize}
                     playButtonBgColor={displayOptions.playButtonBgColor}
+                    poster={video.thumbnail || undefined}
+                    editableCta={true}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -398,8 +419,47 @@ export default function EditVideoPage() {
                         />
                       </div>
                       <p className="mt-2 text-sm text-gray-500">
-                        Add details about your video content. This helps with discoverability and provides context for viewers.
+                        Brief description of your video content
                       </p>
+                    </div>
+
+                    {/* Video Cover */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Video Cover
+                      </label>
+                      <CoverUploader
+                        onCoverSelect={handleCoverUpload}
+                        currentCover={video.thumbnail}
+                      />
+                      {isUploadingCover && (
+                        <p className="mt-2 text-sm text-blue-600">
+                          Uploading cover image...
+                        </p>
+                      )}
+                      <p className="mt-2 text-sm text-gray-500">
+                        Upload a custom thumbnail for your video
+                      </p>
+                      {video.thumbnail && (
+                        <button
+                          type="button"
+                          className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition shadow"
+                          onClick={async () => {
+                            if (!video?.uid) return;
+                            try {
+                              setSaving(true);
+                              await videoService.clearThumbnail(video.uid);
+                              setVideo(prev => prev ? { ...prev, thumbnail: '' } : prev);
+                            } catch (err) {
+                              alert('Failed to remove thumbnail');
+                            } finally {
+                              setSaving(false);
+                            }
+                          }}
+                        >
+                          Remove Thumbnail
+                        </button>
+                      )}
                     </div>
                     
                     {/* Player Display Options Section */}

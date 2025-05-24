@@ -156,6 +156,7 @@ export default function VideoWatchPage() {
                     playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
                     playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
                     playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
+                    poster={videoData.thumbnail || undefined}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">

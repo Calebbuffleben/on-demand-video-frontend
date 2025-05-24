@@ -5,12 +5,14 @@ import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
+import CoverUploader from '@/components/Video/CoverUploader';
 import videoService, { VideoData } from '@/api-connection/videos';
 
 export default function VideoDetailPage() {
   const [video, setVideo] = useState<VideoData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   const router = useRouter();
   const { videoId } = router.query;
   const { organization } = useOrganization();
@@ -89,6 +91,23 @@ export default function VideoDetailPage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     alert('Copied to clipboard!');
+  };
+
+  const handleCoverUpload = async (file: File) => {
+    if (!video?.uid) return;
+
+    try {
+      setIsUploadingCover(true);
+      const response = await videoService.uploadCover(video.uid, file);
+      if (response.success && response.data.result.length > 0) {
+        setVideo(response.data.result[0]);
+      }
+    } catch (err: any) {
+      console.error('Error uploading cover:', err);
+      alert('Failed to upload cover image. Please try again.');
+    } finally {
+      setIsUploadingCover(false);
+    }
   };
 
   return (
@@ -183,9 +202,23 @@ export default function VideoDetailPage() {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-medium text-gray-900 mb-2">{video.meta?.name}</h2>
                 
+                {/* Cover Uploader */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Video Cover</h3>
+                  <CoverUploader
+                    onCoverSelect={handleCoverUpload}
+                    currentCover={video.thumbnail}
+                  />
+                  {isUploadingCover && (
+                    <p className="mt-2 text-sm text-blue-600">
+                      Uploading cover image...
+                    </p>
+                  )}
+                </div>
+                
                 <div className="flex flex-wrap gap-3 mb-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {video.meta?.filetype.toUpperCase()}
+                    {video.meta?.filetype?.toUpperCase() || 'UNKNOWN'}
                   </span>
                   
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
