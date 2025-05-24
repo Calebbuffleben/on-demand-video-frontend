@@ -572,7 +572,7 @@ export default function MuxVideoPlayer({
       )}
 
       {/* Remove Thumbnail Button */}
-      {posterUrl && (
+      {editableCta && posterUrl && (
         <button
           className="absolute top-4 left-4 z-30 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition shadow"
           onClick={() => setPosterUrl('')}
