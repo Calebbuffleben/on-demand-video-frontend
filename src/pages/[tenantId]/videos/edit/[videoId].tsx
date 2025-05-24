@@ -47,6 +47,14 @@ export default function EditVideoPage() {
     showBranding: true,
     showTechnicalInfo: false
   });
+  // Add CTA state
+  const [ctaFields, setCtaFields] = useState({
+    ctaText: '',
+    ctaButtonText: '',
+    ctaLink: '',
+    ctaStartTime: undefined as number | undefined,
+    ctaEndTime: undefined as number | undefined,
+  });
   
   const router = useRouter();
   const { videoId, tenantId } = router.query;
@@ -88,6 +96,13 @@ export default function EditVideoPage() {
           setFormData({
             name: videoData.meta?.name || '',
             description: ''
+          });
+          setCtaFields({
+            ctaText: videoData.ctaText || '',
+            ctaButtonText: videoData.ctaButtonText || '',
+            ctaLink: videoData.ctaLink || '',
+            ctaStartTime: videoData.ctaStartTime,
+            ctaEndTime: videoData.ctaEndTime,
           });
           
           console.log('[DEBUG] Video metadata:', videoData.meta);
@@ -178,7 +193,8 @@ export default function EditVideoPage() {
       const formattedData = {
         ...formData,
         displayOptions,
-        embedOptions
+        embedOptions,
+        ctaFields
       };
       
       console.log('[DEBUG] Submitting form with data:', {
@@ -207,7 +223,8 @@ export default function EditVideoPage() {
         await videoService.updateVideoOptions(
           video.uid,
           displayOptions,
-          embedOptions
+          embedOptions,
+          ctaFields
         );
         
         // Redirect back to the video detail page after successful save
@@ -336,6 +353,11 @@ export default function EditVideoPage() {
                     playButtonBgColor={displayOptions.playButtonBgColor}
                     poster={video.thumbnail || undefined}
                     editableCta={true}
+                    ctaText={ctaFields.ctaText}
+                    ctaButtonText={ctaFields.ctaButtonText}
+                    ctaLink={ctaFields.ctaLink}
+                    ctaStartTime={ctaFields.ctaStartTime}
+                    ctaEndTime={ctaFields.ctaEndTime}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
@@ -759,41 +781,59 @@ export default function EditVideoPage() {
                       </p>
                     </div>
                     
-                    {/* Embed Code Preview Section */}
-                    {video.playback?.hls && (
-                      <div className="mt-6 p-4 bg-gray-50 rounded-md">
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">Embed Code Preview</h3>
-                        <div className="bg-gray-100 p-3 rounded text-xs font-mono overflow-x-auto">
-                          {`<iframe 
-  src="${video.playback.hls}${displayOptions.autoPlay ? '?autoplay=1' : ''}${displayOptions.muted ? '&muted=1' : ''}${displayOptions.loop ? '&loop=1' : ''}"
-  style="${embedOptions.responsive ? 'width:100%;height:100%;position:absolute;left:0px;top:0px;' : 'width:640px;height:360px;'}overflow:hidden;"
-  frameborder="0"
-  ${embedOptions.allowFullscreen ? 'allow="autoplay; fullscreen" allowfullscreen' : ''}
-  title="${formData.name}"
-></iframe>`}
+                    {/* CTA Fields Section */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                      <div className="px-6 py-4 border-b border-gray-200">
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Call To Action (CTA)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">CTA Text</label>
+                            <input
+                              type="text"
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                              value={ctaFields.ctaText}
+                              onChange={e => setCtaFields(f => ({ ...f, ctaText: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">CTA Button Text</label>
+                            <input
+                              type="text"
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                              value={ctaFields.ctaButtonText}
+                              onChange={e => setCtaFields(f => ({ ...f, ctaButtonText: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">CTA Link</label>
+                            <input
+                              type="text"
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                              value={ctaFields.ctaLink}
+                              onChange={e => setCtaFields(f => ({ ...f, ctaLink: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">CTA Start Time (seconds)</label>
+                            <input
+                              type="number"
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                              value={ctaFields.ctaStartTime ?? ''}
+                              onChange={e => setCtaFields(f => ({ ...f, ctaStartTime: e.target.value ? Number(e.target.value) : undefined }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">CTA End Time (seconds)</label>
+                            <input
+                              type="number"
+                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                              value={ctaFields.ctaEndTime ?? ''}
+                              onChange={e => setCtaFields(f => ({ ...f, ctaEndTime: e.target.value ? Number(e.target.value) : undefined }))}
+                            />
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const embedCode = `<iframe 
-  src="${video.playback.hls}${displayOptions.autoPlay ? '?autoplay=1' : ''}${displayOptions.muted ? '&muted=1' : ''}${displayOptions.loop ? '&loop=1' : ''}"
-  style="${embedOptions.responsive ? 'width:100%;height:100%;position:absolute;left:0px;top:0px;' : 'width:640px;height:360px;'}overflow:hidden;"
-  frameborder="0"
-  ${embedOptions.allowFullscreen ? 'allow="autoplay; fullscreen" allowfullscreen' : ''}
-  title="${formData.name}"
-></iframe>`;
-                            navigator.clipboard.writeText(embedCode);
-                            alert('Embed code copied to clipboard!');
-                          }}
-                          className="mt-2 inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-                          </svg>
-                          Copy Embed Code
-                        </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                   
                   {/* Save/Cancel Buttons */}

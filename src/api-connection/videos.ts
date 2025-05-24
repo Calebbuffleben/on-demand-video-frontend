@@ -59,6 +59,11 @@ export interface VideoData {
     hls: string;
     dash: string;
   };
+  ctaText?: string;
+  ctaButtonText?: string;
+  ctaLink?: string;
+  ctaStartTime?: number;
+  ctaEndTime?: number;
 }
 
 export interface VideoApiResponse {
@@ -375,15 +380,30 @@ const videoService = {
   },
 
   /**
-   * Update video display and embed options
+   * Update video display and embed options, and CTA fields
    * @param uid The video's unique identifier
    * @param displayOptions The display options for the video player
    * @param embedOptions The embed options for the video
+   * @param ctaFields The CTA fields for the video
+   * @param extraFields Additional fields to include in the payload
    */
   updateVideoOptions: async (
     uid: string,
     displayOptions: DisplayOptions,
-    embedOptions: EmbedOptions
+    embedOptions: EmbedOptions,
+    ctaFields?: {
+      ctaText?: string;
+      ctaButtonText?: string;
+      ctaLink?: string;
+      ctaStartTime?: number;
+      ctaEndTime?: number;
+    },
+    extraFields?: {
+      name?: string;
+      description?: string;
+      tags?: string[];
+      visibility?: string;
+    }
   ): Promise<VideoApiResponse> => {
     try {
       // Make a copy to avoid modifying original objects
@@ -443,26 +463,20 @@ const videoService = {
         embedOptions: formattedEmbedOptions
       });
       
-      const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, {
+      // Build the payload
+      const payload: any = {
+        ...(extraFields || {}),
         displayOptions: formattedDisplayOptions,
-        embedOptions: formattedEmbedOptions
-      });
+        embedOptions: formattedEmbedOptions,
+        ...ctaFields,
+      };
+      
+      const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, payload);
       
       console.log('Update response:', response.data);
       return response.data;
     } catch (error) {
-      console.error(`Error updating video options for UID ${uid}:`, error);
-      
-      if (axios.isAxiosError(error)) {
-        console.error('Error details:', error.response?.data);
-        
-        if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
-        } else if (error.response) {
-          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
-        }
-      }
-      
+      console.error('Error updating video options:', error);
       throw error;
     }
   },

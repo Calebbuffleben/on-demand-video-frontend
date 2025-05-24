@@ -24,6 +24,11 @@ interface MuxVideoPlayerProps {
   playButtonBgColor?: string; // HEX or CSS color for play button background
   poster?: string; // URL for the video poster/thumbnail image
   editableCta?: boolean; // If true, show Add/Edit CTA button and editor
+  ctaText?: string;
+  ctaButtonText?: string;
+  ctaLink?: string;
+  ctaStartTime?: number;
+  ctaEndTime?: number;
 }
 
 export default function MuxVideoPlayer({
@@ -44,6 +49,11 @@ export default function MuxVideoPlayer({
   playButtonBgColor = '#000000', // Default to black
   poster,
   editableCta = false,
+  ctaText,
+  ctaButtonText,
+  ctaLink,
+  ctaStartTime,
+  ctaEndTime,
 }: MuxVideoPlayerProps) {
   // Log props for debugging
   console.log('[DEBUG] MuxVideoPlayer props:', { 
@@ -234,6 +244,23 @@ export default function MuxVideoPlayer({
     setupHls();
   }, [src.hls, autoPlay]);
 
+  // Set CTA from props
+  useEffect(() => {
+    if (
+      ctaText || ctaButtonText || ctaLink || typeof ctaStartTime === 'number' || typeof ctaEndTime === 'number'
+    ) {
+      setCta({
+        text: ctaText || '',
+        buttonText: ctaButtonText || '',
+        link: ctaLink || '',
+        startTime: typeof ctaStartTime === 'number' ? ctaStartTime : 0,
+        endTime: typeof ctaEndTime === 'number' ? ctaEndTime : 0,
+      });
+    } else {
+      setCta(null);
+    }
+  }, [ctaText, ctaButtonText, ctaLink, ctaStartTime, ctaEndTime]);
+
   // Show CTA overlay only if CTA is set and currentTime is between startTime and endTime
   const showCta = cta && currentTime >= cta.startTime && currentTime <= cta.endTime;
 
@@ -380,22 +407,24 @@ export default function MuxVideoPlayer({
       )}
 
       {/* CTA Overlay */}
-      {showCta && cta && (
-        <div className="pointer-events-none select-none absolute bottom-6 right-6 z-20">
-          <div className="pointer-events-auto select-auto bg-white/90 rounded-lg shadow-lg p-4 flex flex-col items-center min-w-[220px] max-w-xs">
-            <p className="mb-2 text-base font-semibold text-gray-900 text-center">{cta.text}</p>
-            <a
-              href={cta.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm"
-              style={{ pointerEvents: 'auto' }}
-            >
-              {cta.buttonText}
-            </a>
+      {showCta && cta && cta.text && (
+          <div
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 rounded-lg shadow-lg px-6 py-4 flex flex-col items-center z-20"
+            style={{ minWidth: 280 }}
+          >
+            <div className="text-lg font-semibold text-gray-900 mb-2 text-center">{cta.text}</div>
+            {cta.buttonText && cta.link && (
+              <a
+                href={cta.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              >
+                {cta.buttonText}
+              </a>
+            )}
           </div>
-        </div>
-      )}
+        )}
 
       {/* Add/Edit CTA Button (outside video area, top-right) */}
       {editableCta && (

@@ -199,11 +199,17 @@ export default function VideoDetailPage() {
                     hideProgress={!video.meta?.displayOptions?.showProgressBar}
                     showTechnicalInfo={video.meta?.embedOptions?.showTechnicalInfo}
                     useOriginalProgressBar={video.meta?.displayOptions?.useOriginalProgressBar}
-                    progressBarColor={video.meta?.displayOptions?.progressBarColor || '#3b82f6'}
-                    progressEasing={typeof video.meta?.displayOptions?.progressEasing === 'number' ? video.meta.displayOptions.progressEasing : 0.65}
-                    playButtonColor={video.meta?.displayOptions?.playButtonColor || '#fff'}
-                    playButtonSize={typeof video.meta?.displayOptions?.playButtonSize === 'number' ? video.meta.displayOptions.playButtonSize : 32}
-                    playButtonBgColor={video.meta?.displayOptions?.playButtonBgColor || '#000000'}
+                    progressBarColor={video.meta?.displayOptions?.progressBarColor}
+                    progressEasing={video.meta?.displayOptions?.progressEasing}
+                    playButtonColor={video.meta?.displayOptions?.playButtonColor}
+                    playButtonSize={video.meta?.displayOptions?.playButtonSize}
+                    playButtonBgColor={video.meta?.displayOptions?.playButtonBgColor}
+                    poster={video.thumbnail || undefined}
+                    ctaText={video.ctaText}
+                    ctaButtonText={video.ctaButtonText}
+                    ctaLink={video.ctaLink}
+                    ctaStartTime={video.ctaStartTime}
+                    ctaEndTime={video.ctaEndTime}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
