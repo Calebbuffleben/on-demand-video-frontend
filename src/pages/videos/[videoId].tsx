@@ -323,6 +323,71 @@ export default function VideoDetailPage() {
               
               <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
                 <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900">Playback Settings</h3>
+                </div>
+                
+                <div className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center cursor-pointer">
+                        <span className="mr-3 text-sm text-gray-700">Autoplay Muted</span>
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={video.meta?.displayOptions?.autoPlay && video.meta?.displayOptions?.muted}
+                            onChange={async (e) => {
+                              try {
+                                const updatedVideo = {
+                                  ...video,
+                                  meta: {
+                                    ...video.meta,
+                                    displayOptions: {
+                                      ...video.meta?.displayOptions,
+                                      showProgressBar: video.meta?.displayOptions?.showProgressBar ?? true,
+                                      showTitle: video.meta?.displayOptions?.showTitle ?? true,
+                                      showPlaybackControls: video.meta?.displayOptions?.showPlaybackControls ?? true,
+                                      loop: video.meta?.displayOptions?.loop ?? false,
+                                      useOriginalProgressBar: video.meta?.displayOptions?.useOriginalProgressBar ?? false,
+                                      progressBarColor: video.meta?.displayOptions?.progressBarColor ?? '#3b82f6',
+                                      progressEasing: video.meta?.displayOptions?.progressEasing ?? 0.65,
+                                      autoPlay: e.target.checked,
+                                      muted: e.target.checked
+                                    }
+                                  }
+                                };
+                                // Here you would call your API to update the video settings
+                                // await videoService.updateVideo(video.uid, updatedVideo);
+                                setVideo(updatedVideo as VideoData);
+                              } catch (err) {
+                                console.error('Error updating video settings:', err);
+                                alert('Failed to update video settings. Please try again.');
+                              }
+                            }}
+                          />
+                          <div className={`w-10 h-6 rounded-full transition-colors ${
+                            video.meta?.displayOptions?.autoPlay && video.meta?.displayOptions?.muted
+                              ? 'bg-blue-600'
+                              : 'bg-gray-300'
+                          }`} />
+                          <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform transform ${
+                            video.meta?.displayOptions?.autoPlay && video.meta?.displayOptions?.muted
+                              ? 'translate-x-4'
+                              : 'translate-x-0'
+                          }`} />
+                        </div>
+                      </label>
+                    </div>
+                    
+                    <p className="text-sm text-gray-500">
+                      When enabled, the video will automatically play muted when loaded. Viewers can unmute the video after it starts playing.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+                <div className="px-6 py-4 border-b border-gray-200">
                   <h3 className="text-lg font-medium text-gray-900">Embed Code</h3>
                 </div>
                 

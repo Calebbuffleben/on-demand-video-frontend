@@ -36,6 +36,9 @@ export default function EditVideoPage() {
     playButtonColor: '#fff',
     playButtonSize: 32,
     playButtonBgColor: '#000000',
+    soundControlSize: 24,
+    soundControlColor: '#ffffff',
+    soundControlOpacity: 0.8,
   });
   // State for embed options (how video appears when embedded)
   const [embedOptions, setEmbedOptions] = useState({
@@ -351,6 +354,9 @@ export default function EditVideoPage() {
                     playButtonColor={displayOptions.playButtonColor}
                     playButtonSize={displayOptions.playButtonSize}
                     playButtonBgColor={displayOptions.playButtonBgColor}
+                    soundControlSize={displayOptions.soundControlSize}
+                    soundControlColor={displayOptions.soundControlColor}
+                    soundControlOpacity={displayOptions.soundControlOpacity}
                     poster={video.thumbnail || undefined}
                     editableCta={true}
                     ctaText={ctaFields.ctaText}
@@ -579,6 +585,34 @@ export default function EditVideoPage() {
                             Loop video
                           </label>
                         </div>
+
+                        {/* Autoplay Muted toggle */}
+                        <div className="flex items-center">
+                          <input
+                            id="autoplay-muted"
+                            name="autoplayMuted"
+                            type="checkbox"
+                            checked={displayOptions.autoPlay && displayOptions.muted}
+                            onChange={() => {
+                              const newValue = !(displayOptions.autoPlay && displayOptions.muted);
+                              setDisplayOptions(prev => ({
+                                ...prev,
+                                autoPlay: newValue,
+                                muted: newValue
+                              }));
+                            }}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="autoplay-muted" className="ml-3 block text-sm font-medium text-gray-700">
+                            Autoplay Muted
+                          </label>
+                          <div className="ml-2">
+                            <span className="text-xs text-gray-500">
+                              (Video will start playing automatically with sound muted)
+                            </span>
+                          </div>
+                        </div>
+
                         {/* Use original Mux progress bar toggle */}
                         <div className="flex items-center">
                           <input
@@ -659,6 +693,32 @@ export default function EditVideoPage() {
                             setDisplayOptions(prev => ({ ...prev, playButtonBgColor: color }));
                           }}
                         />
+
+                        {/* Sound Control Size slider */}
+                        <div className="flex items-center mt-2">
+                          <label htmlFor="sound-control-size" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                            Sound control size
+                          </label>
+                          <input
+                            id="sound-control-size"
+                            name="soundControlSize"
+                            type="range"
+                            min="24"
+                            max="96"
+                            step="4"
+                            value={displayOptions.soundControlSize}
+                            onChange={(e) => {
+                              const newSize = parseInt(e.target.value);
+                              console.log('[DEBUG] Updating sound control size to:', newSize);
+                              setDisplayOptions(prev => ({
+                                ...prev,
+                                soundControlSize: newSize
+                              }));
+                            }}
+                            className="w-32 ml-2"
+                          />
+                          <span className="ml-2 text-xs text-gray-500">{displayOptions.soundControlSize}px</span>
+                        </div>
                       </div>
                       <p className="mt-2 text-sm text-gray-500">
                         Customize how the video player appears to viewers.

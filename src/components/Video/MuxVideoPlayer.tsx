@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import React from 'react';
+import SoundControl from './SoundControl';
+import VideoSettings from './VideoSettings';
 
 interface VideoPlaybackSources {
   hls: string;
@@ -29,6 +31,10 @@ interface MuxVideoPlayerProps {
   ctaLink?: string;
   ctaStartTime?: number;
   ctaEndTime?: number;
+  soundControlColor?: string;
+  soundControlOpacity?: number;
+  showSoundControl?: boolean;
+  soundControlSize?: number;
 }
 
 export default function MuxVideoPlayer({
@@ -54,19 +60,31 @@ export default function MuxVideoPlayer({
   ctaLink,
   ctaStartTime,
   ctaEndTime,
+  soundControlColor = '#ffffff',
+  soundControlOpacity = 0.8,
+  showSoundControl = true,
+  soundControlSize = 24,
 }: MuxVideoPlayerProps) {
   // Log props for debugging
   console.log('[DEBUG] MuxVideoPlayer props:', { 
     playButtonColor, 
     playButtonSize, 
     playButtonBgColor,
-    progressEasing
+    progressEasing,
+    soundControlSize
   });
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [enableAutoplayMuted, setEnableAutoplayMuted] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('video-autoplay-muted');
+      return saved ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
+  const [isPlaying, setIsPlaying] = useState(enableAutoplayMuted ? true : autoPlay);
   const [customProgress, setCustomProgress] = useState(0);
   const [cta, setCta] = useState<{
     text: string;
@@ -100,6 +118,7 @@ export default function MuxVideoPlayer({
   }, [showEdit]);
 
   const [posterUrl, setPosterUrl] = useState(poster || '');
+  const [isMuted, setIsMuted] = useState(enableAutoplayMuted ? true : muted);
 
   // Calculate non-linear progress (customizable easing)
   const calculateCustomProgress = (current: number, total: number) => {
@@ -156,6 +175,33 @@ export default function MuxVideoPlayer({
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
   }, [videoRef.current, progressEasing]);
+
+  // Update video attributes when enableAutoplayMuted changes
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (enableAutoplayMuted) {
+      video.autoplay = true;
+      video.muted = true;
+      setIsMuted(true);
+    } else {
+      video.autoplay = autoPlay;
+      video.muted = muted;
+      setIsMuted(muted);
+    }
+  }, [enableAutoplayMuted, autoPlay, muted]);
+
+  // Update localStorage when preference changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('video-autoplay-muted', JSON.stringify(enableAutoplayMuted));
+    }
+  }, [enableAutoplayMuted]);
+
+  const handleToggleMute = () => {
+    setIsMuted(!isMuted);
+  };
 
   // Format time in MM:SS
   const formatTime = (seconds: number) => {
@@ -323,8 +369,8 @@ export default function MuxVideoPlayer({
       
       <video
         ref={videoRef}
-        autoPlay={autoPlay}
-        muted={muted}
+        autoPlay={enableAutoplayMuted ? true : autoPlay}
+        muted={isMuted}
         loop={loop}
         playsInline
         poster={posterUrl}
@@ -335,8 +381,36 @@ export default function MuxVideoPlayer({
           maxWidth: '100%'
         }}
         controls={useOriginalProgressBar && showControls}
-      />
+      >
+        <source src={src.hls} type="application/x-mpegURL" />
+        {src.dash && <source src={src.dash} type="application/dash+xml" />}
+      </video>
 
+      <div className="absolute top-4 right-4 z-30 flex items-center space-x-2">
+        <VideoSettings
+          enableAutoplayMuted={enableAutoplayMuted}
+          onToggleAutoplayMuted={(enabled) => {
+            setEnableAutoplayMuted(enabled);
+            if (enabled) {
+              setIsMuted(true);
+              if (videoRef.current) {
+                videoRef.current.muted = true;
+                videoRef.current.play().catch(console.error);
+              }
+            }
+          }}
+        />
+      </div>
+      {(autoPlay && muted) && (
+        <SoundControl
+          isMuted={isMuted}
+          onToggleMute={handleToggleMute}
+          color={soundControlColor}
+          opacity={soundControlOpacity}
+          showControl={showSoundControl}
+          size={soundControlSize}
+        />
+      )}
       {/* Custom progress bar */}
       {showControls && !hideProgress && !useOriginalProgressBar && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 z-20">
