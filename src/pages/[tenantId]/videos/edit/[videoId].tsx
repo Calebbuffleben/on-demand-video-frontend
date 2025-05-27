@@ -719,6 +719,43 @@ export default function EditVideoPage() {
                           />
                           <span className="ml-2 text-xs text-gray-500">{displayOptions.soundControlSize}px</span>
                         </div>
+
+                        {/* Sound Control Color picker */}
+                        <ColorPicker
+                          label="Sound control color"
+                          id="sound-control-color"
+                          value={displayOptions.soundControlColor}
+                          onChange={color => {
+                            console.log(`[DEBUG] ColorPicker onChange for soundControlColor triggered. New color: ${color}`);
+                            setDisplayOptions(prev => ({ ...prev, soundControlColor: color }));
+                          }}
+                        />
+
+                        {/* Sound Control Opacity slider */}
+                        <div className="flex items-center mt-2">
+                          <label htmlFor="sound-control-opacity" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                            Sound control opacity
+                          </label>
+                          <input
+                            id="sound-control-opacity"
+                            name="soundControlOpacity"
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="5"
+                            value={Math.round(displayOptions.soundControlOpacity * 100)}
+                            onChange={(e) => {
+                              const newOpacity = parseInt(e.target.value) / 100;
+                              console.log('[DEBUG] Updating sound control opacity to:', newOpacity);
+                              setDisplayOptions(prev => ({
+                                ...prev,
+                                soundControlOpacity: newOpacity
+                              }));
+                            }}
+                            className="w-32 ml-2"
+                          />
+                          <span className="ml-2 text-xs text-gray-500">{Math.round(displayOptions.soundControlOpacity * 100)}%</span>
+                        </div>
                       </div>
                       <p className="mt-2 text-sm text-gray-500">
                         Customize how the video player appears to viewers.

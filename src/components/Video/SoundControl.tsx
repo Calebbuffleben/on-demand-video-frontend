@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { HiSpeakerWave, HiSpeakerXMark } from 'react-icons/hi2';
 
 interface SoundControlProps {
   isMuted: boolean;
@@ -16,43 +15,93 @@ const SoundControl: React.FC<SoundControlProps> = ({
   color = '#ffffff',
   opacity = 0.8,
   showControl = true,
-  size = 24
+  size = 64
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [currentSize, setCurrentSize] = useState(size);
+  const [isVisible, setIsVisible] = useState(true);
 
-  // Update currentSize when size prop changes
   useEffect(() => {
-    console.log('[DEBUG] SoundControl size changed to:', size);
     setCurrentSize(size);
   }, [size]);
 
-  if (!showControl) return null;
+  const handleClick = () => {
+    setIsVisible(false);
+    onToggleMute();
+  };
 
-  const containerSize = currentSize * 1.5;
+  if (!showControl || !isVisible) return null;
+
+  const containerSize = currentSize * 4;
+  
+  // Centered speaker paths with better proportions
+  const speakerPath = isMuted
+    ? "M12.5 8v8l-4-3H5v-2h3.5l4-3zm5.5 2l2 2-2 2m-3-4l2 2-2 2" // Muted with X
+    : "M12.5 8v8l-4-3H5v-2h3.5l4-3zm3 1.5c1.5 1.2 1.5 3.8 0 5m2.5-7c2.5 2 2.5 6 0 8"; // Unmuted with waves
 
   return (
     <div
-      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-300 cursor-pointer z-30"
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer z-30 flex items-center justify-center"
       style={{
-        backgroundColor: `${color}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`,
-        transform: isHovered ? 'translate(-50%, -50%) scale(1.1)' : 'translate(-50%, -50%) scale(1)',
-        padding: `${currentSize / 4}px`,
-        width: `${containerSize}px`,
-        height: `${containerSize}px`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
+        width: containerSize,
+        height: containerSize,
+        opacity: 1,
+        transition: 'opacity 0.3s ease, transform 0.3s ease',
       }}
-      onClick={onToggleMute}
+      onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {isMuted ? (
-        <HiSpeakerXMark style={{ width: currentSize, height: currentSize }} className="text-black" />
-      ) : (
-        <HiSpeakerWave style={{ width: currentSize, height: currentSize }} className="text-black" />
-      )}
+      <svg
+        viewBox="0 0 24 24"
+        width={containerSize}
+        height={containerSize}
+        style={{
+          transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+          transition: 'all 0.3s ease'
+        }}
+      >
+        <defs>
+          <mask id={`speaker-hole-${containerSize}`}>
+            <rect x="0" y="0" width="24" height="24" fill="white" />
+            <g transform="translate(0, 0.5)">
+              <path
+                d={speakerPath}
+                fill="black"
+                strokeWidth="1"
+                stroke="black"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </g>
+          </mask>
+        </defs>
+
+        {/* Main square with transparent icon */}
+        <rect
+          x="2"
+          y="2"
+          width="20"
+          height="20"
+          rx="2"
+          fill={color}
+          fillOpacity={opacity}
+          mask={`url(#speaker-hole-${containerSize})`}
+        />
+
+        {/* Subtle border for definition */}
+        <rect
+          x="2"
+          y="2"
+          width="20"
+          height="20"
+          rx="2"
+          fill="none"
+          stroke={color}
+          strokeOpacity={opacity * 0.3}
+          strokeWidth="0.5"
+        />
+      </svg>
     </div>
   );
 };
