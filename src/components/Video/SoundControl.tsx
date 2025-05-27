@@ -64,11 +64,11 @@ const SoundControl: React.FC<SoundControlProps> = ({
         <defs>
           <mask id={`speaker-hole-${containerSize}`}>
             <rect x="0" y="0" width="24" height="24" fill="white" />
-            <g transform="translate(0, 0.5)">
+            <g transform="translate(7, 7) scale(0.4)">
               <path
                 d={speakerPath}
                 fill="black"
-                strokeWidth="1"
+                strokeWidth="0.5"
                 stroke="black"
                 strokeLinejoin="round"
                 strokeLinecap="round"
@@ -99,7 +99,7 @@ const SoundControl: React.FC<SoundControlProps> = ({
           fill="none"
           stroke={color}
           strokeOpacity={opacity * 0.3}
-          strokeWidth="0.5"
+          strokeWidth="0.00"
         />
       </svg>
     </div>
