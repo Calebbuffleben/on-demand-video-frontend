@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface SoundControlProps {
   isMuted: boolean;
@@ -7,6 +7,7 @@ interface SoundControlProps {
   opacity?: number;
   showControl?: boolean;
   size?: number;
+  text?: string;
 }
 
 const SoundControl: React.FC<SoundControlProps> = ({
@@ -15,11 +16,15 @@ const SoundControl: React.FC<SoundControlProps> = ({
   color = '#ffffff',
   opacity = 0.8,
   showControl = true,
-  size = 64
+  size = 64,
+  text = 'Sound'
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [currentSize, setCurrentSize] = useState(size);
   const [isVisible, setIsVisible] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentText, setCurrentText] = useState(text);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setCurrentSize(size);
@@ -28,6 +33,20 @@ const SoundControl: React.FC<SoundControlProps> = ({
   const handleClick = () => {
     setIsVisible(false);
     onToggleMute();
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentText(e.target.value);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setIsEditing(false);
+    }
   };
 
   if (!showControl || !isVisible) return null;
@@ -52,6 +71,44 @@ const SoundControl: React.FC<SoundControlProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Edit button that appears on hover */}
+      {isHovered && !isEditing && (
+        <button
+          className="absolute -top-5 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/50 rounded-md text-xs inline-flex whitespace-nowrap"
+          style={{ color }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditing(true);
+          }}
+        >
+          Edit Text
+        </button>
+      )}
+
+      {/* Text input field */}
+      {isEditing && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-40">
+          <input
+            ref={inputRef}
+            type="text"
+            value={currentText}
+            onChange={handleTextChange}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className="w-3/4 text-center px-2 py-1 rounded"
+            style={{
+              color,
+              background: 'rgba(0,0,0,0.7)',
+              border: `1px solid ${color}`,
+              fontSize: `${containerSize / 12}px`,
+              outline: 'none',
+            }}
+            onClick={(e) => e.stopPropagation()}
+            placeholder="Enter text..."
+          />
+        </div>
+      )}
+      
       <svg
         viewBox="0 0 24 24"
         width={containerSize}
@@ -88,6 +145,22 @@ const SoundControl: React.FC<SoundControlProps> = ({
           fillOpacity={opacity}
           mask={`url(#speaker-hole-${containerSize})`}
         />
+
+        {/* Text inside square */}
+        <text
+          x="12"
+          y="7"
+          textAnchor="middle"
+          fill={color}
+          fontSize="3"
+          fontFamily="system-ui"
+          style={{
+            userSelect: 'none',
+            pointerEvents: 'none'
+          }}
+        >
+          {currentText}
+        </text>
 
         {/* Subtle border for definition */}
         <rect
