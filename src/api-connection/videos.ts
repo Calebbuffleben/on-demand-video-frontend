@@ -1,19 +1,24 @@
 import api from '../api';
 import axios from 'axios';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface DisplayOptions {
-  showProgressBar: boolean;
-  showTitle: boolean;
-  showPlaybackControls: boolean;
-  autoPlay: boolean;
-  muted: boolean;
-  loop: boolean;
-  useOriginalProgressBar: boolean;
-  progressBarColor: string;
-  progressEasing: number;
+  showProgressBar?: boolean;
+  showTitle?: boolean;
+  showPlaybackControls?: boolean;
+  autoPlay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  useOriginalProgressBar?: boolean;
+  progressBarColor?: string;
+  progressEasing?: number;
   playButtonColor?: string;
   playButtonSize?: number;
   playButtonBgColor?: string;
+  soundControlText?: string;
+  soundControlColor?: string;
+  soundControlOpacity?: number;
+  soundControlSize?: number;
 }
 
 export interface EmbedOptions {
@@ -104,6 +109,19 @@ export interface VideoStatusResponse {
   };
 }
 
+export interface StreamTextUpdate {
+  uid: string;
+  text: string;
+}
+
+export interface SoundControlUpdate {
+  id: string;
+  text: string;
+  size?: number;
+  color?: string;
+  opacity?: number;
+}
+
 const videoService = {
   /**
    * Test Cloudflare connection and get a sample video
@@ -145,35 +163,18 @@ const videoService = {
    */
   getVideoByUid: async (uid: string): Promise<VideoApiResponse> => {
     try {
-      console.log(`Fetching video with UID: ${uid}`);
       const response = await api.get<VideoApiResponse>(`videos/${uid}`);
-      console.log('Raw API response:', response.data);
+      
       
       // Log the display and embed options if they exist
       if (response.data.success && response.data.data?.result) {
         const videoData = Array.isArray(response.data.data.result) 
           ? response.data.data.result[0] 
           : response.data.data.result;
-          
-        if (videoData && videoData.meta) {
-          console.log('Video meta data:', videoData.meta);
-          if (videoData.meta.displayOptions) {
-            console.log('Display options from API:', videoData.meta.displayOptions);
-          } else {
-            console.log('No display options in API response');
-          }
-          
-          if (videoData.meta.embedOptions) {
-            console.log('Embed options from API:', videoData.meta.embedOptions);
-          } else {
-            console.log('No embed options in API response');
-          }
-        }
       }
       
       return response.data;
     } catch (error) {
-      console.error(`Error fetching video with UID ${uid}:`, error);
       throw error;
     }
   },
@@ -406,9 +407,24 @@ const videoService = {
     }
   ): Promise<VideoApiResponse> => {
     try {
+      console.log('-----------------Display Options-----------------');
+      console.log('Display Options called with:', {
+        displayOptions,
+      });
+      console.log('Raw soundControlText:', displayOptions.soundControlText);
+      console.log('Type of soundControlText:', typeof displayOptions.soundControlText);
+
       // Make a copy to avoid modifying original objects
       const formattedDisplayOptions = { ...displayOptions };
       const formattedEmbedOptions = { ...embedOptions };
+      
+      // Log sound control specific values
+      console.log('Sound control values being sent:', {
+        text: formattedDisplayOptions.soundControlText,
+        color: formattedDisplayOptions.soundControlColor,
+        opacity: formattedDisplayOptions.soundControlOpacity,
+        size: formattedDisplayOptions.soundControlSize
+      });
       
       // Ensure color values have # prefix
       if (formattedDisplayOptions.progressBarColor && !formattedDisplayOptions.progressBarColor.startsWith('#')) {
@@ -422,6 +438,10 @@ const videoService = {
       if (formattedDisplayOptions.playButtonBgColor && !formattedDisplayOptions.playButtonBgColor.startsWith('#')) {
         formattedDisplayOptions.playButtonBgColor = '#' + formattedDisplayOptions.playButtonBgColor;
       }
+
+      if (formattedDisplayOptions.soundControlColor && !formattedDisplayOptions.soundControlColor.startsWith('#')) {
+        formattedDisplayOptions.soundControlColor = '#' + formattedDisplayOptions.soundControlColor;
+      }
       
       // Ensure numeric values are actually numbers
       if (typeof formattedDisplayOptions.progressEasing === 'string') {
@@ -430,6 +450,14 @@ const videoService = {
       
       if (typeof formattedDisplayOptions.playButtonSize === 'string') {
         formattedDisplayOptions.playButtonSize = parseInt(formattedDisplayOptions.playButtonSize, 10);
+      }
+
+      if (typeof formattedDisplayOptions.soundControlSize === 'string') {
+        formattedDisplayOptions.soundControlSize = parseInt(formattedDisplayOptions.soundControlSize, 10);
+      }
+
+      if (typeof formattedDisplayOptions.soundControlOpacity === 'string') {
+        formattedDisplayOptions.soundControlOpacity = parseFloat(formattedDisplayOptions.soundControlOpacity);
       }
       
       // Ensure boolean values are actually booleans
@@ -457,23 +485,15 @@ const videoService = {
         }
       });
       
-      console.log('Updating video options:', {
-        uid,
-        displayOptions: formattedDisplayOptions,
-        embedOptions: formattedEmbedOptions
-      });
+      console.log('Final formatted display options:', formattedDisplayOptions);
+      console.log('Final soundControlText:', formattedDisplayOptions.soundControlText);
       
-      // Build the payload
-      const payload: any = {
-        ...(extraFields || {}),
+      const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, {
         displayOptions: formattedDisplayOptions,
         embedOptions: formattedEmbedOptions,
         ...ctaFields,
-      };
+      });
       
-      const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, payload);
-      
-      console.log('Update response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error updating video options:', error);
@@ -527,6 +547,74 @@ const videoService = {
       await api.delete(`videos/${uid}/cover`);
     } catch (error) {
       console.error('Error clearing video thumbnail:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update the text overlay for a video
+   * @param uid The video's unique identifier
+   * @param text The new text to display
+   */
+  updateStreamText: async ({ uid, text }: StreamTextUpdate): Promise<VideoApiResponse> => {
+    try {
+      console.log('Updating video text:', { uid, text });
+      
+      const response = await api.patch<VideoApiResponse>(`videos/${uid}/text`, { text });
+      
+      console.log('Update text response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating text for video ${uid}:`, error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          throw new Error('Invalid video ID or text data');
+        } else if (error.response?.status === 404) {
+          throw new Error('Video not found');
+        } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
+        } else if (error.response) {
+          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
+        }
+      }
+      throw error;
+    }
+  },
+
+  /**
+   * Update the sound control settings for a video
+   * @param id The video's unique identifier
+   * @param text The text to display
+   * @param size The size of the control
+   * @param color The color of the control
+   * @param opacity The opacity of the control
+   */
+  updateSoundControl: async ({ id, text, size, color, opacity }: SoundControlUpdate): Promise<VideoApiResponse> => {
+    try {
+      console.log('Updating sound control settings:', { id, text, size, color, opacity });
+      
+      const response = await api.patch<VideoApiResponse>(`videos/${id}/sound-control`, {
+        text,
+        size,
+        color: color?.startsWith('#') ? color : color ? `#${color}` : undefined,
+        opacity: typeof opacity === 'number' ? Math.max(0, Math.min(1, opacity)) : undefined
+      });
+      
+      console.log('Update sound control response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating sound control for video ${id}:`, error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          throw new Error('Invalid video ID or sound control data');
+        } else if (error.response?.status === 404) {
+          throw new Error('Video not found');
+        } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
+          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
+        } else if (error.response) {
+          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
+        }
+      }
       throw error;
     }
   },

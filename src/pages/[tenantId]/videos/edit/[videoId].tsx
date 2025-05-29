@@ -39,6 +39,7 @@ export default function EditVideoPage() {
     soundControlSize: 24,
     soundControlColor: '#ffffff',
     soundControlOpacity: 0.8,
+    soundControlText: '',
   });
   // State for embed options (how video appears when embedded)
   const [embedOptions, setEmbedOptions] = useState({
@@ -357,6 +358,7 @@ export default function EditVideoPage() {
                     soundControlSize={displayOptions.soundControlSize}
                     soundControlColor={displayOptions.soundControlColor}
                     soundControlOpacity={displayOptions.soundControlOpacity}
+                    soundControlText={displayOptions.soundControlText}
                     poster={video.thumbnail || undefined}
                     editableCta={true}
                     ctaText={ctaFields.ctaText}
@@ -755,6 +757,25 @@ export default function EditVideoPage() {
                             className="w-32 ml-2"
                           />
                           <span className="ml-2 text-xs text-gray-500">{Math.round(displayOptions.soundControlOpacity * 100)}%</span>
+                        </div>
+
+                        {/* Sound Control Text input */}
+                        <div>
+                          <label htmlFor="sound-control-text" className="block text-sm font-medium text-gray-700">
+                            Sound control text
+                          </label>
+                          <input
+                            type="text"
+                            id="sound-control-text"
+                            name="soundControlText"
+                            value={displayOptions.soundControlText}
+                            onChange={e => setDisplayOptions(prev => ({
+                              ...prev,
+                              soundControlText: e.target.value
+                            }))}
+                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            placeholder="Enter sound control text"
+                          />
                         </div>
                       </div>
                       <p className="mt-2 text-sm text-gray-500">

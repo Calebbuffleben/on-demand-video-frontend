@@ -35,6 +35,7 @@ interface MuxVideoPlayerProps {
   soundControlOpacity?: number;
   showSoundControl?: boolean;
   soundControlSize?: number;
+  soundControlText?: string;
 }
 
 export default function MuxVideoPlayer({
@@ -64,16 +65,8 @@ export default function MuxVideoPlayer({
   soundControlOpacity = 0.8,
   showSoundControl = true,
   soundControlSize = 24,
+  soundControlText,
 }: MuxVideoPlayerProps) {
-  // Log props for debugging
-  console.log('[DEBUG] MuxVideoPlayer props:', { 
-    playButtonColor, 
-    playButtonSize, 
-    playButtonBgColor,
-    progressEasing,
-    soundControlSize
-  });
-  
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -409,6 +402,7 @@ export default function MuxVideoPlayer({
           opacity={soundControlOpacity}
           showControl={showSoundControl}
           size={soundControlSize}
+          text={soundControlText}
         />
       )}
       {/* Custom progress bar */}
