@@ -145,6 +145,10 @@ export default function VideoWatchPage() {
                     playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
                     playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
                     playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
+                    soundControlText={videoData.meta?.displayOptions?.soundControlText}
+                    soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
+                    soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
+                    soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center">

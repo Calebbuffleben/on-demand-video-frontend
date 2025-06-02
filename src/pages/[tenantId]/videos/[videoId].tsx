@@ -210,6 +210,10 @@ export default function VideoDetailPage() {
                     ctaLink={video.ctaLink}
                     ctaStartTime={video.ctaStartTime}
                     ctaEndTime={video.ctaEndTime}
+                    soundControlText={video.meta?.displayOptions?.soundControlText}
+                    soundControlColor={video.meta?.displayOptions?.soundControlColor}
+                    soundControlOpacity={video.meta?.displayOptions?.soundControlOpacity}
+                    soundControlSize={video.meta?.displayOptions?.soundControlSize}
                   />
                 ) : (
                   <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">

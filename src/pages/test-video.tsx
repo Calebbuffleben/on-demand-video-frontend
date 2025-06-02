@@ -96,8 +96,12 @@ export default function TestVideoPage() {
             <div className="lg:col-span-2">
               <MuxVideoPlayer 
                 src={videoData.playback}
-                title={videoData.meta?.name}
+                title={videoData.meta?.name || ''}
                 autoPlay={true}
+                soundControlText={videoData.meta?.displayOptions?.soundControlText || ''}
+                soundControlColor={videoData.meta?.displayOptions?.soundControlColor || '#FFFFFF'}
+                soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity ?? 0.8}
+                soundControlSize={videoData.meta?.displayOptions?.soundControlSize ?? 64}
               />
             </div>
             

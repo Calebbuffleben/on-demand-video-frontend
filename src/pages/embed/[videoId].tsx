@@ -117,6 +117,10 @@ export default function VideoEmbedPage() {
               playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
               className="w-full h-full"
               poster={videoData.thumbnail || undefined}
+              soundControlText={videoData.meta?.displayOptions?.soundControlText}
+              soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
+              soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
+              soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
             />
             {renderDebugInfo()}
           </>

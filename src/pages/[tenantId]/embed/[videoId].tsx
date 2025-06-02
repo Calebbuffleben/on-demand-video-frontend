@@ -86,6 +86,10 @@ export default function VideoEmbedPage() {
             playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
             playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
             playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
+            soundControlText={videoData.meta?.displayOptions?.soundControlText}
+            soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
+            soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
+            soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
             className="w-full h-full"
           />
         )}
