@@ -25,6 +25,35 @@ export interface PopularVideo {
   duration: string;
 }
 
+export interface VideoAnalytics {
+  totalViews: number;
+  averageWatchTime: number;
+  engagementRate: number;
+  uniqueViewers: number;
+  viewsOverTime: {
+    timestamp: string;
+    views: number;
+  }[];
+  retentionData: {
+    time: number;
+    retention: number;
+  }[];
+  viewerTimeline: {
+    timestamp: string;
+    activeViewers: number;
+  }[];
+}
+
+export interface RetentionDataPoint {
+  time: number;
+  retention: number;
+}
+
+export interface ViewerTimeline {
+  timestamp: string;
+  activeViewers: number;
+}
+
 export interface AnalyticsResponse {
   success: boolean;
   status: number;
@@ -135,6 +164,45 @@ const analyticsService = {
       console.error('Error fetching popular videos:', error);
       // Return empty array instead of throwing
       return [];
+    }
+  },
+
+  /**
+   * Get detailed analytics for a specific video
+   */
+  getVideoAnalytics: async (videoId: string): Promise<{ success: boolean; data: VideoAnalytics }> => {
+    try {
+      const response = await api.get<{ success: boolean; data: VideoAnalytics }>(`analytics/videos/${videoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching analytics for video ${videoId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get retention data for a specific video
+   */
+  getVideoRetention: async (videoId: string): Promise<{ success: boolean; data: RetentionDataPoint[] }> => {
+    try {
+      const response = await api.get<{ success: boolean; data: RetentionDataPoint[] }>(`analytics/retention/${videoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching retention data for video ${videoId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get viewer timeline data for a specific video
+   */
+  getVideoViews: async (videoId: string): Promise<{ success: boolean; data: ViewerTimeline[] }> => {
+    try {
+      const response = await api.get<{ success: boolean; data: ViewerTimeline[] }>(`analytics/views/${videoId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching viewer timeline for video ${videoId}:`, error);
+      throw error;
     }
   }
 };
