@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import api from '@/api-connection/service';
+import { useRouter } from 'next/router';
+import { useApi } from '@/hooks/useApi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber, formatDuration } from '@/lib/utils';
@@ -21,56 +21,60 @@ interface VideoAnalytics {
   averageWatchTime: number;
   engagementRate: number;
   uniqueViewers: number;
-  viewsOverTime: {
-    timestamp: string;
+  viewsOverTime: Array<{
+    date: string;
     views: number;
-  }[];
-  retentionData: {
-    time: number;
-    retention: number;
-  }[];
-  viewerTimeline: {
+  }>;
+  retentionData: Array<{
+    timestamp: number;
+    viewers: number;
+    percentage: number;
+  }>;
+  viewerTimeline: Array<{
     timestamp: string;
-    activeViewers: number;
-  }[];
+    duration: number;
+    percentage: number;
+  }>;
 }
 
 export default function VideoAnalyticsPage() {
-  const params = useParams();
-  const videoId = params.videoId as string;
-  const tenantId = params.tenantId as string;
+  const router = useRouter();
+  const { get, loading: apiLoading, error: apiError } = useApi();
+  const videoId = router.query.videoId as string;
+  const tenantId = router.query.tenantId as string;
   const [analytics, setAnalytics] = useState<VideoAnalytics | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAnalytics = async () => {
+      if (!videoId || !tenantId) return; // Don't fetch if parameters are not available yet
+      
       try {
-        const response = await api.get<{ success: boolean; data: VideoAnalytics }>(`analytics/videos/${videoId}`);
-        if (response.data.success) {
-          setAnalytics(response.data.data);
+        console.log('Fetching analytics for video:', videoId);
+        const response = await get<{ success: boolean; data: VideoAnalytics }>(`analytics/videos/${videoId}`);
+        
+        if (response?.success) {
+          setAnalytics(response.data);
         } else {
           setError('Failed to load video analytics');
         }
-      } catch (err) {
-        setError('Failed to load video analytics');
-        console.error(err);
-      } finally {
-        setLoading(false);
+      } catch (err: any) {
+        console.error('Analytics fetch error:', err);
+        setError(err.message || 'Failed to load video analytics');
       }
     };
 
-    fetchData();
-  }, [videoId, tenantId]);
+    fetchAnalytics();
+  }, [videoId, tenantId, get]);
 
-  if (loading) {
+  if (apiLoading) {
     return <VideoAnalyticsSkeleton />;
   }
 
-  if (error) {
+  if (apiError || error) {
     return (
       <div className="p-4 text-red-500">
-        {error}
+        {apiError?.message || error}
       </div>
     );
   }
@@ -83,7 +87,7 @@ export default function VideoAnalyticsPage() {
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold mb-6">Video Analytics</h1>
 
-      {/* Overview Stats */}
+      {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Views"
@@ -95,7 +99,7 @@ export default function VideoAnalyticsPage() {
         />
         <StatCard
           title="Engagement Rate"
-          value={`${(analytics.engagementRate * 100).toFixed(1)}%`}
+          value={`${analytics.engagementRate.toFixed(1)}%`}
         />
         <StatCard
           title="Unique Viewers"
@@ -113,28 +117,17 @@ export default function VideoAnalyticsPage() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics.viewsOverTime}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="timestamp"
-                  tickFormatter={(value: string) => new Date(value).toLocaleDateString()}
-                />
+                <XAxis dataKey="date" />
                 <YAxis />
-                <Tooltip
-                  labelFormatter={(value: string) => new Date(value).toLocaleDateString()}
-                  formatter={(value: number) => [formatNumber(value), 'Views']}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="views"
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                />
+                <Tooltip />
+                <Line type="monotone" dataKey="views" stroke="#2563eb" />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
 
-      {/* Retention Analysis */}
+      {/* Audience Retention */}
       <Card>
         <CardHeader>
           <CardTitle>Audience Retention</CardTitle>
@@ -144,23 +137,10 @@ export default function VideoAnalyticsPage() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics.retentionData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="time"
-                  tickFormatter={(value: number) => `${value}s`}
-                />
-                <YAxis
-                  tickFormatter={(value: number) => `${value}%`}
-                />
-                <Tooltip
-                  labelFormatter={(value: number) => `${value}s`}
-                  formatter={(value: number) => [`${value.toFixed(1)}%`, 'Retention']}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="retention"
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                />
+                <XAxis dataKey="timestamp" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="percentage" stroke="#2563eb" />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -177,21 +157,10 @@ export default function VideoAnalyticsPage() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics.viewerTimeline}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="timestamp"
-                  tickFormatter={(value: string) => new Date(value).toLocaleDateString()}
-                />
+                <XAxis dataKey="timestamp" />
                 <YAxis />
-                <Tooltip
-                  labelFormatter={(value: string) => new Date(value).toLocaleDateString()}
-                  formatter={(value: number) => [formatNumber(value), 'Active Viewers']}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="activeViewers"
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                />
+                <Tooltip />
+                <Line type="monotone" dataKey="percentage" stroke="#2563eb" />
               </LineChart>
             </ResponsiveContainer>
           </div>

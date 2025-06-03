@@ -6,6 +6,7 @@ import analyticsService from '@/api-connection/analytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber, formatDuration } from '@/lib/utils';
+import Link from 'next/link';
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -108,6 +109,7 @@ export default function AnalyticsPage() {
             {data.recentUploads.map((upload) => (
               <VideoCard
                 key={upload.id}
+                id={upload.id}
                 title={upload.title}
                 thumbnailUrl={upload.thumbnailUrl}
                 date={new Date(upload.uploadDate)}
@@ -129,6 +131,7 @@ export default function AnalyticsPage() {
             {data.popularVideos.map((video) => (
               <VideoCard
                 key={video.id}
+                id={video.id}
                 title={video.title}
                 thumbnailUrl={video.thumbnailUrl}
                 views={video.views}
@@ -162,6 +165,7 @@ function VideoCard({
   date,
   duration,
   size,
+  id,
 }: {
   title: string;
   thumbnailUrl: string;
@@ -169,15 +173,27 @@ function VideoCard({
   date?: Date;
   duration?: string;
   size?: string;
+  id: string;
 }) {
+  const router = useRouter();
+  const tenantId = router.query.tenantId as string;
+
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden group">
       <div className="aspect-video relative">
         <img
           src={thumbnailUrl}
           alt={title}
           className="object-cover w-full h-full"
         />
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+          <Link
+            href={`/${tenantId}/analytics/videos/${id}`}
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50"
+          >
+            View Analytics
+          </Link>
+        </div>
       </div>
       <CardContent className="p-4">
         <h3 className="font-semibold truncate">{title}</h3>

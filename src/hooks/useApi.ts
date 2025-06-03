@@ -15,7 +15,7 @@ export function useApi() {
         try {
             const token = await session.getToken();
             if (token && typeof window !== 'undefined') {
-                localStorage.setItem('clerkToken', token);
+                localStorage.setItem('token', token);
             }
             return token;
         } catch (error) {

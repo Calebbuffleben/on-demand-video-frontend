@@ -18,7 +18,7 @@ api.interceptors.request.use(
         }
         
         // Get token from local storage
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || localStorage.getItem('clerkToken');
         const clerkOrgId = localStorage.getItem('currentOrganizationId');
         const dbOrgId = localStorage.getItem('dbOrganizationId');
         
