@@ -1,202 +1,186 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useApi } from '@/hooks/useApi';
+import analyticsService from '@/api-connection/analytics';
+import videoService from '@/api-connection/videos';
+import ViewerTimelineChart from '@/components/analytics/ViewerTimelineChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber, formatDuration } from '@/lib/utils';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
 
 interface VideoAnalytics {
   totalViews: number;
   averageWatchTime: number;
   engagementRate: number;
   uniqueViewers: number;
-  viewsOverTime: Array<{
-    date: string;
-    views: number;
-  }>;
-  retentionData: Array<{
-    timestamp: number;
-    viewers: number;
-    percentage: number;
-  }>;
-  viewerTimeline: Array<{
+  viewsOverTime: {
     timestamp: string;
-    duration: number;
-    percentage: number;
-  }>;
+    views: number;
+  }[];
+  retentionData: {
+    time: number;
+    retention: number;
+  }[];
+  viewerTimeline: {
+    timestamp: string;
+    activeViewers: number;
+  }[];
 }
 
-export default function VideoAnalyticsPage() {
+interface VideoData {
+  uid: string;
+  thumbnail: string;
+  meta: {
+    name: string;
+  };
+  duration: number;
+}
+
+const VideoAnalyticsPage: React.FC = () => {
   const router = useRouter();
-  const { get, loading: apiLoading, error: apiError } = useApi();
-  const videoId = router.query.videoId as string;
-  const tenantId = router.query.tenantId as string;
-  const [analytics, setAnalytics] = useState<VideoAnalytics | null>(null);
+  const { tenantId, videoId } = router.query;
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<VideoAnalytics | null>(null);
+  const [videoData, setVideoData] = useState<VideoData | null>(null);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      if (!videoId || !tenantId) return; // Don't fetch if parameters are not available yet
-      
+    const fetchData = async () => {
+      if (!tenantId || !videoId) return;
+
       try {
-        console.log('Fetching analytics for video:', videoId);
-        const response = await get<{ success: boolean; data: VideoAnalytics }>(`analytics/videos/${videoId}`);
-        
-        if (response?.success) {
-          setAnalytics(response.data);
-        } else {
-          setError('Failed to load video analytics');
+        setLoading(true);
+        setError(null);
+
+        // Fetch video data and analytics in parallel
+        const [videoResponse, analyticsResponse] = await Promise.all([
+          videoService.getVideoByUid(videoId as string),
+          analyticsService.getVideoAnalytics(videoId as string)
+        ]);
+
+        if (videoResponse.success && videoResponse.data?.result) {
+          const video = Array.isArray(videoResponse.data.result) 
+            ? videoResponse.data.result[0] 
+            : videoResponse.data.result;
+          setVideoData(video);
         }
-      } catch (err: any) {
-        console.error('Analytics fetch error:', err);
-        setError(err.message || 'Failed to load video analytics');
+
+        if (analyticsResponse.success) {
+          setAnalytics(analyticsResponse.data);
+        } else {
+          setError('Failed to fetch analytics data');
+        }
+      } catch (err) {
+        setError('Error loading data');
+        console.error('Error fetching data:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchAnalytics();
-  }, [videoId, tenantId, get]);
+    fetchData();
+  }, [tenantId, videoId]);
 
-  if (apiLoading) {
-    return <VideoAnalyticsSkeleton />;
-  }
-
-  if (apiError || error) {
+  if (loading) {
     return (
-      <div className="p-4 text-red-500">
-        {apiError?.message || error}
+      <div className="container mx-auto p-6">
+        <Skeleton className="h-[400px] w-full" />
       </div>
     );
   }
 
-  if (!analytics) {
-    return null;
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-red-500">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!analytics || !videoData) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="p-6">
+            <p>No data available</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold mb-6">Video Analytics</h1>
+    <div className="container mx-auto p-6">
+      <div className="grid gap-6">
+        {/* Video Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Video Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-start gap-4">
+              <img
+                src={videoData.thumbnail}
+                alt={videoData.meta.name}
+                className="w-48 h-27 object-cover rounded"
+              />
+              <div>
+                <h2 className="text-xl font-semibold">{videoData.meta.name}</h2>
+                <p className="text-gray-500">Duration: {formatDuration(videoData.duration)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Views"
-          value={formatNumber(analytics.totalViews)}
-        />
-        <StatCard
-          title="Average Watch Time"
-          value={formatDuration(analytics.averageWatchTime)}
-        />
-        <StatCard
-          title="Engagement Rate"
-          value={`${analytics.engagementRate.toFixed(1)}%`}
-        />
-        <StatCard
-          title="Unique Viewers"
-          value={formatNumber(analytics.uniqueViewers)}
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Views</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{formatNumber(analytics.totalViews)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Average Watch Time</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{formatDuration(analytics.averageWatchTime)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Engagement Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{analytics.engagementRate.toFixed(1)}%</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Unique Viewers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{formatNumber(analytics.uniqueViewers)}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Viewer Timeline Chart */}
+        <ViewerTimelineChart
+          data={analytics.retentionData}
+          videoDuration={videoData.duration}
         />
       </div>
-
-      {/* Views Over Time */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Views Over Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analytics.viewsOverTime}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="views" stroke="#2563eb" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Audience Retention */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Audience Retention</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analytics.retentionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timestamp" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="percentage" stroke="#2563eb" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Viewer Timeline */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Viewer Timeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analytics.viewerTimeline}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timestamp" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="percentage" stroke="#2563eb" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
-}
+};
 
-function StatCard({ title, value }: { title: string; value: string }) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function VideoAnalyticsSkeleton() {
-  return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Skeleton className="h-8 w-48 mb-6" />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-24" />
-        ))}
-      </div>
-
-      {[...Array(3)].map((_, i) => (
-        <Skeleton key={i} className="h-[300px]" />
-      ))}
-    </div>
-  );
-} 
+export default VideoAnalyticsPage; 
