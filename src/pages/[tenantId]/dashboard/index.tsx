@@ -479,112 +479,32 @@ const DashboardPage = () => {
   };
 
   // Load analytics data
-  const loadAnalytics = async () => {
-    if (typeof window === 'undefined') return;
-    
-    setAnalyticsLoading(true);
-    setAnalyticsError(null);
-    
-    try {
-      // Get all dashboard analytics in one request
-      const dashboardData = await analyticsService.getDashboardAnalytics();
-      
-      if (dashboardData.success) {
-        setPlatformStats(dashboardData.data.platformStats);
-        setRecentUploads(dashboardData.data.recentUploads);
-        setPopularVideos(dashboardData.data.popularVideos);
-        console.log('Loaded analytics data from API:', dashboardData);
-      } else if (dashboardData.error) {
-        // Handle error response from the analytics service
-        console.warn('Analytics service returned an error:', dashboardData.error);
-        setAnalyticsError(dashboardData.error.message || 'Failed to load analytics data');
-        
-        // Still use the fallback data that was provided
-        setPlatformStats(dashboardData.data.platformStats);
-        setRecentUploads(dashboardData.data.recentUploads);
-        setPopularVideos(dashboardData.data.popularVideos);
-      } else {
-        throw new Error('Failed to load analytics data');
-      }
-    } catch (error: any) {
-      console.error('Error loading analytics:', error);
-      setAnalyticsError(error?.message || 'Failed to load analytics data');
-      
-      // Load mock data as fallback
-      loadMockData();
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  };
-  
-  // Load mock data as fallback
-  const loadMockData = () => {
-    setPlatformStats({
-      totalVideos: 12,
-      totalViews: 1420,
-      totalStorage: '2.4 GB',
-      totalBandwidth: '5.7 GB'
-    });
-    
-    setRecentUploads([
-      {
-        id: 'video-1',
-        title: 'Introduction to Video Hosting',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&auto=format&fit=crop',
-        uploadDate: '2023-10-05',
-        size: '245 MB',
-        duration: '12:45',
-      },
-      {
-        id: 'video-2',
-        title: 'Content Creation Best Practices',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1574717024453-354056dafa4e?w=400&auto=format&fit=crop',
-        uploadDate: '2023-09-28',
-        size: '312 MB',
-        duration: '8:12',
-      },
-      {
-        id: 'video-3',
-        title: 'Video SEO Optimization',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&auto=format&fit=crop',
-        uploadDate: '2023-09-15',
-        size: '185 MB',
-        duration: '15:30',
-      }
-    ]);
-    
-    setPopularVideos([
-      {
-        id: 'pop-1',
-        title: 'How to Grow Your Audience',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&auto=format&fit=crop',
-        views: 856,
-        duration: '18:30',
-      },
-      {
-        id: 'pop-2',
-        title: 'Streaming Setup Guide',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1551817958-d9d86fb29431?w=400&auto=format&fit=crop',
-        views: 721,
-        duration: '14:15',
-      },
-      {
-        id: 'pop-3',
-        title: 'Video Monetization Strategies',
-        thumbnailUrl: 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=400&auto=format&fit=crop',
-        views: 632,
-        duration: '22:10',
-      }
-    ]);
-  };
-
-  // Load analytics on mount and when organization context is ready
   useEffect(() => {
-    // Only load analytics if we're authenticated and have org context
-    if (subscriptionRequested.current && !loading && subscription) {
-      loadAnalytics();
-    }
-  }, [subscriptionRequested.current, loading, subscription]);
+    const loadAnalytics = async () => {
+      if (!tenantId) return;
+      
+      setAnalyticsLoading(true);
+      setAnalyticsError(null);
+      
+      try {
+        const response = await analyticsService.getDashboardAnalytics();
+        if (response.success) {
+          setPlatformStats(response.data.platformStats);
+          setRecentUploads(response.data.recentUploads);
+          setPopularVideos(response.data.popularVideos);
+        } else {
+          setAnalyticsError(response.message || 'Failed to load analytics data');
+        }
+      } catch (err) {
+        console.error('Error loading analytics:', err);
+        setAnalyticsError('Failed to load analytics data');
+      } finally {
+        setAnalyticsLoading(false);
+      }
+    };
+
+    loadAnalytics();
+  }, [tenantId]);
 
   return (
     <ClientOnly>
@@ -603,85 +523,6 @@ const DashboardPage = () => {
             </div>
           </header>
 
-          {/* Platform Overview Stats */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-900">Platform Overview</h2>
-              {analyticsLoading && (
-                <div className="text-sm text-gray-500">Loading data...</div>
-              )}
-              {analyticsError && (
-                <div className="text-sm text-red-500">{analyticsError}</div>
-              )}
-              {!analyticsLoading && (
-                <button 
-                  onClick={loadAnalytics} 
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  Refresh
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white shadow rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Videos</p>
-                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalVideos}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white shadow rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Total Views</p>
-                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalViews}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white shadow rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Storage Used</p>
-                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalStorage}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white shadow rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Bandwidth Used</p>
-                    <p className="text-xl font-semibold text-gray-900">{platformStats.totalBandwidth}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Quick Actions */}
           <div className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg overflow-hidden shadow-md">
             <div className="p-6 md:p-8">
@@ -690,22 +531,12 @@ const DashboardPage = () => {
               <div className="flex flex-wrap gap-4">
                 <Link
                   href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
-                  className="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md bg-white text-blue-600 hover:bg-blue-50"
+                  className="inline-flex items-center px-5 py-2.5 bg-white text-sm font-medium rounded-md text-blue-600 hover:bg-blue-50"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                   Upload Video
-                </Link>
-                
-                <Link
-                  href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
-                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-blue-700"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                  Manage Videos
                 </Link>
                 
                 <Link
@@ -721,121 +552,143 @@ const DashboardPage = () => {
             </div>
           </div>
 
+          {/* Platform Stats */}
+          <div className="mb-8">
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Platform Overview</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {analyticsLoading ? (
+                // Loading skeletons
+                Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="bg-white rounded-lg shadow p-4 animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                ))
+              ) : analyticsError ? (
+                // Error state
+                <div className="col-span-full text-red-500">
+                  {analyticsError}
+                </div>
+              ) : (
+                // Stats cards
+                <>
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <h3 className="text-sm font-medium text-gray-500">Total Videos</h3>
+                    <p className="text-2xl font-semibold mt-1">{platformStats.totalVideos}</p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <h3 className="text-sm font-medium text-gray-500">Total Views</h3>
+                    <p className="text-2xl font-semibold mt-1">{platformStats.totalViews}</p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <h3 className="text-sm font-medium text-gray-500">Total Storage</h3>
+                    <p className="text-2xl font-semibold mt-1">{platformStats.totalStorage}</p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <h3 className="text-sm font-medium text-gray-500">Total Bandwidth</h3>
+                    <p className="text-2xl font-semibold mt-1">{platformStats.totalBandwidth}</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Recent Uploads */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-900">Recent Uploads</h2>
-              <Link
-                href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
-                className="text-sm font-medium text-blue-600 hover:text-blue-800"
-              >
-                View all
-              </Link>
-            </div>
-            <div className="overflow-hidden bg-white shadow rounded-lg">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Upload Date</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                    <th scope="col" className="relative px-6 py-3">
-                      <span className="sr-only">Actions</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {recentUploads.map((video) => (
-                    <tr key={video.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-16 relative">
-                            {video.thumbnailUrl && (
-                              <Image
-                                src={video.thumbnailUrl}
-                                alt={video.title}
-                                fill
-                                className="rounded"
-                                style={{ objectFit: 'cover' }}
-                              />
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{video.title}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.uploadDate}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.size}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.duration}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                        <button className="text-red-600 hover:text-red-900">Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Recent Uploads</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {analyticsLoading ? (
+                // Loading skeletons
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="bg-white rounded-lg shadow overflow-hidden animate-pulse">
+                    <div className="aspect-video bg-gray-200"></div>
+                    <div className="p-4">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                ))
+              ) : analyticsError ? (
+                // Error state
+                <div className="col-span-full text-red-500">
+                  {analyticsError}
+                </div>
+              ) : recentUploads.length > 0 ? (
+                // Video cards
+                recentUploads.map((upload) => (
+                  <div key={upload.id} className="bg-white rounded-lg shadow overflow-hidden">
+                    <div className="aspect-video relative">
+                      <img
+                        src={upload.thumbnailUrl}
+                        alt={upload.title}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold truncate">{upload.title}</h3>
+                      <div className="text-sm text-gray-500 mt-2">
+                        <div>{new Date(upload.uploadDate).toLocaleDateString()}</div>
+                        <div>{upload.duration}</div>
+                        <div>{upload.size}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                // Empty state
+                <div className="col-span-full text-center text-gray-500 py-8">
+                  No recent uploads
+                </div>
+              )}
             </div>
           </div>
 
           {/* Popular Videos */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium text-gray-900">Popular Videos</h2>
-              <Link
-                href={tenantId ? `/${tenantId}/analytics` : "/analytics"}
-                className="text-sm font-medium text-blue-600 hover:text-blue-800"
-              >
-                View analytics
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {popularVideos.map(video => (
-                <div key={video.id} className="bg-white rounded-lg shadow overflow-hidden group hover:shadow-md transition-shadow duration-200">
-                  <div className="relative">
-                    {video.thumbnailUrl && (
-                      <div className="aspect-video relative">
-                        <Image 
-                          src={video.thumbnailUrl}
-                          alt={video.title}
-                          fill
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-200">
-                      <div className="flex space-x-2">
-                        <button className="p-2 bg-white rounded-full text-blue-600">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                        </button>
-                        <button className="p-2 bg-white rounded-full text-blue-600">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.172 13.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
-                          </svg>
-                        </button>
-                      </div>
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Popular Videos</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {analyticsLoading ? (
+                // Loading skeletons
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="bg-white rounded-lg shadow overflow-hidden animate-pulse">
+                    <div className="aspect-video bg-gray-200"></div>
+                    <div className="p-4">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-gray-900 mb-1">{video.title}</h3>
-                    <div className="flex justify-between items-center">
-                      <p className="text-gray-500 text-xs">{video.duration}</p>
-                      <div className="flex items-center text-gray-500 text-xs">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        {video.views} views
-                      </div>
-                    </div>
-                  </div>
+                ))
+              ) : analyticsError ? (
+                // Error state
+                <div className="col-span-full text-red-500">
+                  {analyticsError}
                 </div>
-              ))}
+              ) : popularVideos.length > 0 ? (
+                // Video cards
+                popularVideos.map((video) => (
+                  <div key={video.id} className="bg-white rounded-lg shadow overflow-hidden">
+                    <div className="aspect-video relative">
+                      <img
+                        src={video.thumbnailUrl}
+                        alt={video.title}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold truncate">{video.title}</h3>
+                      <div className="text-sm text-gray-500 mt-2">
+                        <div>{video.views.toLocaleString()} views</div>
+                        <div>{video.duration}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                // Empty state
+                <div className="col-span-full text-center text-gray-500 py-8">
+                  No popular videos
+                </div>
+              )}
             </div>
           </div>
 
@@ -847,7 +700,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Debug Information (kept intact) */}
+          {/* Debug Information */}
           <div className="mt-8">
             <details className="bg-white shadow-sm rounded-lg">
               <summary className="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">
@@ -877,29 +730,6 @@ const DashboardPage = () => {
                           </pre>
                         </div>
                       )}
-                    </div>
-                    
-                    <div>
-                      <button
-                        onClick={testTokenVerification}
-                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-                      >
-                        Verify Token from Session
-                      </button>
-                      
-                      <button
-                        onClick={testCloudflareConnection}
-                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 ml-2"
-                      >
-                        Test Video API
-                      </button>
-                      
-                      <button
-                        onClick={testBackendStatus}
-                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 ml-2"
-                      >
-                        Check Backend Status
-                      </button>
                     </div>
                   </div>
                 )}
