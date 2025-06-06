@@ -19,6 +19,7 @@ export interface DisplayOptions {
   soundControlColor?: string;
   soundControlOpacity?: number;
   soundControlSize?: number;
+  showSoundControl?: boolean;
 }
 
 export interface EmbedOptions {
@@ -491,7 +492,11 @@ const videoService = {
       const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, {
         displayOptions: formattedDisplayOptions,
         embedOptions: formattedEmbedOptions,
-        ...ctaFields,
+        ctaText: ctaFields?.ctaText,
+        ctaButtonText: ctaFields?.ctaButtonText,
+        ctaLink: ctaFields?.ctaLink,
+        ctaStartTime: ctaFields?.ctaStartTime,
+        ctaEndTime: ctaFields?.ctaEndTime,
       });
       
       return response.data;

@@ -40,6 +40,7 @@ export default function EditVideoPage() {
     soundControlColor: '#ffffff',
     soundControlOpacity: 0.8,
     soundControlText: '',
+    showSoundControl: false,
   });
   // State for embed options (how video appears when embedded)
   const [embedOptions, setEmbedOptions] = useState({
@@ -53,6 +54,7 @@ export default function EditVideoPage() {
   });
   // Add CTA state
   const [ctaFields, setCtaFields] = useState({
+    showCta: false,
     ctaText: '',
     ctaButtonText: '',
     ctaLink: '',
@@ -102,6 +104,7 @@ export default function EditVideoPage() {
             description: ''
           });
           setCtaFields({
+            showCta: Boolean(videoData.ctaText),
             ctaText: videoData.ctaText || '',
             ctaButtonText: videoData.ctaButtonText || '',
             ctaLink: videoData.ctaLink || '',
@@ -338,45 +341,40 @@ export default function EditVideoPage() {
             {/* Video Preview Column */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                {/* Video preview using MuxVideoPlayer with live options */}
-                {video.playback?.hls ? (
-                  <MuxVideoPlayer 
-                    src={video.playback}
-                    title={displayOptions.showTitle ? video.meta?.name : undefined}
-                    autoPlay={displayOptions.autoPlay}
-                    showControls={displayOptions.showPlaybackControls}
-                    muted={displayOptions.muted}
-                    loop={displayOptions.loop}
-                    hideProgress={!displayOptions.showProgressBar}
-                    showTechnicalInfo={embedOptions.showTechnicalInfo}
-                    useOriginalProgressBar={displayOptions.useOriginalProgressBar}
-                    progressBarColor={displayOptions.progressBarColor}
-                    progressEasing={displayOptions.progressEasing}
-                    playButtonColor={displayOptions.playButtonColor}
-                    playButtonSize={displayOptions.playButtonSize}
-                    playButtonBgColor={displayOptions.playButtonBgColor}
-                    soundControlSize={displayOptions.soundControlSize}
-                    soundControlColor={displayOptions.soundControlColor}
-                    soundControlOpacity={displayOptions.soundControlOpacity}
-                    soundControlText={displayOptions.soundControlText}
-                    poster={video.thumbnail || undefined}
-                    editableCta={true}
-                    ctaText={ctaFields.ctaText}
-                    ctaButtonText={ctaFields.ctaButtonText}
-                    ctaLink={ctaFields.ctaLink}
-                    ctaStartTime={ctaFields.ctaStartTime}
-                    ctaEndTime={ctaFields.ctaEndTime}
-                  />
-                ) : (
-                  <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
-                    <div className="text-center p-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p>Video preview not available</p>
-                    </div>
+                <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                  <div className="absolute inset-0">
+                    {video.playback?.hls ? (
+                      <MuxVideoPlayer 
+                        src={video.playback}
+                        title={displayOptions.showTitle ? video.meta?.name : undefined}
+                        autoPlay={displayOptions.autoPlay}
+                        showControls={displayOptions.showPlaybackControls}
+                        muted={displayOptions.muted}
+                        loop={displayOptions.loop}
+                        hideProgress={!displayOptions.showProgressBar}
+                        showTechnicalInfo={embedOptions.showTechnicalInfo}
+                        useOriginalProgressBar={displayOptions.useOriginalProgressBar}
+                        progressBarColor={displayOptions.progressBarColor}
+                        progressEasing={displayOptions.progressEasing}
+                        playButtonColor={displayOptions.playButtonColor}
+                        playButtonSize={displayOptions.playButtonSize}
+                        playButtonBgColor={displayOptions.playButtonBgColor}
+                        soundControlSize={displayOptions.soundControlSize}
+                        soundControlColor={displayOptions.soundControlColor}
+                        soundControlOpacity={displayOptions.soundControlOpacity}
+                        soundControlText={displayOptions.soundControlText}
+                        poster={video.thumbnail || undefined}
+                        showSoundControl={displayOptions.showSoundControl ?? (displayOptions.autoPlay && displayOptions.muted)}
+                        showCta={ctaFields.showCta}
+                        ctaText={ctaFields.ctaText}
+                        ctaButtonText={ctaFields.ctaButtonText}
+                        ctaLink={ctaFields.ctaLink}
+                        ctaStartTime={ctaFields.ctaStartTime}
+                        ctaEndTime={ctaFields.ctaEndTime}
+                      />
+                    ) : null}
                   </div>
-                )}
+                </div>
               </div>
               
               {/* Video information summary */}
@@ -600,7 +598,8 @@ export default function EditVideoPage() {
                               setDisplayOptions(prev => ({
                                 ...prev,
                                 autoPlay: newValue,
-                                muted: newValue
+                                muted: newValue,
+                                showSoundControl: newValue
                               }));
                             }}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
@@ -613,6 +612,24 @@ export default function EditVideoPage() {
                               (Video will start playing automatically with sound muted)
                             </span>
                           </div>
+                        </div>
+
+                        {/* Show Sound Control toggle (optional, for manual override) */}
+                        <div className="flex items-center">
+                          <input
+                            id="show-sound-control"
+                            name="showSoundControl"
+                            type="checkbox"
+                            checked={displayOptions.showSoundControl ?? (displayOptions.autoPlay && displayOptions.muted)}
+                            onChange={() => setDisplayOptions(prev => ({
+                              ...prev,
+                              showSoundControl: !prev.showSoundControl
+                            }))}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="show-sound-control" className="ml-3 block text-sm font-medium text-gray-700">
+                            Show Sound Control
+                          </label>
                         </div>
 
                         {/* Use original Mux progress bar toggle */}
@@ -900,57 +917,92 @@ export default function EditVideoPage() {
                     </div>
                     
                     {/* CTA Fields Section */}
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
-                      <div className="px-6 py-4 border-b border-gray-200">
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Call To Action (CTA)</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">CTA Text</label>
-                            <input
-                              type="text"
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                              value={ctaFields.ctaText}
-                              onChange={e => setCtaFields(f => ({ ...f, ctaText: e.target.value }))}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">CTA Button Text</label>
-                            <input
-                              type="text"
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                              value={ctaFields.ctaButtonText}
-                              onChange={e => setCtaFields(f => ({ ...f, ctaButtonText: e.target.value }))}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">CTA Link</label>
-                            <input
-                              type="text"
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                              value={ctaFields.ctaLink}
-                              onChange={e => setCtaFields(f => ({ ...f, ctaLink: e.target.value }))}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">CTA Start Time (seconds)</label>
-                            <input
-                              type="number"
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                              value={ctaFields.ctaStartTime ?? ''}
-                              onChange={e => setCtaFields(f => ({ ...f, ctaStartTime: e.target.value ? Number(e.target.value) : undefined }))}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">CTA End Time (seconds)</label>
-                            <input
-                              type="number"
-                              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                              value={ctaFields.ctaEndTime ?? ''}
-                              onChange={e => setCtaFields(f => ({ ...f, ctaEndTime: e.target.value ? Number(e.target.value) : undefined }))}
-                            />
-                          </div>
-                        </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center">
+                        <input
+                          id="show-cta"
+                          name="showCta"
+                          type="checkbox"
+                          checked={ctaFields.showCta}
+                          onChange={(e) => {
+                            setCtaFields(prev => ({
+                              ...prev,
+                              showCta: e.target.checked
+                            }));
+                          }}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="show-cta" className="ml-3 block text-sm font-medium text-gray-700">
+                          Show CTA
+                        </label>
                       </div>
+
+                      {ctaFields.showCta && (
+                        <>
+                          <div className="space-y-4">
+                            <div>
+                              <label htmlFor="cta-text" className="block text-sm font-medium text-gray-700">
+                                CTA Text
+                              </label>
+                              <input
+                                type="text"
+                                id="cta-text"
+                                value={ctaFields.ctaText}
+                                onChange={(e) => setCtaFields(prev => ({ ...prev, ctaText: e.target.value }))}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="cta-button-text" className="block text-sm font-medium text-gray-700">
+                                CTA Button Text
+                              </label>
+                              <input
+                                type="text"
+                                id="cta-button-text"
+                                value={ctaFields.ctaButtonText}
+                                onChange={(e) => setCtaFields(prev => ({ ...prev, ctaButtonText: e.target.value }))}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="cta-link" className="block text-sm font-medium text-gray-700">
+                                CTA Link
+                              </label>
+                              <input
+                                type="text"
+                                id="cta-link"
+                                value={ctaFields.ctaLink}
+                                onChange={(e) => setCtaFields(prev => ({ ...prev, ctaLink: e.target.value }))}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="cta-start-time" className="block text-sm font-medium text-gray-700">
+                                CTA Start Time (seconds)
+                              </label>
+                              <input
+                                type="number"
+                                id="cta-start-time"
+                                value={ctaFields.ctaStartTime ?? ''}
+                                onChange={(e) => setCtaFields(prev => ({ ...prev, ctaStartTime: e.target.value ? Number(e.target.value) : undefined }))}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="cta-end-time" className="block text-sm font-medium text-gray-700">
+                                CTA End Time (seconds)
+                              </label>
+                              <input
+                                type="number"
+                                id="cta-end-time"
+                                value={ctaFields.ctaEndTime ?? ''}
+                                onChange={(e) => setCtaFields(prev => ({ ...prev, ctaEndTime: e.target.value ? Number(e.target.value) : undefined }))}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              />
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                   

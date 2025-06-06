@@ -70,29 +70,40 @@ export default function VideoEmbedPage() {
           </div>
         )}
         
-        {!loading && !error && videoData && videoData.playback && videoData.playback.hls && (
-          <MuxVideoPlayer
-            src={videoData.playback}
-            title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
-            autoPlay={videoData.meta?.displayOptions?.autoPlay}
-            showControls={videoData.meta?.displayOptions?.showPlaybackControls}
-            muted={videoData.meta?.displayOptions?.muted}
-            loop={videoData.meta?.displayOptions?.loop}
-            hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
-            showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
-            useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
-            progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
-            progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
-            playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
-            playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
-            playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
-            soundControlText={videoData.meta?.displayOptions?.soundControlText}
-            soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
-            soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
-            soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
-            className="w-full h-full"
-          />
-        )}
+        <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+          <div className="absolute inset-0">
+            {!loading && !error && videoData && videoData.playback && videoData.playback.hls && (
+              <MuxVideoPlayer
+                src={videoData.playback}
+                title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
+                autoPlay={videoData.meta?.displayOptions?.autoPlay}
+                showControls={videoData.meta?.displayOptions?.showPlaybackControls}
+                muted={videoData.meta?.displayOptions?.muted}
+                loop={videoData.meta?.displayOptions?.loop}
+                hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
+                showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
+                useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
+                progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
+                progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
+                playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
+                playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
+                playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
+                soundControlText={videoData.meta?.displayOptions?.soundControlText}
+                soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
+                soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
+                soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
+                showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? false}
+                className="w-full h-full"
+                showCta={!!videoData.ctaText}
+                ctaText={videoData.ctaText}
+                ctaButtonText={videoData.ctaButtonText}
+                ctaLink={videoData.ctaLink}
+                ctaStartTime={videoData.ctaStartTime}
+                ctaEndTime={videoData.ctaEndTime}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

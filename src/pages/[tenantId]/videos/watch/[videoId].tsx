@@ -107,59 +107,70 @@ export default function VideoWatchPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Video Player */}
               <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-                {loading ? (
-                  <div className="aspect-video bg-gray-900 flex items-center justify-center">
-                    <div className="flex flex-col items-center">
-                      <div className="w-12 h-12 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin mb-3"></div>
-                      <p className="text-gray-400">Loading video...</p>
-                    </div>
+                <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                  <div className="absolute inset-0">
+                    {loading ? (
+                      <div className="aspect-video bg-gray-900 flex items-center justify-center">
+                        <div className="flex flex-col items-center">
+                          <div className="w-12 h-12 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+                          <p className="text-gray-400">Loading video...</p>
+                        </div>
+                      </div>
+                    ) : error ? (
+                      <div className="aspect-video bg-gray-900 flex items-center justify-center">
+                        <div className="text-center text-gray-400 p-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <p className="mb-2">{error}</p>
+                          <button 
+                            onClick={() => router.reload()}
+                            className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      </div>
+                    ) : videoData?.playback && videoData.playback.hls ? (
+                      <MuxVideoPlayer 
+                        src={videoData.playback}
+                        title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
+                        autoPlay={videoData.meta?.displayOptions?.autoPlay}
+                        showControls={videoData.meta?.displayOptions?.showPlaybackControls}
+                        muted={videoData.meta?.displayOptions?.muted}
+                        loop={videoData.meta?.displayOptions?.loop}
+                        hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
+                        showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
+                        useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
+                        progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
+                        progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
+                        playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
+                        playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
+                        playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
+                        soundControlText={videoData.meta?.displayOptions?.soundControlText}
+                        soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
+                        soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
+                        soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
+                        showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? false}
+                        showCta={!!videoData.ctaText}
+                        ctaText={videoData.ctaText}
+                        ctaButtonText={videoData.ctaButtonText}
+                        ctaLink={videoData.ctaLink}
+                        ctaStartTime={videoData.ctaStartTime}
+                        ctaEndTime={videoData.ctaEndTime}
+                      />
+                    ) : (
+                      <div className="aspect-video bg-gray-900 flex items-center justify-center">
+                        <div className="text-center text-gray-400 p-4">
+                          <p>Video not available for playback</p>
+                          {videoData && videoData.readyToStream === false && (
+                            <p className="text-xs mt-2">Video is still processing. Please check back later.</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ) : error ? (
-                  <div className="aspect-video bg-gray-900 flex items-center justify-center">
-                    <div className="text-center text-gray-400 p-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                      <p className="mb-2">{error}</p>
-                      <button 
-                        onClick={() => router.reload()}
-                        className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                      >
-                        Retry
-                      </button>
-                    </div>
-                  </div>
-                ) : videoData?.playback && videoData.playback.hls ? (
-                  <MuxVideoPlayer 
-                    src={videoData.playback}
-                    title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
-                    autoPlay={videoData.meta?.displayOptions?.autoPlay}
-                    showControls={videoData.meta?.displayOptions?.showPlaybackControls}
-                    muted={videoData.meta?.displayOptions?.muted}
-                    loop={videoData.meta?.displayOptions?.loop}
-                    hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
-                    showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
-                    useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
-                    progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
-                    progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
-                    playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
-                    playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
-                    playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
-                    soundControlText={videoData.meta?.displayOptions?.soundControlText}
-                    soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
-                    soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
-                    soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
-                  />
-                ) : (
-                  <div className="aspect-video bg-gray-900 flex items-center justify-center">
-                    <div className="text-center text-gray-400 p-4">
-                      <p>Video not available for playback</p>
-                      {videoData && videoData.readyToStream === false && (
-                        <p className="text-xs mt-2">Video is still processing. Please check back later.</p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                </div>
 
                 {/* Video details */}
                 {videoData && (

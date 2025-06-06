@@ -188,44 +188,50 @@ export default function VideoDetailPage() {
             {/* Video Player Column */}
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                {video.playback?.hls ? (
-                  <MuxVideoPlayer 
-                    src={video.playback}
-                    title={video.meta?.displayOptions?.showTitle ? video.meta?.name : undefined}
-                    autoPlay={video.meta?.displayOptions?.autoPlay}
-                    showControls={video.meta?.displayOptions?.showPlaybackControls}
-                    muted={video.meta?.displayOptions?.muted}
-                    loop={video.meta?.displayOptions?.loop}
-                    hideProgress={!video.meta?.displayOptions?.showProgressBar}
-                    showTechnicalInfo={video.meta?.embedOptions?.showTechnicalInfo}
-                    useOriginalProgressBar={video.meta?.displayOptions?.useOriginalProgressBar}
-                    progressBarColor={video.meta?.displayOptions?.progressBarColor}
-                    progressEasing={video.meta?.displayOptions?.progressEasing}
-                    playButtonColor={video.meta?.displayOptions?.playButtonColor}
-                    playButtonSize={video.meta?.displayOptions?.playButtonSize}
-                    playButtonBgColor={video.meta?.displayOptions?.playButtonBgColor}
-                    poster={video.thumbnail || undefined}
-                    ctaText={video.ctaText}
-                    ctaButtonText={video.ctaButtonText}
-                    ctaLink={video.ctaLink}
-                    ctaStartTime={video.ctaStartTime}
-                    ctaEndTime={video.ctaEndTime}
-                    soundControlText={video.meta?.displayOptions?.soundControlText}
-                    soundControlColor={video.meta?.displayOptions?.soundControlColor}
-                    soundControlOpacity={video.meta?.displayOptions?.soundControlOpacity}
-                    soundControlSize={video.meta?.displayOptions?.soundControlSize}
-                  />
-                ) : (
-                  <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
-                    <div className="text-center p-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <p>Video playback not available</p>
-                      <p className="text-sm text-gray-400 mt-1">The video may still be processing</p>
-                    </div>
+                <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                  <div className="absolute inset-0">
+                    {video.playback?.hls ? (
+                      <MuxVideoPlayer 
+                        src={video.playback}
+                        title={video.meta?.displayOptions?.showTitle ? video.meta?.name : undefined}
+                        autoPlay={video.meta?.displayOptions?.autoPlay}
+                        showControls={video.meta?.displayOptions?.showPlaybackControls}
+                        muted={video.meta?.displayOptions?.muted}
+                        loop={video.meta?.displayOptions?.loop}
+                        hideProgress={!video.meta?.displayOptions?.showProgressBar}
+                        showTechnicalInfo={video.meta?.embedOptions?.showTechnicalInfo}
+                        useOriginalProgressBar={video.meta?.displayOptions?.useOriginalProgressBar}
+                        progressBarColor={video.meta?.displayOptions?.progressBarColor}
+                        progressEasing={video.meta?.displayOptions?.progressEasing}
+                        playButtonColor={video.meta?.displayOptions?.playButtonColor}
+                        playButtonSize={video.meta?.displayOptions?.playButtonSize}
+                        playButtonBgColor={video.meta?.displayOptions?.playButtonBgColor}
+                        poster={video.thumbnail || undefined}
+                        soundControlText={video.meta?.displayOptions?.soundControlText}
+                        soundControlColor={video.meta?.displayOptions?.soundControlColor}
+                        soundControlOpacity={video.meta?.displayOptions?.soundControlOpacity}
+                        soundControlSize={video.meta?.displayOptions?.soundControlSize}
+                        showSoundControl={video.meta?.displayOptions?.showSoundControl ?? false}
+                        showCta={!!video.ctaText}
+                        ctaText={video.ctaText}
+                        ctaButtonText={video.ctaButtonText}
+                        ctaLink={video.ctaLink}
+                        ctaStartTime={video.ctaStartTime}
+                        ctaEndTime={video.ctaEndTime}
+                      />
+                    ) : (
+                      <div className="aspect-video bg-gray-900 flex items-center justify-center text-white">
+                        <div className="text-center p-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p>Video playback not available</p>
+                          <p className="text-sm text-gray-400 mt-1">The video may still be processing</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
               
               <div className="bg-white rounded-lg shadow-md p-6">
