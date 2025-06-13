@@ -22,11 +22,37 @@ export default function VideoEmbedPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await videoService.getVideoForEmbed(videoId);
-      if (response.success && response.result) {
-        setVideoData(response.result as VideoData);
+      const response = await videoService.getVideoByUid(videoId);
+
+      if (response.success && response.data) {
+        // Handle both array and object responses
+        let video: VideoData | null = null;
+        
+        if (response.data.result && Array.isArray(response.data.result) && response.data.result.length > 0) {
+          // If result is an array, get the first element
+          video = response.data.result[0];
+        } else if (response.data.result && typeof response.data.result === 'object') {
+          // If result is a direct object, use it
+          video = response.data.result as unknown as VideoData;
+        }
+        
+        if (video) {
+          console.log('Video data:', JSON.stringify(video, null, 2));
+          setVideoData(video);
+        } else {
+          throw new Error('No video data available');
+        }
       } else {
-        setError('No video data available');
+        // Only throw an error if the response indicates a failure
+        if (!response.success) {
+          const errorMessage = response.message || 'Failed to load video';
+          console.error('API response error:', response);
+          throw new Error(errorMessage);
+        } else {
+          // Handle case where response is successful but no video data
+          console.error('API response has no video data:', response);
+          throw new Error('No video data available');
+        }
       }
     } catch (err) {
       console.error('Error fetching video:', err);
@@ -70,10 +96,10 @@ export default function VideoEmbedPage() {
           </div>
         )}
         
-        <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-          <div className="absolute inset-0">
-            {!loading && !error && videoData && videoData.playback && videoData.playback.hls && (
-              <MuxVideoPlayer
+        <div className="w-full h-full flex items-center justify-center p-4">
+          <div className="w-full max-w-[100vw] max-h-[100vh] aspect-video">
+            {videoData && videoData.playback && videoData.playback.hls && (
+              <MuxVideoPlayer 
                 src={videoData.playback}
                 title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
                 autoPlay={videoData.meta?.displayOptions?.autoPlay}
@@ -83,23 +109,24 @@ export default function VideoEmbedPage() {
                 hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
                 showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
                 useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
-                progressBarColor={videoData.meta?.displayOptions?.progressBarColor || '#3b82f6'}
-                progressEasing={typeof videoData.meta?.displayOptions?.progressEasing === 'number' ? videoData.meta.displayOptions.progressEasing : 0.65}
-                playButtonColor={videoData.meta?.displayOptions?.playButtonColor || '#fff'}
-                playButtonSize={typeof videoData.meta?.displayOptions?.playButtonSize === 'number' ? videoData.meta.displayOptions.playButtonSize : 32}
-                playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor || '#000000'}
-                soundControlText={videoData.meta?.displayOptions?.soundControlText}
+                progressBarColor={videoData.meta?.displayOptions?.progressBarColor}
+                progressEasing={videoData.meta?.displayOptions?.progressEasing}
+                playButtonColor={videoData.meta?.displayOptions?.playButtonColor}
+                playButtonSize={videoData.meta?.displayOptions?.playButtonSize}
+                playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor}
+                soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
                 soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
                 soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
-                soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
-                showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? false}
-                className="w-full h-full"
+                soundControlText={videoData.meta?.displayOptions?.soundControlText}
+                poster={videoData.thumbnail || undefined}
+                showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
                 showCta={!!videoData.ctaText}
                 ctaText={videoData.ctaText}
                 ctaButtonText={videoData.ctaButtonText}
                 ctaLink={videoData.ctaLink}
                 ctaStartTime={videoData.ctaStartTime}
                 ctaEndTime={videoData.ctaEndTime}
+                className="w-full h-full"
               />
             )}
           </div>

@@ -513,6 +513,8 @@ const videoService = {
   getVideoForEmbed: async (videoId: string): Promise<any> => {
     try {
       const response = await api.get(`/videos/embed/${videoId}`);
+
+      console.log('******************Embed video response:', response.data);
       return response.data;
     } catch (error) {
       console.error(`Error fetching embed video for ID ${videoId}:`, error);
