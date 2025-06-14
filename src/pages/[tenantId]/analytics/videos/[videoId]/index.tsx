@@ -89,6 +89,8 @@ const VideoAnalyticsPage: React.FC = () => {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     const formData = new FormData(e.currentTarget);
     const newTimeRange: TimeRange = {
       timezone: formData.get('timezone') as string,
@@ -96,7 +98,14 @@ const VideoAnalyticsPage: React.FC = () => {
       endDate: formData.get('endDate') as string,
       granularity: Number(formData.get('granularity'))
     };
-    setTimeRange(newTimeRange);
+    
+    // Use a callback to ensure state is updated properly
+    setTimeRange((prev) => ({
+      ...prev,
+      ...newTimeRange
+    }));
+    
+    return false;
   };
 
   if (loading) {
@@ -169,11 +178,20 @@ const VideoAnalyticsPage: React.FC = () => {
                 className="rounded-md border border-gray-300 px-3 py-2 text-sm"
                 defaultValue={timeRange.granularity || 5}
               >
-                <option value="1">1 minute</option>
-                <option value="5">5 minutes</option>
-                <option value="15">15 minutes</option>
-                <option value="30">30 minutes</option>
-                <option value="60">1 hour</option>
+                <optgroup label="Seconds">
+                  <option value="1">1 second</option>
+                  <option value="5">5 seconds</option>
+                  <option value="10">10 seconds</option>
+                  <option value="15">15 seconds</option>
+                  <option value="30">30 seconds</option>
+                </optgroup>
+                <optgroup label="Minutes">
+                  <option value="60">1 minute</option>
+                  <option value="300">5 minutes</option>
+                  <option value="900">15 minutes</option>
+                  <option value="1800">30 minutes</option>
+                  <option value="3600">1 hour</option>
+                </optgroup>
               </select>
               <button
                 type="submit"
@@ -245,6 +263,7 @@ const VideoAnalyticsPage: React.FC = () => {
         <ViewerTimelineChart
           data={analytics.retentionData}
           videoDuration={videoData.duration}
+          granularity={timeRange.granularity}
         />
       </div>
     </div>

@@ -18,6 +18,7 @@ interface ViewerTimelineData {
 interface ViewerTimelineChartProps {
   data: ViewerTimelineData[];
   videoDuration: number;
+  granularity?: number;
 }
 
 const formatTime = (seconds: number) => {
@@ -26,7 +27,19 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
 
-const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDuration }) => {
+const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDuration, granularity = 5 }) => {
+  // Filter data points based on granularity
+  const filteredData = data.filter((_, index) => {
+    if (granularity < 60) {
+      // For second granularity, keep every nth point
+      return index % granularity === 0;
+    } else {
+      // For minute granularity, convert to seconds and keep every nth point
+      const secondsInterval = granularity / 60;
+      return index % secondsInterval === 0;
+    }
+  });
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -36,7 +49,7 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={data}
+              data={filteredData}
               margin={{
                 top: 5,
                 right: 30,
