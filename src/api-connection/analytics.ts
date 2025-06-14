@@ -1,6 +1,15 @@
 import api from '../api';
 import axios from 'axios';
 
+export interface TimeRange {
+  startDate?: string;
+  endDate?: string;
+  startTimeOfDay?: string;
+  endTimeOfDay?: string;
+  timezone?: string;
+  granularity?: number;
+}
+
 export interface PlatformStats {
   totalVideos: number;
   totalViews: number;
@@ -85,12 +94,14 @@ const analyticsService = {
   /**
    * Get all dashboard analytics in a single request
    */
-  getDashboardAnalytics: async (): Promise<AnalyticsResponse> => {
+  getDashboardAnalytics: async (timeRange?: TimeRange): Promise<AnalyticsResponse> => {
     try {
       // Log the API request for debugging
       console.log('Fetching dashboard analytics from:', api.defaults.baseURL + '/analytics/dashboard');
       
-      const response = await api.get<AnalyticsResponse>('analytics/dashboard');
+      const response = await api.get<AnalyticsResponse>('analytics/dashboard', {
+        params: timeRange
+      });
       console.log('Successfully received dashboard analytics');
       return response.data;
     } catch (error) {
@@ -128,9 +139,11 @@ const analyticsService = {
   /**
    * Get platform overview statistics
    */
-  getPlatformStats: async (): Promise<PlatformStats> => {
+  getPlatformStats: async (timeRange?: TimeRange): Promise<PlatformStats> => {
     try {
-      const response = await api.get<{ success: boolean; data: PlatformStats }>('analytics/platform-stats');
+      const response = await api.get<{ success: boolean; data: PlatformStats }>('analytics/platform-stats', {
+        params: timeRange
+      });
       return response.data.data;
     } catch (error) {
       console.error('Error fetching platform stats:', error);
@@ -142,9 +155,11 @@ const analyticsService = {
   /**
    * Get recent uploads
    */
-  getRecentUploads: async (limit: number = 5): Promise<RecentUpload[]> => {
+  getRecentUploads: async (limit: number = 5, timeRange?: TimeRange): Promise<RecentUpload[]> => {
     try {
-      const response = await api.get<{ success: boolean; data: RecentUpload[] }>(`analytics/recent-uploads?limit=${limit}`);
+      const response = await api.get<{ success: boolean; data: RecentUpload[] }>(`analytics/recent-uploads`, {
+        params: { limit, ...timeRange }
+      });
       return response.data.data;
     } catch (error) {
       console.error('Error fetching recent uploads:', error);
@@ -156,9 +171,11 @@ const analyticsService = {
   /**
    * Get popular videos
    */
-  getPopularVideos: async (limit: number = 3): Promise<PopularVideo[]> => {
+  getPopularVideos: async (limit: number = 3, timeRange?: TimeRange): Promise<PopularVideo[]> => {
     try {
-      const response = await api.get<{ success: boolean; data: PopularVideo[] }>(`analytics/popular-videos?limit=${limit}`);
+      const response = await api.get<{ success: boolean; data: PopularVideo[] }>(`analytics/popular-videos`, {
+        params: { limit, ...timeRange }
+      });
       return response.data.data;
     } catch (error) {
       console.error('Error fetching popular videos:', error);
@@ -170,9 +187,11 @@ const analyticsService = {
   /**
    * Get detailed analytics for a specific video
    */
-  getVideoAnalytics: async (videoId: string): Promise<{ success: boolean; data: VideoAnalytics }> => {
+  getVideoAnalytics: async (videoId: string, timeRange?: TimeRange): Promise<{ success: boolean; data: VideoAnalytics }> => {
     try {
-      const response = await api.get<{ success: boolean; data: VideoAnalytics }>(`analytics/videos/${videoId}`);
+      const response = await api.get<{ success: boolean; data: VideoAnalytics }>(`analytics/videos/${videoId}`, {
+        params: timeRange
+      });
       return response.data;
     } catch (error) {
       console.error(`Error fetching analytics for video ${videoId}:`, error);
@@ -183,9 +202,11 @@ const analyticsService = {
   /**
    * Get retention data for a specific video
    */
-  getVideoRetention: async (videoId: string): Promise<{ success: boolean; data: RetentionDataPoint[] }> => {
+  getVideoRetention: async (videoId: string, timeRange?: TimeRange): Promise<{ success: boolean; data: RetentionDataPoint[] }> => {
     try {
-      const response = await api.get<{ success: boolean; data: RetentionDataPoint[] }>(`analytics/retention/${videoId}`);
+      const response = await api.get<{ success: boolean; data: RetentionDataPoint[] }>(`analytics/retention/${videoId}`, {
+        params: timeRange
+      });
       return response.data;
     } catch (error) {
       console.error(`Error fetching retention data for video ${videoId}:`, error);
@@ -196,9 +217,11 @@ const analyticsService = {
   /**
    * Get viewer timeline data for a specific video
    */
-  getVideoViews: async (videoId: string): Promise<{ success: boolean; data: ViewerTimeline[] }> => {
+  getVideoViews: async (videoId: string, timeRange?: TimeRange): Promise<{ success: boolean; data: ViewerTimeline[] }> => {
     try {
-      const response = await api.get<{ success: boolean; data: ViewerTimeline[] }>(`analytics/views/${videoId}`);
+      const response = await api.get<{ success: boolean; data: ViewerTimeline[] }>(`analytics/views/${videoId}`, {
+        params: timeRange
+      });
       return response.data;
     } catch (error) {
       console.error(`Error fetching viewer timeline for video ${videoId}:`, error);
