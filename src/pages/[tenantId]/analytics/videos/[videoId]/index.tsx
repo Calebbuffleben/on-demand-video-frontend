@@ -264,6 +264,7 @@ const VideoAnalyticsPage: React.FC = () => {
           data={analytics.retentionData}
           videoDuration={videoData.duration}
           granularity={timeRange.granularity}
+          totalViews={analytics.totalViews}
         />
       </div>
     </div>

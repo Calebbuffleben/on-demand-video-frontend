@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   LineChart,
   Line,
@@ -19,6 +19,7 @@ interface ViewerTimelineChartProps {
   data: ViewerTimelineData[];
   videoDuration: number;
   granularity?: number;
+  totalViews: number;
 }
 
 const formatTime = (seconds: number) => {
@@ -27,7 +28,9 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 };
 
-const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDuration, granularity = 5 }) => {
+const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDuration, granularity = 5, totalViews }) => {
+  const [showPercentage, setShowPercentage] = useState(true);
+
   // Filter data points based on granularity
   const filteredData = data.filter((_, index) => {
     if (granularity < 60) {
@@ -40,16 +43,50 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
     }
   });
 
+  // Transform data based on toggle state
+  // Use the actual totalViews from backend to maintain curve shape
+  const chartData = filteredData.map(point => ({
+    ...point,
+    displayValue: showPercentage 
+      ? point.retention 
+      : Math.round((point.retention / 100) * totalViews)
+  }));
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Viewer Retention</CardTitle>
+        <CardTitle className="flex items-center justify-between">
+          <span>Viewer Retention</span>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Show:</span>
+            <button
+              onClick={() => setShowPercentage(true)}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                showPercentage 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Percentage
+            </button>
+            <button
+              onClick={() => setShowPercentage(false)}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                !showPercentage 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Views
+            </button>
+          </div>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={filteredData}
+              data={chartData}
               margin={{
                 top: 5,
                 right: 30,
@@ -65,20 +102,23 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
                 tickCount={10}
               />
               <YAxis
-                domain={[0, 100]}
-                tickFormatter={(value) => `${value}%`}
+                domain={showPercentage ? [0, 100] : [0, 'dataMax']}
+                tickFormatter={(value) => showPercentage ? `${value}%` : value.toString()}
               />
               <Tooltip
-                formatter={(value: number) => [`${value.toFixed(1)}%`, 'Retention']}
+                formatter={(value: number) => [
+                  showPercentage ? `${value.toFixed(1)}%` : `${Math.round(value)} viewers`,
+                  showPercentage ? 'Retention' : 'Active Viewers'
+                ]}
                 labelFormatter={(time: number) => `Time: ${formatTime(time)}`}
               />
               <Line
                 type="monotone"
-                dataKey="retention"
+                dataKey="displayValue"
                 stroke="#8884d8"
                 strokeWidth={2}
                 dot={false}
-                name="Viewer Retention"
+                name={showPercentage ? "Viewer Retention" : "Active Viewers"}
               />
             </LineChart>
           </ResponsiveContainer>
