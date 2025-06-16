@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber, formatDuration } from '@/lib/utils';
 import Link from 'next/link';
+import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
+import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
+import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -60,88 +63,142 @@ export default function AnalyticsPage() {
   }, [tenantId]);
 
   if (loading) {
-    return <AnalyticsSkeleton />;
+    return (
+      <DashboardLayout sidebar={<DashboardSidebar />}>
+        <div className="p-4 md:p-6 bg-gray-50">
+          <header className="bg-white shadow-sm mb-6 rounded-lg">
+            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
+                <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+              </div>
+              <DashboardMenu />
+            </div>
+          </header>
+          <AnalyticsSkeleton />
+        </div>
+      </DashboardLayout>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-4 text-red-500">
-        {error}
-      </div>
+      <DashboardLayout sidebar={<DashboardSidebar />}>
+        <div className="p-4 md:p-6 bg-gray-50">
+          <header className="bg-white shadow-sm mb-6 rounded-lg">
+            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
+                <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+              </div>
+              <DashboardMenu />
+            </div>
+          </header>
+          <div className="p-4 text-red-500">
+            {error}
+          </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (!data) {
-    return null;
+    return (
+      <DashboardLayout sidebar={<DashboardSidebar />}>
+        <div className="p-4 md:p-6 bg-gray-50">
+          <header className="bg-white shadow-sm mb-6 rounded-lg">
+            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
+                <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+              </div>
+              <DashboardMenu />
+            </div>
+          </header>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
-      
-      {/* Platform Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Videos"
-          value={formatNumber(data.platformStats.totalVideos)}
-        />
-        <StatCard
-          title="Total Views"
-          value={formatNumber(data.platformStats.totalViews)}
-        />
-        <StatCard
-          title="Total Storage"
-          value={data.platformStats.totalStorage}
-        />
-        <StatCard
-          title="Total Bandwidth"
-          value={data.platformStats.totalBandwidth}
-        />
+    <DashboardLayout sidebar={<DashboardSidebar />}>
+      <div className="p-4 md:p-6 bg-gray-50">
+        <header className="bg-white shadow-sm mb-6 rounded-lg">
+          <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
+              <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+            </div>
+            <DashboardMenu />
+          </div>
+        </header>
+
+        <div className="space-y-6">
+          {/* Platform Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              title="Total Videos"
+              value={formatNumber(data.platformStats.totalVideos)}
+            />
+            <StatCard
+              title="Total Views"
+              value={formatNumber(data.platformStats.totalViews)}
+            />
+            <StatCard
+              title="Total Storage"
+              value={data.platformStats.totalStorage}
+            />
+            <StatCard
+              title="Total Bandwidth"
+              value={data.platformStats.totalBandwidth}
+            />
+          </div>
+
+          {/* Recent Uploads */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Uploads</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {data.recentUploads.map((upload) => (
+                  <VideoCard
+                    key={upload.id}
+                    id={upload.id}
+                    title={upload.title}
+                    thumbnailUrl={upload.thumbnailUrl}
+                    date={new Date(upload.uploadDate)}
+                    duration={upload.duration}
+                    size={upload.size}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Popular Videos */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Popular Videos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {data.popularVideos.map((video) => (
+                  <VideoCard
+                    key={video.id}
+                    id={video.id}
+                    title={video.title}
+                    thumbnailUrl={video.thumbnailUrl}
+                    views={video.views}
+                    duration={video.duration}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Recent Uploads */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Uploads</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.recentUploads.map((upload) => (
-              <VideoCard
-                key={upload.id}
-                id={upload.id}
-                title={upload.title}
-                thumbnailUrl={upload.thumbnailUrl}
-                date={new Date(upload.uploadDate)}
-                duration={upload.duration}
-                size={upload.size}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Popular Videos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Popular Videos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.popularVideos.map((video) => (
-              <VideoCard
-                key={video.id}
-                id={video.id}
-                title={video.title}
-                thumbnailUrl={video.thumbnailUrl}
-                views={video.views}
-                duration={video.duration}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    </DashboardLayout>
   );
 }
 
@@ -210,9 +267,7 @@ function VideoCard({
 
 function AnalyticsSkeleton() {
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Skeleton className="h-8 w-48 mb-6" />
-      
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-24" />
