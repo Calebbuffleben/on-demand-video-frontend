@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import analyticsService, { TimeRange } from '@/api-connection/analytics';
+import analyticsService, { TimeRange, ViewerAnalytics } from '@/api-connection/analytics';
 import videoService from '@/api-connection/videos';
 import ViewerTimelineChart from '@/components/analytics/ViewerTimelineChart';
+import ViewerBreakdownCharts from '@/components/analytics/ViewerBreakdownCharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber, formatDuration } from '@/lib/utils';
@@ -46,6 +47,7 @@ const VideoAnalyticsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<VideoAnalytics | null>(null);
+  const [viewerAnalytics, setViewerAnalytics] = useState<ViewerAnalytics | null>(null);
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>({});
 
@@ -57,10 +59,11 @@ const VideoAnalyticsPage: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch video data and analytics in parallel
-        const [videoResponse, analyticsResponse] = await Promise.all([
+        // Fetch video data, analytics, and viewer analytics in parallel
+        const [videoResponse, analyticsResponse, viewerAnalyticsResponse] = await Promise.all([
           videoService.getVideoByUid(videoId as string),
-          analyticsService.getVideoAnalytics(videoId as string, timeRange)
+          analyticsService.getVideoAnalytics(videoId as string, timeRange),
+          analyticsService.getViewerAnalytics(videoId as string, timeRange)
         ]);
 
         if (videoResponse.success && videoResponse.data?.result) {
@@ -74,6 +77,10 @@ const VideoAnalyticsPage: React.FC = () => {
           setAnalytics(analyticsResponse.data);
         } else {
           setError('Failed to fetch analytics data');
+        }
+
+        if (viewerAnalyticsResponse.success) {
+          setViewerAnalytics(viewerAnalyticsResponse.data);
         }
       } catch (err) {
         setError('Error loading data');
@@ -313,6 +320,14 @@ const VideoAnalyticsPage: React.FC = () => {
             granularity={timeRange.granularity}
             totalViews={analytics.totalViews}
           />
+
+          {/* Viewer Analytics Breakdown */}
+          {viewerAnalytics && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Viewer Demographics</h2>
+              <ViewerBreakdownCharts data={viewerAnalytics} />
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>

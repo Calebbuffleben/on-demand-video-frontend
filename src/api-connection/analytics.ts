@@ -63,6 +63,52 @@ export interface ViewerTimeline {
   activeViewers: number;
 }
 
+export interface DeviceBreakdown {
+  device: string;
+  category: string;
+  manufacturer: string;
+  views: number;
+  percentage: number;
+}
+
+export interface BrowserBreakdown {
+  browser: string;
+  version: string;
+  views: number;
+  percentage: number;
+}
+
+export interface LocationBreakdown {
+  country: string;
+  countryCode: string;
+  region?: string;
+  city?: string;
+  views: number;
+  percentage: number;
+}
+
+export interface OSBreakdown {
+  os: string;
+  version: string;
+  views: number;
+  percentage: number;
+}
+
+export interface ConnectionBreakdown {
+  connectionType: string;
+  views: number;
+  percentage: number;
+}
+
+export interface ViewerAnalytics {
+  devices: DeviceBreakdown[];
+  browsers: BrowserBreakdown[];
+  locations: LocationBreakdown[];
+  operatingSystems: OSBreakdown[];
+  connections: ConnectionBreakdown[];
+  totalViews: number;
+}
+
 export interface AnalyticsResponse {
   success: boolean;
   status: number;
@@ -226,6 +272,32 @@ const analyticsService = {
     } catch (error) {
       console.error(`Error fetching viewer timeline for video ${videoId}:`, error);
       throw error;
+    }
+  },
+
+  /**
+   * Get viewer analytics breakdown (devices, browsers, locations)
+   */
+  getViewerAnalytics: async (videoId: string, timeRange?: TimeRange): Promise<{ success: boolean; data: ViewerAnalytics }> => {
+    try {
+      const response = await api.get<{ success: boolean; data: ViewerAnalytics }>(`analytics/videos/${videoId}/viewer-analytics`, {
+        params: timeRange
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching viewer analytics for video ${videoId}:`, error);
+      // Return default empty data instead of throwing
+      return {
+        success: false,
+        data: {
+          devices: [],
+          browsers: [],
+          locations: [],
+          operatingSystems: [],
+          connections: [],
+          totalViews: 0
+        }
+      };
     }
   }
 };
