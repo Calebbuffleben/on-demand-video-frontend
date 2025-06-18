@@ -246,9 +246,17 @@ export default function MuxVideoPlayer({
           playbackId={playbackId}
           metadataVideoTitle={title}
           metadataViewerUserId="anonymous"
+          envKey={process.env.NEXT_PUBLIC_MUX_ENV_KEY}
+          metadata={{
+            video_id: playbackId,
+            video_title: title || 'Untitled Video',
+            player_name: 'Mux Player',
+            viewer_user_id: 'anonymous',
+            env_key: process.env.NEXT_PUBLIC_MUX_ENV_KEY,
+          }} 
           autoPlay={autoPlay}
-        muted={isMuted}
-        loop={loop}
+          muted={isMuted}
+          loop={loop}
           poster={poster}
           onTimeUpdate={handleTimeUpdate}
         style={{
