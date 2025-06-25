@@ -10,7 +10,7 @@ export default function VideoEmbedPage() {
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   
   const router = useRouter();
-  const { videoId, tenantId } = router.query;
+  const { videoId } = router.query;
 
   useEffect(() => {
     if (videoId && typeof videoId === 'string') {

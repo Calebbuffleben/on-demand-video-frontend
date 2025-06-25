@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useOrganization } from '@clerk/nextjs';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
@@ -64,7 +63,6 @@ export default function EditVideoPage() {
   
   const router = useRouter();
   const { videoId, tenantId } = router.query;
-  const { organization } = useOrganization();
 
   // Log displayOptions whenever it changes
   useEffect(() => {
@@ -155,9 +153,10 @@ export default function EditVideoPage() {
           throw new Error('No video data available');
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching video:', err);
-      setError(err.message || 'Failed to load video');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load video';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -239,9 +238,10 @@ export default function EditVideoPage() {
       } else {
         throw new Error('Video data is missing');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating video:', err);
-      setError(err.message || 'Failed to update video');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update video';
+      setError(errorMessage);
       setSaving(false);
     }
   };
@@ -260,7 +260,7 @@ export default function EditVideoPage() {
       if (response.success && response.data.result.length > 0) {
         setVideo(response.data.result[0]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error uploading cover:', err);
       alert('Failed to upload cover image. Please try again.');
     } finally {
@@ -478,7 +478,7 @@ export default function EditVideoPage() {
                               setSaving(true);
                               await videoService.clearThumbnail(video.uid);
                               setVideo(prev => prev ? { ...prev, thumbnail: '' } : prev);
-                            } catch (err) {
+                            } catch {
                               alert('Failed to remove thumbnail');
                             } finally {
                               setSaving(false);
@@ -707,6 +707,7 @@ export default function EditVideoPage() {
                           label="Play button background"
                           id="play-button-bg-color"
                           value={displayOptions.playButtonBgColor}
+                          supportAlpha={true}
                           onChange={color => {
                             console.log(`[DEBUG] ColorPicker onChange for playButtonBgColor triggered. New color: ${color}`);
                             setDisplayOptions(prev => ({ ...prev, playButtonBgColor: color }));

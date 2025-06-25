@@ -6,7 +6,7 @@ import { useClerk, useUser } from '@clerk/nextjs';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: any;
+  user: ReturnType<typeof useUser>['user'];
   loading: boolean;
   logout: () => void;
 }

@@ -12,6 +12,7 @@ import { formatNumber, formatDuration } from '@/lib/utils';
 import DashboardLayout from '../../../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
+import Image from 'next/image';
 
 interface VideoAnalytics {
   totalViews: number;
@@ -92,10 +93,6 @@ const VideoAnalyticsPage: React.FC = () => {
 
     fetchData();
   }, [tenantId, videoId, timeRange]);
-
-  const handleTimeRangeChange = (range: TimeRange) => {
-    setTimeRange(range);
-  };
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -264,10 +261,12 @@ const VideoAnalyticsPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-4">
-                <img
+                <Image
                   src={videoData.thumbnail}
                   alt={videoData.meta.name}
                   className="w-48 h-27 object-cover rounded"
+                  width={192}
+                  height={108}
                 />
                 <div>
                   <h2 className="text-xl font-semibold">{videoData.meta.name}</h2>

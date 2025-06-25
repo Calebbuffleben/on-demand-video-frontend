@@ -1,31 +1,34 @@
 'use client'
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/router";
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import Image from 'next/image';
 import Head from 'next/head';
-
-// Import components for organization dashboard
+import Image from 'next/image';
 import OrganizationOverviewCard from '@/components/Organization/OrganizationOverviewCard';
-import OrganizationMembersCard from '@/components/Organization/OrganizationMembersCard';
-import SubscriptionStatusCard from '@/components/Subscription/SubscriptionStatusCard';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
-
-// Import video service
-import videoService from '@/api-connection/videos';
 import analyticsService from '@/api-connection/analytics';
-import api from '@/api';
 
-// Import SignOutComponent with no SSR
-const SignOutComponent = dynamic(
-  () => import('@/components/ui/SignOutComponent/SignOutComponent'),
-  { ssr: false }
-);
+// Type interfaces for analytics data
+interface VideoUpload {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  uploadDate: string;
+  duration: string;
+  size: string;
+}
+
+interface PopularVideo {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  views: number;
+  duration: string;
+}
 
 // ClientOnly wrapper component
 const ClientOnly = ({ children }: { children: React.ReactNode }) => {
@@ -41,12 +44,8 @@ const ClientOnly = ({ children }: { children: React.ReactNode }) => {
 
 // Dashboard component with no SSR
 const DashboardPage = () => {
-  const [subscription, setSubscription] = useState<null | any>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
-  const [debugInfo, setDebugInfo] = useState<any>({});
-  const [apiTestResult, setApiTestResult] = useState<any>(null);
-  const [apiTestLoading, setApiTestLoading] = useState(false);
   const { organization, isLoaded: orgLoaded } = useOrganization();
   const router = useRouter();
   const { tenantId } = router.query;
@@ -55,7 +54,7 @@ const DashboardPage = () => {
   
   // Initialize state without localStorage
   const [dbOrgId, setDbOrgId] = useState<string | null>(null);
-  const [subscriptionService, setSubscriptionService] = useState<any>(null);
+  const [subscriptionService, setSubscriptionService] = useState<{ getCurrentSubscription: () => Promise<unknown> } | null>(null);
   
   // Platform stats
   const [platformStats, setPlatformStats] = useState({
@@ -66,14 +65,46 @@ const DashboardPage = () => {
   });
   
   // Recent uploads
-  const [recentUploads, setRecentUploads] = useState<any[]>([]);
+  const [recentUploads, setRecentUploads] = useState<VideoUpload[]>([]);
   
   // Popular videos
-  const [popularVideos, setPopularVideos] = useState<any[]>([]);
+  const [popularVideos, setPopularVideos] = useState<PopularVideo[]>([]);
   
   // Analytics loading state
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+
+  const fetchSubscription = useCallback(async () => {
+    // Don't attempt to fetch on server or if service isn't loaded
+    if (typeof window === 'undefined' || !subscriptionService) return;
+    
+    setLoading(true);
+    try {
+      // Use the Clerk organization ID directly
+      if (organization?.id) {
+        console.log('Using organization ID from Clerk for API call:', organization.id);
+        localStorage.setItem('currentOrganizationId', organization.id);
+      }
+      
+      // Small delay to ensure localStorage is set
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const subscription = await subscriptionService.getCurrentSubscription();
+      console.log('Subscription loaded:', subscription);
+      setSubscription(subscription);
+    } catch (err: unknown) {
+      console.error("Error fetching subscription:", err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to load subscription details";
+      console.error(errorMessage);
+      
+      // Check for token issues
+      if (typeof window !== 'undefined' && !localStorage.getItem('token')) {
+        console.error('Authentication token is missing. Try signing in again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [organization?.id, subscriptionService]);
   
   // Load the subscription service module safely
   useEffect(() => {
@@ -102,33 +133,6 @@ const DashboardPage = () => {
   }, [orgLoaded, organization]);
   
   useEffect(() => {
-    const getLocalStorageData = () => {
-      if (typeof window === 'undefined') return null;
-      
-      return {
-        token: localStorage.getItem('token') ? 'Present' : 'Missing',
-        clerkOrgId: localStorage.getItem('currentOrganizationId') || 'None',
-        dbOrgId: localStorage.getItem('dbOrganizationId') || 'None'
-      };
-    };
-    
-    const getPathData = () => {
-      return typeof window !== 'undefined' ? window.location.pathname : 'No window';
-    };
-    
-    // Update debug info
-    setDebugInfo({
-      organizationLoaded: orgLoaded, 
-      organizationId: organization?.id || 'None',
-      databaseOrgId: dbOrgId || (typeof window !== 'undefined' ? localStorage.getItem('dbOrganizationId') : null) || 'None',
-      tenantId: tenantId || 'None',
-      redirectAttempted: redirectAttempted.current,
-      subscriptionRequested: subscriptionRequested.current,
-      serviceLoaded: !!subscriptionService,
-      localStorage: getLocalStorageData() || 'No window',
-      path: getPathData()
-    });
-    
     // Don't proceed until Clerk organization and subscription service are loaded
     if (!orgLoaded || !subscriptionService) {
       return;
@@ -172,311 +176,7 @@ const DashboardPage = () => {
       subscriptionRequested.current = true;
       fetchSubscription();
     }
-    // If we've already tried to fetch but got an error, show the error
-    else if (subscriptionRequested.current && !loading && !subscription) {
-      setError("No organization context available or subscription could not be loaded");
-    }
-  }, [orgLoaded, organization, tenantId, router, loading, subscription, dbOrgId, subscriptionService]);
-  
-
-  const fetchSubscription = async () => {
-    // Don't attempt to fetch on server or if service isn't loaded
-    if (typeof window === 'undefined' || !subscriptionService) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      // Use the Clerk organization ID directly
-      if (organization?.id) {
-        console.log('Using organization ID from Clerk for API call:', organization.id);
-        localStorage.setItem('currentOrganizationId', organization.id);
-      }
-      
-      // Get or sync database organization ID if needed
-      const currentDbOrgId = dbOrgId || localStorage.getItem('dbOrganizationId');
-      if (!currentDbOrgId && organization?.id) {
-        console.log('No database organization ID available - trying to sync user profile first');
-        try {
-          await testCreateOrganization();
-          // Small delay to ensure new ID is saved
-          await new Promise(resolve => setTimeout(resolve, 500));
-        } catch (err) {
-          console.error('Failed to sync user profile:', err);
-        }
-      }
-      
-      // Small delay to ensure localStorage is set
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const subscription = await subscriptionService.getCurrentSubscription();
-      console.log('Subscription loaded:', subscription);
-      setSubscription(subscription);
-    } catch (err: any) {
-      console.error("Error fetching subscription:", err);
-      const errorMessage = err?.response?.data?.message || err.message || "Failed to load subscription details";
-      setError(errorMessage);
-      
-      // Check for token issues
-      if (typeof window !== 'undefined' && !localStorage.getItem('token')) {
-        setError('Authentication token is missing. Try signing in again.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  } 
-  
-  const handleRetry = () => {
-    // Don't proceed if we're on the server or service isn't loaded
-    if (typeof window === 'undefined' || !subscriptionService) return;
-    
-    // Reset subscription request flag
-    subscriptionRequested.current = false;
-    
-    // Refresh the token first
-    if (window.dispatchEvent) {
-      window.dispatchEvent(new Event('refresh-token'));
-    }
-    
-    // Then retry the subscription fetch after a short delay
-    setTimeout(() => {
-      fetchSubscription();
-    }, 500);
-  };
-
-  // Test creating organization in the database
-  const testCreateOrganization = async () => {
-    if (typeof window === 'undefined') return;
-    
-    setApiTestLoading(true);
-    setApiTestResult(null);
-    
-    try {
-      const orgId = organization?.id || localStorage.getItem('currentOrganizationId');
-      const token = localStorage.getItem('token');
-      
-      if (!orgId || !token) {
-        throw new Error('Missing required organization ID or token');
-      }
-      
-      const response = await fetch('http://localhost:4000/api/auth/me', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'X-Organization-Id': orgId
-        }
-      });
-      
-      const responseText = await response.text();
-      let responseData;
-      
-      try {
-        responseData = JSON.parse(responseText);
-      } catch (e) {
-        responseData = { text: responseText };
-      }
-      
-      if (responseData?.organization?.id) {
-        localStorage.setItem('dbOrganizationId', responseData.organization.id);
-        setDbOrgId(responseData.organization.id);
-        console.log('Saved database organization ID:', responseData.organization.id);
-      }
-      
-      setApiTestResult({
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries([...response.headers.entries()]),
-        data: responseData
-      });
-      
-      // After syncing, try to get subscription again
-      if (response.ok) {
-        setTimeout(() => {
-          subscriptionRequested.current = false;
-          fetchSubscription();
-        }, 1000);
-      }
-    } catch (err: any) {
-      setApiTestResult({
-        error: err.message,
-        stack: err.stack
-      });
-    } finally {
-      setApiTestLoading(false);
-    }
-  };
-
-  // Direct API testing function
-  const testDirectApiCall = async () => {
-    if (typeof window === 'undefined') return;
-    
-    setApiTestLoading(true);
-    setApiTestResult(null);
-    
-    try {
-      const orgId = dbOrgId || localStorage.getItem('dbOrganizationId') || organization?.id || localStorage.getItem('currentOrganizationId');
-      const token = localStorage.getItem('token');
-      
-      if (!orgId || !token) {
-        throw new Error('Missing required organization ID or token');
-      }
-      
-      console.log('Making direct API call with organization ID:', orgId);
-      
-      const response = await fetch(`http://localhost:4000/api/subscriptions/${orgId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'X-Organization-Id': organization?.id || localStorage.getItem('currentOrganizationId') || ''
-        }
-      });
-      
-      const responseText = await response.text();
-      let responseData;
-      
-      try {
-        responseData = JSON.parse(responseText);
-      } catch (e) {
-        responseData = { text: responseText };
-      }
-      
-      setApiTestResult({
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries([...response.headers.entries()]),
-        data: responseData
-      });
-      
-      // If successful, update subscription state
-      if (response.ok && responseData?.subscription) {
-        setSubscription(responseData.subscription);
-      }
-    } catch (err: any) {
-      setApiTestResult({
-        error: err.message,
-        stack: err.stack
-      });
-    } finally {
-      setApiTestLoading(false);
-    }
-  };
-
-  // Try verifying token directly
-  const testTokenVerification = async () => {
-    if (typeof window === 'undefined') return;
-    
-    setApiTestLoading(true);
-    setApiTestResult(null);
-    
-    try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('Missing token');
-      }
-      
-      const response = await fetch('http://localhost:4000/api/auth/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ token })
-      });
-      
-      const responseText = await response.text();
-      let responseData;
-      
-      try {
-        responseData = JSON.parse(responseText);
-      } catch (e) {
-        responseData = { text: responseText };
-      }
-      
-      setApiTestResult({
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries([...response.headers.entries()]),
-        data: responseData
-      });
-      
-      if (response.ok && responseData?.success) {
-        setTimeout(() => {
-          // Force the organization info to localStorage
-          if (responseData?.organization?.id) {
-            localStorage.setItem('currentOrganizationId', responseData.organization.id);
-          }
-          
-          // Retry subscription fetch
-          subscriptionRequested.current = false;
-          fetchSubscription();
-        }, 1000);
-      }
-    } catch (err: any) {
-      setApiTestResult({
-        error: err.message,
-        stack: err.stack
-      });
-    } finally {
-      setApiTestLoading(false);
-    }
-  };
-
-  // Add the testCloudflareConnection function
-  const testCloudflareConnection = async () => {
-    try {
-      const response = await videoService.testCloudflareConnection();
-      console.log('Cloudflare connection test:', response);
-      setApiTestResult({
-        success: true,
-        message: "Cloudflare connection test successful",
-        response
-      });
-    } catch (err) {
-      console.error('Cloudflare connection test failed:', err);
-      setApiTestResult({
-        success: false,
-        message: "Cloudflare connection test failed", 
-        error: err instanceof Error ? err.message : String(err)
-      });
-    }
-  };
-
-  // Test backend status
-  const testBackendStatus = async () => {
-    setApiTestLoading(true);
-    setApiTestResult(null);
-    
-    try {
-      // Make a simple request to the backend root
-      const response = await fetch('http://localhost:4000/api');
-      
-      const responseText = await response.text();
-      let responseData;
-      
-      try {
-        responseData = JSON.parse(responseText);
-      } catch (e) {
-        responseData = { text: responseText };
-      }
-      
-      setApiTestResult({
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries([...response.headers.entries()]),
-        data: responseData,
-        apiBaseUrl: api.defaults.baseURL
-      });
-    } catch (err: any) {
-      setApiTestResult({
-        error: err.message,
-        stack: err.stack,
-        apiBaseUrl: api.defaults.baseURL
-      });
-    } finally {
-      setApiTestLoading(false);
-    }
-  };
+  }, [orgLoaded, organization, tenantId, router, loading, subscription, dbOrgId, subscriptionService, fetchSubscription]);
 
   // Load analytics data
   useEffect(() => {
@@ -618,10 +318,12 @@ const DashboardPage = () => {
                 recentUploads.map((upload) => (
                   <div key={upload.id} className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="aspect-video relative">
-                      <img
+                      <Image
                         src={upload.thumbnailUrl}
                         alt={upload.title}
                         className="object-cover w-full h-full"
+                        width={320}
+                        height={180}
                       />
                     </div>
                     <div className="p-4">
@@ -668,10 +370,12 @@ const DashboardPage = () => {
                 popularVideos.map((video) => (
                   <div key={video.id} className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="aspect-video relative">
-                      <img
+                      <Image
                         src={video.thumbnailUrl}
                         alt={video.title}
                         className="object-cover w-full h-full"
+                        width={320}
+                        height={180}
                       />
                     </div>
                     <div className="p-4">
@@ -698,43 +402,6 @@ const DashboardPage = () => {
             <div className="grid grid-cols-1 gap-5">
               <OrganizationOverviewCard />
             </div>
-          </div>
-
-          {/* Debug Information */}
-          <div className="mt-8">
-            <details className="bg-white shadow-sm rounded-lg">
-              <summary className="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">
-                Debug Information
-              </summary>
-              <div className="p-4 border-t border-gray-200">
-                <pre className="text-xs text-gray-700 overflow-x-auto">
-                  {JSON.stringify(debugInfo, null, 2)}
-                </pre>
-                
-                {Object.keys(debugInfo).length > 0 && (
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <button
-                        onClick={testDirectApiCall}
-                        disabled={apiTestLoading}
-                        className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 disabled:opacity-50"
-                      >
-                        {apiTestLoading ? 'Testing...' : 'Test Direct API Call to /auth/me'}
-                      </button>
-                      
-                      {apiTestResult && (
-                        <div className="mt-2">
-                          <p className="text-sm font-medium mb-1">API Response:</p>
-                          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-                            {JSON.stringify(apiTestResult, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </details>
           </div>
         </div>
       </DashboardLayout>

@@ -1,13 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
+import Image from 'next/image';
 
 interface CoverUploaderProps {
   onCoverSelect: (file: File) => void;
   currentCover?: string;
 }
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-console.log('[CoverUploader] BACKEND_URL is:', BACKEND_URL); // Log for debugging
 
 export default function CoverUploader({ onCoverSelect, currentCover }: CoverUploaderProps) {
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
@@ -17,15 +15,12 @@ export default function CoverUploader({ onCoverSelect, currentCover }: CoverUplo
     console.log('[CoverUploader] useEffect triggered. currentCover:', currentCover);
     if (currentCover) {
       if (currentCover.startsWith('/')) {
-        const newUrl = `${BACKEND_URL}${currentCover}`;
-        console.log('[CoverUploader] Setting previewUrl to (relative):', newUrl);
+        const newUrl = `${process.env.BACKEND_URL}${currentCover}`;
         setPreviewUrl(newUrl);
       } else {
-        console.log('[CoverUploader] Setting previewUrl to (absolute/blob):', currentCover);
         setPreviewUrl(currentCover);
       }
     } else {
-      console.log('[CoverUploader] currentCover is null/undefined, setting previewUrl to undefined');
       setPreviewUrl(undefined);
     }
   }, [currentCover]);
@@ -62,10 +57,13 @@ export default function CoverUploader({ onCoverSelect, currentCover }: CoverUplo
         
         {previewUrl ? (
           <div className="space-y-4">
-            <img
+            <Image
               src={previewUrl}
               alt="Video cover preview"
               className="mx-auto max-h-48 rounded-lg shadow-sm"
+              width={320}
+              height={192}
+              style={{ objectFit: 'contain', maxHeight: '12rem' }}
               onError={(e) => { 
                 console.error('[CoverUploader] Error loading image:', previewUrl, e); 
               }}

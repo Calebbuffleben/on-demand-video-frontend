@@ -1,6 +1,5 @@
 import api from '../api';
 import axios from 'axios';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface DisplayOptions {
   showProgressBar?: boolean;
@@ -123,6 +122,16 @@ export interface SoundControlUpdate {
   opacity?: number;
 }
 
+export interface EmbedVideoResponse {
+  success: boolean;
+  status: number;
+  message: string;
+  data: {
+    video: VideoData;
+    embedCode: string;
+  };
+}
+
 const videoService = {
   /**
    * Test Cloudflare connection and get a sample video
@@ -165,14 +174,6 @@ const videoService = {
   getVideoByUid: async (uid: string): Promise<VideoApiResponse> => {
     try {
       const response = await api.get<VideoApiResponse>(`videos/${uid}`);
-      
-      
-      // Log the display and embed options if they exist
-      if (response.data.success && response.data.data?.result) {
-        const videoData = Array.isArray(response.data.data.result) 
-          ? response.data.data.result[0] 
-          : response.data.data.result;
-      }
       
       return response.data;
     } catch (error) {
@@ -367,7 +368,7 @@ const videoService = {
       
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          throw new Error('Invalid video ID or the video does not exist');
+          throw new Error('Invalid video ID');
         } else if (error.response?.status === 404) {
           throw new Error('Video not found');
         } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
@@ -376,18 +377,16 @@ const videoService = {
           throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
         }
       }
-      
       throw error;
     }
   },
 
   /**
-   * Update video display and embed options, and CTA fields
+   * Update video display and embed options
    * @param uid The video's unique identifier
-   * @param displayOptions The display options for the video player
-   * @param embedOptions The embed options for the video
-   * @param ctaFields The CTA fields for the video
-   * @param extraFields Additional fields to include in the payload
+   * @param displayOptions The display options to update
+   * @param embedOptions The embed options to update
+   * @param ctaFields The CTA fields to update
    */
   updateVideoOptions: async (
     uid: string,
@@ -399,12 +398,6 @@ const videoService = {
       ctaLink?: string;
       ctaStartTime?: number;
       ctaEndTime?: number;
-    },
-    extraFields?: {
-      name?: string;
-      description?: string;
-      tags?: string[];
-      visibility?: string;
     }
   ): Promise<VideoApiResponse> => {
     try {
@@ -510,9 +503,9 @@ const videoService = {
    * Get video details for embed page (uses backend's embed endpoint)
    * @param videoId The video's unique identifier
    */
-  getVideoForEmbed: async (videoId: string): Promise<any> => {
+  getVideoForEmbed: async (videoId: string): Promise<EmbedVideoResponse> => {
     try {
-      const response = await api.get(`/videos/embed/${videoId}`);
+      const response = await api.get<EmbedVideoResponse>(`/videos/embed/${videoId}`);
 
       console.log('******************Embed video response:', response.data);
       return response.data;

@@ -1,3 +1,1 @@
-export type FieldDynamicTipes = {
-    
-}
+export type FieldDynamicTipes = Record<string, unknown>;

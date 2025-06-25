@@ -5,11 +5,12 @@ import { useRouter } from 'next/router';
 import analyticsService from '@/api-connection/analytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatNumber, formatDuration } from '@/lib/utils';
+import { formatNumber } from '@/lib/utils';
 import Link from 'next/link';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
+import Image from 'next/image';
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -238,10 +239,12 @@ function VideoCard({
   return (
     <Card className="overflow-hidden group">
       <div className="aspect-video relative">
-        <img
+        <Image
           src={thumbnailUrl}
           alt={title}
           className="object-cover w-full h-full"
+          width={320}
+          height={180}
         />
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
           <Link

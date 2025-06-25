@@ -15,12 +15,12 @@ export default function OrganizationOverviewCard({ className = '' }: Organizatio
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [creationDate, setCreationDate] = useState<string | null>(null);
-  const [orgMetrics, setOrgMetrics] = useState({
+  const orgMetrics = {
     totalVideos: '32',
     totalStorage: '1.8 GB',
     storageUsed: 45, // percentage
     videoUploads: [65, 42, 73, 50, 89, 78, 93]  // last 7 days trend
-  });
+  };
   
   useEffect(() => {
     if (orgLoaded && organization) {

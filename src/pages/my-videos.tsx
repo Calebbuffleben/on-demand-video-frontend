@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useOrganization } from '@clerk/nextjs';
-import Head from 'next/head';
 import Link from 'next/link';
 
 export default function MyVideosRedirectPage() {

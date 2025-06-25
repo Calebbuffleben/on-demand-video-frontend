@@ -1,4 +1,4 @@
-import { CreateOrganization, OrganizationList, useOrganizationList, UserButton, useUser } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 
 const CompanyRegistrationPage = () => {
    

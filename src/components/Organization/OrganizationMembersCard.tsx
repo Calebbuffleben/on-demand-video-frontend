@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useOrganization } from '@clerk/nextjs';
 import Image from 'next/image';
+import Link from 'next/link';
 
 type OrganizationMembersCardProps = {
   className?: string;
@@ -166,12 +167,12 @@ export default function OrganizationMembersCard({
         {/* Show more link if needed */}
         {members.length > maxDisplayed && (
           <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-            <a 
+            <Link 
               href="/organization-profile" 
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
               View all {members.length} members
-            </a>
+            </Link>
           </div>
         )}
       </div>

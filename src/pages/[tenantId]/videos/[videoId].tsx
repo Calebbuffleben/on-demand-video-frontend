@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useOrganization } from '@clerk/nextjs';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
@@ -13,7 +12,6 @@ export default function VideoDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { videoId, tenantId } = router.query;
-  const { organization } = useOrganization();
 
   useEffect(() => {
     if (videoId && typeof videoId === 'string') {
@@ -60,9 +58,10 @@ export default function VideoDetailPage() {
           throw new Error('No video data available');
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching video:', err);
-      setError(err.message || 'Failed to load video');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load video';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

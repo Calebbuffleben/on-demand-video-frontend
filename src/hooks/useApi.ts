@@ -46,7 +46,7 @@ export function useApi() {
         }
     }, [ensureAuthToken]);
 
-    const post = useCallback(async <T,>(url: string, data?: any): Promise<T | null> => {
+    const post = useCallback(async <T,>(url: string, data?: unknown): Promise<T | null> => {
         setLoading(true);
         setError(null);
         try {
@@ -63,7 +63,7 @@ export function useApi() {
         }
     }, [ensureAuthToken]);
 
-    const put = useCallback(async <T,>(url: string, data?: any): Promise<T | null> => {
+    const put = useCallback(async <T,>(url: string, data?: unknown): Promise<T | null> => {
         setLoading(true);
         setError(null);
         try {

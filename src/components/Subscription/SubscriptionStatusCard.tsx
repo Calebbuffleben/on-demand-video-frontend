@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useOrganization } from '@clerk/nextjs';
+import Link from 'next/link';
 
 type SubscriptionStatusCardProps = {
   className?: string;
@@ -17,12 +18,30 @@ interface SubscriptionInfo {
   interval?: string;
 }
 
+interface SubscriptionService {
+  getCurrentSubscription: () => Promise<{
+    status: string;
+    subscription: {
+      id: string;
+      status: string;
+      plan?: {
+        name: string;
+        amount: number;
+        interval: string;
+      };
+      currentPeriodEnd: number;
+      cancelAtPeriodEnd: boolean;
+    } | null;
+    message: string;
+  }>;
+}
+
 export default function SubscriptionStatusCard({ className = '' }: SubscriptionStatusCardProps) {
   const { organization, isLoaded: orgLoaded } = useOrganization();
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [subscriptionService, setSubscriptionService] = useState<any>(null);
+  const [subscriptionService, setSubscriptionService] = useState<SubscriptionService | null>(null);
   
   // Load subscription service
   useEffect(() => {
@@ -47,6 +66,10 @@ export default function SubscriptionStatusCard({ className = '' }: SubscriptionS
         // Make sure organization ID is set
         if (organization?.id) {
           localStorage.setItem('currentOrganizationId', organization.id);
+        }
+        
+        if (!subscriptionService) {
+          throw new Error('Subscription service not loaded');
         }
         
         const result = await subscriptionService.getCurrentSubscription();
@@ -107,12 +130,12 @@ export default function SubscriptionStatusCard({ className = '' }: SubscriptionS
         {!subscription ? (
           <div className="text-center py-4">
             <p className="text-gray-500 mb-4">No active subscription found</p>
-            <a 
+            <Link 
               href="/pricing" 
               className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               View Pricing Options
-            </a>
+            </Link>
           </div>
         ) : (
           <div>
@@ -152,12 +175,12 @@ export default function SubscriptionStatusCard({ className = '' }: SubscriptionS
             </div>
             
             <div className="mt-6 pt-4 border-t border-gray-100 text-right">
-              <a 
+              <Link 
                 href={`/subscriptions/manage`} 
                 className="text-blue-600 hover:text-blue-800 text-sm font-medium"
               >
                 Manage Subscription
-              </a>
+              </Link>
             </div>
           </div>
         )}

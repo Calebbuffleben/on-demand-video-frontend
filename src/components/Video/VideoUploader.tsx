@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import videoService, { VideoStatusResponse } from '../../api-connection/videos';
+import videoService from '../../api-connection/videos';
+import Image from 'next/image';
 
 interface VideoUploaderProps {
   maxDurationSeconds?: number;
@@ -360,11 +361,13 @@ export default function VideoUploader({
             {embedInfo.thumbnailUrl && (
               <div className="mt-4">
                 <p className="text-sm font-medium text-gray-700 mb-2">Thumbnail:</p>
-                <img 
-                  src={embedInfo.thumbnailUrl} 
-                  alt="Video thumbnail" 
+                <Image
+                  src={embedInfo.thumbnailUrl}
+                  alt="Video thumbnail"
                   className="mx-auto max-w-full h-auto rounded-md border border-gray-300"
-                  style={{ maxHeight: '200px' }}
+                  width={320}
+                  height={180}
+                  style={{ maxHeight: '200px', objectFit: 'contain' }}
                 />
               </div>
             )}

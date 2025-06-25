@@ -33,11 +33,6 @@ export default function TenantVideosPage() {
     return organization?.id ? `/${organization.id}/dashboard` : '/dashboard';
   };
 
-  // Helper function to get upload video URL based on tenant context
-  const getUploadVideoUrl = () => {
-    return tenantId ? `/${tenantId}/upload-video` : '/upload-video';
-  };
-
   const fetchVideos = async () => {
     try {
       setLoading(true);
@@ -50,9 +45,10 @@ export default function TenantVideosPage() {
       } else {
         throw new Error('Failed to fetch videos');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching videos:', err);
-      setError(err.message || 'Failed to load videos');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load videos';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 interface ColorPickerProps {
   label: string;
@@ -6,13 +6,24 @@ interface ColorPickerProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  supportAlpha?: boolean;
 }
 
-const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, className }) => {
+const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, className, supportAlpha }) => {
   // Ensure the initial value is a valid hex color
-  const normalizeColor = (color: string): string => {
+  const normalizeColor = useCallback((color: string): string => {
     // If not a string, use default black
-    if (typeof color !== 'string') return '#000000';
+    if (typeof color !== 'string') return supportAlpha ? 'rgba(0,0,0,1)' : '#000000';
+    
+    // Handle RGBA format
+    if (color.startsWith('rgba(')) {
+      return color;
+    }
+    
+    // Handle RGB format
+    if (color.startsWith('rgb(')) {
+      return color.replace('rgb(', 'rgba(').replace(')', ',1)');
+    }
     
     // If doesn't start with #, add it
     if (!color.startsWith('#')) {
@@ -26,14 +37,15 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
     
     // If not a valid 6-digit hex, fallback to black
     if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
-      return '#000000';
+      return supportAlpha ? 'rgba(0,0,0,1)' : '#000000';
     }
     
     return color;
-  };
+  }, [supportAlpha]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [localValue, setLocalValue] = useState(normalizeColor(value));
+  const [alpha, setAlpha] = useState(1);
   const pickerRef = useRef<HTMLDivElement>(null);
   const gradientRef = useRef<HTMLDivElement>(null);
   const hueRef = useRef<HTMLDivElement>(null);
@@ -64,6 +76,25 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
     }).join('');
   };
   
+  // Convert hex to RGBA
+  const hexToRgba = (hex: string, alpha: number = 1): string => {
+    const rgb = hexToRgb(hex);
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+  };
+  
+  // Convert RGBA to hex and alpha
+  const rgbaToHexAndAlpha = useCallback((rgba: string): { hex: string; alpha: number } => {
+    const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (match) {
+      const r = parseInt(match[1]);
+      const g = parseInt(match[2]);
+      const b = parseInt(match[3]);
+      const a = match[4] ? parseFloat(match[4]) : 1;
+      return { hex: rgbToHex(r, g, b), alpha: a };
+    }
+    return { hex: '#000000', alpha: 1 };
+  }, []);
+  
   // Convert RGB to HSL
   const rgbToHsl = (r: number, g: number, b: number): { h: number; s: number; l: number } => {
     r /= 255;
@@ -72,7 +103,8 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
     
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
-    let h = 0, s = 0, l = (max + min) / 2;
+    let h = 0, s = 0;
+    const l = (max + min) / 2;
     
     if (max !== min) {
       const d = max - min;
@@ -130,7 +162,11 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
   };
   
   // Parse the current color
-  const rgb = hexToRgb(localValue);
+  const currentColor = supportAlpha && localValue.startsWith('rgba') ? 
+    rgbaToHexAndAlpha(localValue).hex : localValue;
+  const currentAlpha = supportAlpha && localValue.startsWith('rgba') ? 
+    rgbaToHexAndAlpha(localValue).alpha : 1;
+  const rgb = hexToRgb(currentColor);
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
   
   // Handle hue change from slider
@@ -189,18 +225,31 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
     
     // Only update if it's a valid hex
     if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-      onChange(value);
+      const finalValue = supportAlpha ? hexToRgba(value, alpha) : value;
+      onChange(finalValue);
+    }
+  };
+  
+  // Handle alpha change
+  const handleAlphaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newAlpha = parseFloat(e.target.value);
+    setAlpha(newAlpha);
+    
+    if (supportAlpha) {
+      const finalValue = hexToRgba(currentColor, newAlpha);
+      setLocalValue(finalValue);
+      onChange(finalValue);
     }
   };
   
   // Finalize a color selection when closing picker
-  const finalizeColor = () => {
+  const finalizeColor = useCallback(() => {
     // Make sure we apply a valid color
     const validatedColor = normalizeColor(localValue);
     setLocalValue(validatedColor);
     onChange(validatedColor);
     setIsOpen(false);
-  };
+  }, [localValue, onChange, normalizeColor]);
   
   // Close color picker when clicking outside
   useEffect(() => {
@@ -217,15 +266,21 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, localValue]);
+  }, [isOpen, finalizeColor]);
   
   // Update local value when prop changes
   useEffect(() => {
     const normalizedValue = normalizeColor(value);
     if (normalizedValue !== localValue) {
       setLocalValue(normalizedValue);
+      
+      // Update alpha if using RGBA
+      if (supportAlpha && normalizedValue.startsWith('rgba')) {
+        const { alpha: newAlpha } = rgbaToHexAndAlpha(normalizedValue);
+        setAlpha(newAlpha);
+      }
     }
-  }, [value]);
+  }, [value, localValue, normalizeColor, supportAlpha, rgbaToHexAndAlpha]);
   
   return (
     <div className={`relative ${className || ''}`} ref={pickerRef}>
@@ -244,7 +299,9 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
         />
         
         {/* Current color text */}
-        <span className="ml-2 text-xs font-mono text-gray-600">{localValue}</span>
+        <span className="ml-2 text-xs font-mono text-gray-600">
+          {supportAlpha && localValue.startsWith('rgba') ? localValue : localValue}
+        </span>
       </div>
       
       {/* Color picker dropdown */}
@@ -301,15 +358,63 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
             </div>
           </div>
           
+          {/* Alpha slider */}
+          {supportAlpha && (
+            <div className="mb-4">
+              <label className="block text-xs font-medium text-gray-700 mb-1">Transparency</label>
+              <div className="h-6 w-full relative rounded overflow-hidden cursor-pointer bg-gray-200"
+                   style={{
+                     backgroundImage: `linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+                     backgroundSize: '8px 8px',
+                     backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                   }}
+              >
+                <div
+                  className="h-full w-full"
+                  style={{
+                    background: `linear-gradient(to right, transparent 0%, ${currentColor} 100%)`
+                  }}
+                >
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={currentAlpha}
+                    onChange={handleAlphaChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  {/* Marker for current alpha */}
+                  <div
+                    className="absolute top-0 bottom-0 w-1 bg-white pointer-events-none"
+                    style={{
+                      left: `${currentAlpha * 100}%`,
+                      transform: 'translateX(-50%)',
+                      boxShadow: '0 0 2px rgba(0, 0, 0, 0.8)'
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Transparent</span>
+                <span>{Math.round(currentAlpha * 100)}%</span>
+                <span>Opaque</span>
+              </div>
+            </div>
+          )}
+          
           {/* Color information */}
           <div className="mb-4">
             <div className="flex mb-2">
               <div className="w-1/2 pr-1">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Hex</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {supportAlpha ? 'RGBA' : 'Hex'}
+                </label>
                 <input
                   type="text"
-                  value={localValue}
-                  onChange={handleHexChange}
+                  value={supportAlpha ? localValue : localValue}
+                  onChange={supportAlpha ? undefined : handleHexChange}
+                  readOnly={supportAlpha}
                   className="w-full p-1 text-xs border border-gray-300 rounded font-mono"
                 />
               </div>
@@ -317,7 +422,13 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
                 <label className="block text-xs font-medium text-gray-700 mb-1">Preview</label>
                 <div
                   className="h-7 rounded border border-gray-300"
-                  style={{ backgroundColor: localValue }}
+                  style={{ 
+                    backgroundColor: supportAlpha ? localValue : localValue,
+                    backgroundImage: supportAlpha && currentAlpha < 1 ? 
+                      `linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)` : 'none',
+                    backgroundSize: '8px 8px',
+                    backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                  }}
                 />
               </div>
             </div>

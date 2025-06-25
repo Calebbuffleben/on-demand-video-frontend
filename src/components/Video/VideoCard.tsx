@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { VideoData } from '../../api-connection/videos';
+import Image from 'next/image';
 
 interface VideoCardProps {
   video: VideoData;
@@ -9,7 +10,7 @@ interface VideoCardProps {
   className?: string;
 }
 
-export default function VideoCard({ video, onDelete, className = '' }: VideoCardProps) {
+export default function VideoCard({ video, onDelete }: VideoCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const { tenantId } = router.query;
@@ -19,37 +20,9 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
     return tenantId ? `/${tenantId}/videos/watch/${uid}` : `/videos/watch/${uid}`;
   };
 
-  const getVideoDetailsUrl = (uid: string) => {
-    return tenantId ? `/${tenantId}/videos/${uid}` : `/videos/${uid}`;
-  };
   
   const getEmbedUrl = (uid: string) => {
     return tenantId ? `/${tenantId}/embed/${uid}` : `/embed/${uid}`;
-  };
-  
-  // Format duration
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-  
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onDelete && window.confirm('Are you sure you want to delete this video?')) {
-      onDelete(video.uid);
-    }
   };
 
   return (
@@ -58,10 +31,13 @@ export default function VideoCard({ video, onDelete, className = '' }: VideoCard
       <Link href={getVideoWatchUrl(video.uid)} className="block relative">
         <div className="aspect-video bg-gray-100 relative">
           {video.thumbnail ? (
-            <img 
-              src={video.thumbnail} 
-              alt={video.meta?.name || 'Video thumbnail'} 
+            <Image
+              src={video.thumbnail}
+              alt={video.meta?.name || 'Video thumbnail'}
               className="w-full h-full object-cover"
+              width={320}
+              height={180}
+              style={{ objectFit: 'cover' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100">
