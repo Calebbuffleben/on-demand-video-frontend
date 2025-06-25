@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
   
+  // Set build output directory to 'build' for deployment compatibility
+  distDir: 'build',
+  
   // Configure image domains
   images: {
     domains: [
