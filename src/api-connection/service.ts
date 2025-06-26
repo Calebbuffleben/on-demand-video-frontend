@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: process.env.BACKEND_URL,
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://on-demand-video-backend.onrender.com/api',
     headers: {
         'Content-Type': 'application/json'
     },
