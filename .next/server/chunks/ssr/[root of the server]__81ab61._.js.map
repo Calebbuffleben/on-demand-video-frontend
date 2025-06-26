@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 103, "column": 0}, "map": {"version":3,"sources":["file:///Users/calebbuffleben/Desktop/projetos/stream/frontend/src/pages/_app.tsx"],"sourcesContent":["import \"@/styles/globals.css\";\nimport { ClerkProvider } from \"@clerk/nextjs\";\nimport type { AppProps } from \"next/app\";\n\nexport default function App({ Component, pageProps }: AppProps) {\n  return (\n    <ClerkProvider {...pageProps}>\n      <Component {...pageProps} />\n    </ClerkProvider>\n  );\n}\n"],"names":[],"mappings":";;;;AACA;;;;AAGe,SAAS,IAAI,EAAE,SAAS,EAAE,SAAS,EAAY;IAC5D,qBACE,qKAAC,kKAAA,CAAA,gBAAa;QAAE,GAAG,SAAS;kBAC1B,cAAA,qKAAC;YAAW,GAAG,SAAS;;;;;;;;;;;AAG9B"}},
-    {"offset": {"line": 127, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
-}
