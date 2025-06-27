@@ -2,15 +2,27 @@
  * Utility functions for handling Clerk tokens
  */
 
+// Type for Clerk window object
+interface ClerkWindow extends Window {
+  __clerk?: {
+    session?: {
+      getToken(): Promise<string | null>;
+    };
+  };
+}
+
 export const getFreshToken = async (): Promise<string | null> => {
   try {
     // Try to get token from Clerk session if available
-    if (typeof window !== 'undefined' && (window as any).__clerk?.session) {
-      const session = (window as any).__clerk.session;
-      const token = await session.getToken();
-      if (token) {
-        localStorage.setItem('token', token);
-        return token;
+    if (typeof window !== 'undefined') {
+      const clerkWindow = window as ClerkWindow;
+      if (clerkWindow.__clerk?.session) {
+        const session = clerkWindow.__clerk.session;
+        const token = await session.getToken();
+        if (token) {
+          localStorage.setItem('token', token);
+          return token;
+        }
       }
     }
     
