@@ -84,27 +84,19 @@ export function useClerkToken() {
   
   // This effect sets up token refresh on an interval
   useEffect(() => {
-    // Setup polling interval to refresh token more frequently
-    const intervalId = setInterval(async () => {
+    // Setup polling interval to refresh token
+    const intervalId = setInterval(() => {
       // Only refresh if we have a session and user is loaded
       if (session && userLoaded) {
-        try {
-          console.log('🔄 Refreshing token...');
-          const freshToken = await session.getToken();
-          if (freshToken) {
-            localStorage.setItem('token', freshToken);
-            console.log('✅ Token refreshed successfully');
-          }
-        } catch (error) {
-          console.error('❌ Failed to refresh token:', error);
-        }
+        // This will trigger the above effect if organization has changed
+        setLastOrgId(organization?.id || null);
       }
-    }, 1000 * 60 * 2); // Check every 2 minutes instead of 5
+    }, 1000 * 60 * 5); // Check every 5 minutes
     
     return () => {
       clearInterval(intervalId);
     };
-  }, [session, userLoaded]);
+  }, [session, userLoaded, organization]);
 }
 
 export default useClerkToken; 

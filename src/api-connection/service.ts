@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getFreshToken, isTokenExpired } from "../utils/tokenUtils";
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'https://on-demand-video-backend.onrender.com/api',
@@ -18,26 +17,16 @@ api.interceptors.request.use(
             return config;
         }
         
-        // Get fresh token to avoid expiry issues
-        let token = await getFreshToken();
+        // Get token from local storage
+        const token = localStorage.getItem('token') || localStorage.getItem('clerkToken');
         const clerkOrgId = localStorage.getItem('currentOrganizationId');
         const dbOrgId = localStorage.getItem('dbOrganizationId');
         
         // Log request details for debugging
         console.log(`API ${config.method?.toUpperCase()} request to: ${config.url}`);
-        console.log('Token available:', !!token);
-        console.log('Token length:', token?.length || 0);
-        console.log('Organization IDs - Clerk:', clerkOrgId, 'DB:', dbOrgId);
-        
-        // Check if token is expired and try to refresh
-        if (token && isTokenExpired(token)) {
-            console.warn('⚠️ Token is expired, attempting to refresh...');
-            token = await getFreshToken();
-        }
         
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
-            console.log('Authorization header set:', `Bearer ${token.substring(0, 20)}...`);
             
             // Add organization context headers if available
             if (clerkOrgId) {
@@ -72,8 +61,7 @@ api.interceptors.request.use(
                 console.log('Using token:', token.substring(0, 15) + '...');
             }
         } else {
-            console.warn('No authentication token found in localStorage');
-            console.warn('Available localStorage keys:', Object.keys(localStorage));
+            console.warn('No authentication token found');
         }
         
         return config;
@@ -108,29 +96,8 @@ api.interceptors.response.use(
         
         return response;
     },
-    async (error) => {
+    (error) => {
         console.error('API error:', error?.response?.data || error.message);
-        
-        // Handle 401 errors by attempting token refresh
-        if (error.response?.status === 401 && !error.config._retry) {
-            console.log('🔄 401 error detected, attempting token refresh...');
-            error.config._retry = true;
-            
-            try {
-                // Get a fresh token
-                const freshToken = await getFreshToken();
-                if (freshToken) {
-                    // Update the failed request with new token
-                    error.config.headers['Authorization'] = `Bearer ${freshToken}`;
-                    console.log('✅ Token refreshed, retrying request...');
-                    
-                    // Retry the original request
-                    return api(error.config);
-                }
-            } catch (refreshError) {
-                console.error('❌ Failed to refresh token:', refreshError);
-            }
-        }
         
         // Only attempt to use localStorage and event dispatching on the client
         if (typeof window !== 'undefined') {
