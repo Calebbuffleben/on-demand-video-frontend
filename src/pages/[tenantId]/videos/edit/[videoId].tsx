@@ -666,7 +666,7 @@ export default function EditVideoPage() {
                             name="progressEasing"
                             type="range"
                             min="-5"
-                            max="1"
+                            max="5"
                             step="0.1"
                             value={displayOptions.progressEasing}
                             onChange={e => setDisplayOptions(prev => ({ ...prev, progressEasing: parseFloat(e.target.value) }))}
@@ -674,6 +674,9 @@ export default function EditVideoPage() {
                           />
                           <span className="ml-2 text-xs text-gray-500">{displayOptions.progressEasing}</span>
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Negative: starts slow, ends fast. Positive: starts fast, ends slow. 0: linear progress.
+                        </p>
                         {/* Play button color picker */}
                         <ColorPicker
                           label="Play button color"

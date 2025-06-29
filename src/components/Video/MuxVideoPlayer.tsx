@@ -58,7 +58,7 @@ export default function MuxVideoPlayer({
   showTechnicalInfo = false,
   useOriginalProgressBar = false,
   progressBarColor = '#3b82f6',
-  progressEasing = -3,
+  progressEasing = 2,
   playButtonColor = '#fff',
   playButtonSize = 24,
   playButtonBgColor = '#000000',
@@ -197,6 +197,34 @@ export default function MuxVideoPlayer({
     }
   };
 
+  // Calculate non-linear progress based on easing value
+  const calculateProgress = (currentTime: number, duration: number, easing: number) => {
+    if (duration === 0) return 0;
+    
+    const progress = currentTime / duration;
+    
+    // If easing is 0, return linear progress
+    if (easing === 0) return progress;
+    
+    // Apply non-linear transformation
+    // Positive easing: starts fast, ends slow
+    // Negative easing: starts slow, ends fast
+    const absEasing = Math.abs(easing);
+    const sign = Math.sign(easing);
+    
+    // Use exponential function for non-linear effect
+    if (sign > 0) {
+      // Positive: starts fast, ends slow
+      return Math.pow(progress, absEasing);
+    } else {
+      // Negative: starts slow, ends fast
+      return 1 - Math.pow(1 - progress, absEasing);
+    }
+  };
+
+  // Calculate the visual progress percentage
+  const visualProgress = calculateProgress(currentTime, duration, progressEasing);
+
   return (
     <div className={`relative w-full h-full ${className}`} style={{ width: '100%', height: '100%' }}>
       {/* Title overlay */}
@@ -301,9 +329,8 @@ export default function MuxVideoPlayer({
             <div
               className="h-full relative group"
               style={{
-                width: `${(currentTime / duration) * 100}%`,
+                width: `${visualProgress * 100}%`,
                 backgroundColor: progressBarColor,
-                transition: `width ${Math.abs(progressEasing)}s ${progressEasing < 0 ? 'ease-out' : 'ease-in'}`,
               }}
             >
               {/* Progress Bar Handle */}
@@ -397,6 +424,9 @@ export default function MuxVideoPlayer({
           <div>Playback ID: {playbackId}</div>
           <div>Title: {title || 'Untitled'}</div>
           <div>Time: {currentTime.toFixed(1)}s / {duration.toFixed(1)}s</div>
+          <div>Actual Progress: {duration > 0 ? ((currentTime / duration) * 100).toFixed(1) : '0'}%</div>
+          <div>Visual Progress: {(visualProgress * 100).toFixed(1)}%</div>
+          <div>Progress Easing: {progressEasing}</div>
           <div>Play Button Size: {playButtonSize}px</div>
           <div>Play Button Color: {playButtonColor}</div>
           <div>Show Controls: {showControls ? 'Yes' : 'No'}</div>
