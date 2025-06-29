@@ -98,6 +98,7 @@ export default function MuxVideoPlayer({
   useEffect(() => {
     console.log('Applying Mux Player customizations:', {
       showControls,
+      useOriginalProgressBar,
       playButtonColor,
       playButtonSize,
       playButtonBgColor
@@ -106,10 +107,13 @@ export default function MuxVideoPlayer({
     if (playerRef.current) {
       const player = playerRef.current;
       
-      // Apply control visibility
-      if (!showControls) {
+      // Apply control visibility - show controls if useOriginalProgressBar is true OR showControls is true
+      if (!useOriginalProgressBar && !showControls) {
         player.style.setProperty('--controls', 'none');
         player.style.setProperty('--media-controls', 'none');
+      } else {
+        player.style.setProperty('--controls', 'flex');
+        player.style.setProperty('--media-controls', 'flex');
       }
       
       // Apply play button customization
@@ -140,7 +144,7 @@ export default function MuxVideoPlayer({
         }
       }, 100); // Small delay to ensure Mux Player has rendered
     }
-  }, [showControls, playButtonColor, playButtonSize, playButtonBgColor]);
+  }, [showControls, useOriginalProgressBar, playButtonColor, playButtonSize, playButtonBgColor]);
 
   // Extract the playback ID from the HLS URL
   const getPlaybackId = (url: string) => {
@@ -225,8 +229,8 @@ export default function MuxVideoPlayer({
         {/* Custom CSS for Mux Player */}
         <style jsx>{`
           mux-player {
-            --controls: ${showControls ? 'flex' : 'none'} !important;
-            --media-controls: ${showControls ? 'flex' : 'none'} !important;
+            --controls: ${useOriginalProgressBar || showControls ? 'flex' : 'none'} !important;
+            --media-controls: ${useOriginalProgressBar || showControls ? 'flex' : 'none'} !important;
             --play-button-color: ${playButtonColor} !important;
             --play-button-size: ${playButtonSize}px !important;
             --play-button-bg-color: ${playButtonBgColor} !important;
@@ -285,7 +289,7 @@ export default function MuxVideoPlayer({
             position: 'absolute',
             top: 0,
             left: 0,
-            ...(showControls ? {} : {
+            ...(useOriginalProgressBar || showControls ? {} : {
               '--controls': 'none',
               '--media-controls': 'none',
             }),
@@ -314,7 +318,7 @@ export default function MuxVideoPlayer({
         )}
       </div>
       {/* Custom Play Button Overlay */}
-      {!isPlaying && (
+      {!isPlaying && !useOriginalProgressBar && (
         <div 
           className="absolute inset-0 flex items-center justify-center z-30 cursor-pointer"
           onClick={() => {
@@ -396,6 +400,7 @@ export default function MuxVideoPlayer({
           <div>Play Button Size: {playButtonSize}px</div>
           <div>Play Button Color: {playButtonColor}</div>
           <div>Show Controls: {showControls ? 'Yes' : 'No'}</div>
+          <div>Use Original Progress Bar: {useOriginalProgressBar ? 'Yes' : 'No'}</div>
           <div>Is Playing: {isPlaying ? 'Yes' : 'No'}</div>
         </div>
       )}
