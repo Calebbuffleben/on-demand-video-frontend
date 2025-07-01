@@ -355,57 +355,6 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Popular Videos */}
-          <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Popular Videos</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {analyticsLoading ? (
-                // Loading skeletons
-                Array(3).fill(0).map((_, i) => (
-                  <div key={i} className="bg-white rounded-lg shadow overflow-hidden animate-pulse">
-                    <div className="aspect-video bg-gray-200"></div>
-                    <div className="p-4">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  </div>
-                ))
-              ) : analyticsError ? (
-                // Error state
-                <div className="col-span-full text-red-500">
-                  {analyticsError}
-                </div>
-              ) : popularVideos.length > 0 ? (
-                // Video cards
-                popularVideos.map((video) => (
-                  <div key={video.id} className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="aspect-video relative">
-                      <Image
-                        src={video.thumbnailUrl}
-                        alt={video.title}
-                        className="object-cover w-full h-full"
-                        width={320}
-                        height={180}
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold truncate">{video.title}</h3>
-                      <div className="text-sm text-gray-500 mt-2">
-                        <div>{video.views.toLocaleString()} views</div>
-                        <div>{video.duration}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                // Empty state
-                <div className="col-span-full text-center text-gray-500 py-8">
-                  No popular videos
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Organization Overview */}
           <div className="mb-8">
             <h2 className="text-lg font-medium mb-4 text-gray-900">Organization Overview</h2>
