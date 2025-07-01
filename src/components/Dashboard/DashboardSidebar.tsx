@@ -21,10 +21,7 @@ const DashboardSidebar: React.FC = () => {
     { name: 'Upload Video', href: '/upload-video', icon: 'upload' },
     { name: 'Analytics', href: '/analytics', icon: 'analytics', isNew: true },
     { name: 'Embed Codes', href: '/embed-codes', icon: 'code', isNew: true },
-    { name: 'Monetization', href: '/monetization', icon: 'money', isNew: true },
     { name: 'Storage', href: '/storage', icon: 'storage', isNew: true },
-    { name: 'API Keys', href: '/api-keys', icon: 'key', isNew: true },
-    { name: 'Settings', href: '/settings', icon: 'settings' },
   ];
 
   return (
