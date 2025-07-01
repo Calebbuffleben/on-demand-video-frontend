@@ -26,7 +26,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       {/* Thumbnail or placeholder */}
       <Link href={getVideoWatchUrl(video.uid)} className="block relative">
         <div className="aspect-video bg-gray-100 relative">
@@ -85,6 +85,14 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
             
             {isMenuOpen && (
               <div className="absolute right-full mr-2 top-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+                <Link 
+                  href={tenantId ? `/${tenantId}/videos/edit/${video.uid}` : `/videos/edit/${video.uid}`}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Edit video details
+                </Link>
+                
                 <Link 
                   href={getVideoWatchUrl(video.uid)}
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
