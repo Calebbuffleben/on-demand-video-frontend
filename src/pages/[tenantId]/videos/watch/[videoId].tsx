@@ -60,7 +60,7 @@ export default function VideoWatchPage() {
         }
       } catch (err) {
         console.error('Error loading video:', err);
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(err instanceof Error ? err.message : 'Um erro desconhecido ocorreu');
       } finally {
         setLoading(false);
       }
@@ -127,7 +127,7 @@ export default function VideoWatchPage() {
                             onClick={() => router.reload()}
                             className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
                           >
-                            Retry
+                            Tentar Novamente
                           </button>
                         </div>
                       </div>

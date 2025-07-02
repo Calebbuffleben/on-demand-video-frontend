@@ -354,13 +354,13 @@ const videoService = {
       
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          throw new Error('Invalid video ID');
+          throw new Error('ID do vídeo inválido');
         } else if (error.response?.status === 404) {
-          throw new Error('Video not found');
+          throw new Error('Vídeo não encontrado');
         } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
+          throw new Error('Erro de Rede: Não é possível conectar ao servidor da API de vídeo. Certifique-se de que o servidor backend está em execução.');
         } else if (error.response) {
-          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
+          throw new Error(`Erro da API (${error.response.status}): ${error.response.data?.message || error.message}`);
         }
       }
       throw error;
@@ -532,13 +532,13 @@ const videoService = {
       console.error(`Error updating text for video ${uid}:`, error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          throw new Error('Invalid video ID or text data');
+          throw new Error('ID do vídeo ou dados de texto inválidos');
         } else if (error.response?.status === 404) {
-          throw new Error('Video not found');
+          throw new Error('Vídeo não encontrado');
         } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
+          throw new Error('Erro de Rede: Não é possível conectar ao servidor da API de vídeo. Certifique-se de que o servidor backend está em execução.');
         } else if (error.response) {
-          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
+          throw new Error(`Erro da API (${error.response.status}): ${error.response.data?.message || error.message}`);
         }
       }
       throw error;
@@ -567,13 +567,13 @@ const videoService = {
       console.error(`Error updating sound control for video ${id}:`, error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          throw new Error('Invalid video ID or sound control data');
+          throw new Error('ID do vídeo ou dados do controle de som inválidos');
         } else if (error.response?.status === 404) {
-          throw new Error('Video not found');
+          throw new Error('Vídeo não encontrado');
         } else if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
+          throw new Error('Erro de Rede: Não é possível conectar ao servidor da API de vídeo. Certifique-se de que o servidor backend está em execução.');
         } else if (error.response) {
-          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
+          throw new Error(`Erro da API (${error.response.status}): ${error.response.data?.message || error.message}`);
         }
       }
       throw error;

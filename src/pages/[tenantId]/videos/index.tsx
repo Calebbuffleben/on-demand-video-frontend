@@ -73,7 +73,7 @@ export default function TenantVideosPage() {
   return (
     <>
       <Head>
-        <title>Meus Vídeos - Cloudflare Stream</title>
+        <title>Meus Vídeos</title>
       </Head>
       
       <DashboardLayout sidebar={<DashboardSidebar />}>

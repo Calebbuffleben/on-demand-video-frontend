@@ -327,7 +327,7 @@ export default function EditVideoPage() {
                     onClick={() => router.back()}
                     className="text-sm text-red-700 underline hover:text-red-800"
                   >
-                    Go back
+                    Voltar
                   </button>
                 </div>
               </div>

@@ -62,7 +62,7 @@ export default function UploadVideoPage() {
         } catch (err) {
           console.error('Error checking video status:', err);
           clearInterval(intervalId);
-          setError('Failed to check video processing status');
+          setError('Falha ao verificar o status de processamento do vídeo');
         }
       }, 2000);
     }

@@ -8,9 +8,9 @@ const SubscriptionCancelPage = () => {
 
   return (
     <div>
-      <h1>Subscription Canceled</h1>
-      <p>Your subscription was not processed.</p>
-      <button onClick={() => router.push('/pricing')}>Back to Pricing</button>
+      <h1>Assinatura Cancelada</h1>
+      <p>Sua assinatura não foi processada.</p>
+      <button onClick={() => router.push('/pricing')}>Voltar aos Preços</button>
     </div>
   );
 };

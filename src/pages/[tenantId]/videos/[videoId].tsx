@@ -119,7 +119,7 @@ export default function VideoDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Head>
-        <title>{video?.meta?.name || 'Detalhes do Vídeo'} - Cloudflare Stream</title>
+        <title>{video?.meta?.name || 'Detalhes do Vídeo'}</title>
       </Head>
 
       <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-md">

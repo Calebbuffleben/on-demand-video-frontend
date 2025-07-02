@@ -118,12 +118,12 @@ export default function VideoUploader({
 
   const uploadVideo = useCallback(async () => {
     if (!videoFile) {
-      setError('Please select a video file');
+      setError('Por favor, selecione um arquivo de vídeo');
       return;
     }
 
     if (!organizationId) {
-      setError('Organization ID is required');
+      setError('ID da organização é obrigatório');
       return;
     }
 
@@ -151,7 +151,7 @@ export default function VideoUploader({
           uid: uid,
           fullResponse: uploadResponse
         });
-        throw new Error('Failed to get upload URL or video ID');
+        throw new Error('Falha ao obter URL de envio ou ID do vídeo');
       }
 
       console.log('Starting upload with:', {
@@ -192,7 +192,7 @@ export default function VideoUploader({
 
     } catch (err) {
       console.error('Error uploading video:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido ocorreu';
       setError(errorMessage);
       
       if (onUploadError && err instanceof Error) {

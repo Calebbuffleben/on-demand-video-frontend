@@ -37,7 +37,7 @@ export function useApi() {
             const response = await api.get<T>(url);
             return response.data;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+            const errorMessage = err instanceof Error ? err.message : 'Um erro desconhecido ocorreu';
             setError(new Error(errorMessage));
             console.error(`API Error (GET ${url}):`, err);
             return null;
@@ -54,7 +54,7 @@ export function useApi() {
             const response = await api.post<T>(url, data);
             return response.data;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+            const errorMessage = err instanceof Error ? err.message : 'Um erro desconhecido ocorreu';
             setError(new Error(errorMessage));
             console.error(`API Error (POST ${url}):`, err);
             return null;
@@ -71,7 +71,7 @@ export function useApi() {
             const response = await api.put<T>(url, data);
             return response.data;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+            const errorMessage = err instanceof Error ? err.message : 'Um erro desconhecido ocorreu';
             setError(new Error(errorMessage));
             console.error(`API Error (PUT ${url}):`, err);
             return null;
@@ -88,7 +88,7 @@ export function useApi() {
             const response = await api.delete<T>(url);
             return response.data;
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+            const errorMessage = err instanceof Error ? err.message : 'Um erro desconhecido ocorreu';
             setError(new Error(errorMessage));
             console.error(`API Error (DELETE ${url}):`, err);
             return null;
