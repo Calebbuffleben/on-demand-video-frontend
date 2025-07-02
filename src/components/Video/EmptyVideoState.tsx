@@ -7,9 +7,9 @@ interface EmptyVideoStateProps {
 }
 
 export default function EmptyVideoState({
-  message = "You haven't uploaded any videos yet",
+  message = "Você ainda não enviou nenhum vídeo",
   ctaLink = "/upload-video",
-  ctaText = "Upload Your First Video"
+  ctaText = "Enviar Seu Primeiro Vídeo"
 }: EmptyVideoStateProps) {
   return (
     <div className="bg-white rounded-lg shadow-md p-10 text-center">
@@ -20,7 +20,7 @@ export default function EmptyVideoState({
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-2">{message}</h3>
       <p className="text-gray-500 mb-6">
-        Upload videos to share with your team or embed in your content.
+        Envie vídeos para compartilhar com sua equipe ou incorporar em seu conteúdo.
       </p>
       <Link 
         href={ctaLink}

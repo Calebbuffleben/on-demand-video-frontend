@@ -33,7 +33,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
           {video.thumbnail ? (
             <Image
               src={video.thumbnail}
-              alt={video.meta?.name || 'Video thumbnail'}
+              alt={video.meta?.name || 'Miniatura do vídeo'}
               className="w-full h-full object-cover"
               width={320}
               height={180}
@@ -57,7 +57,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
           
           <div className="absolute top-2 right-2">
             <span className={`text-xs px-2 py-1 rounded-full ${video.readyToStream ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-              {video.readyToStream ? 'Ready' : 'Processing'}
+              {video.readyToStream ? 'Pronto' : 'Processando'}
             </span>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-medium text-gray-900 truncate">
             <Link href={getVideoWatchUrl(video.uid)} className="hover:underline">
-              {video.meta?.name || 'Untitled Video'}
+              {video.meta?.name || 'Vídeo Sem Título'}
             </Link>
           </h3>
           
@@ -90,7 +90,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Edit video details
+                  Editar detalhes do vídeo
                 </Link>
                 
                 <Link 
@@ -98,7 +98,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Video details
+                  Detalhes do vídeo
                 </Link>
                 
                 <Link 
@@ -108,7 +108,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                   rel="noopener noreferrer"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Preview embed
+                  Visualizar incorporação
                 </Link>
                 
                 <button
@@ -116,18 +116,18 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                   onClick={() => {
                     setIsMenuOpen(false);
                     const embedCode = `<iframe 
-  src="${window.location.origin}${getEmbedUrl(video.uid)}" 
-  width="640" 
-  height="360" 
-  frameborder="0" 
-  allow="autoplay; fullscreen" 
-  allowfullscreen>
-</iframe>`;
+                        src="${window.location.origin}${getEmbedUrl(video.uid)}" 
+                        width="640" 
+                        height="360" 
+                        frameborder="0" 
+                        allow="autoplay; fullscreen" 
+                        allowfullscreen>
+                      </iframe>`;
                     navigator.clipboard.writeText(embedCode);
-                    alert('Embed code copied to clipboard!');
+                    alert('Código de incorporação copiado para a área de transferência!');
                   }}
                 >
-                  Copy embed code
+                  Copiar código de incorporação
                 </button>
                 
                 {onDelete && (
@@ -135,12 +135,12 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                     className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     onClick={() => {
                       setIsMenuOpen(false);
-                      if (confirm('Are you sure you want to delete this video?')) {
+                      if (confirm('Tem certeza de que deseja excluir este vídeo?')) {
                         onDelete(video.uid);
                       }
                     }}
                   >
-                    Delete video
+                    Excluir vídeo
                   </button>
                 )}
               </div>
@@ -149,7 +149,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
         </div>
         
         <p className="text-gray-500 text-sm mb-3 truncate">
-          {video.meta?.filename || 'No filename available'}
+          {video.meta?.filename || 'Nome do arquivo não disponível'}
         </p>
         
         <div className="flex justify-between items-center text-xs text-gray-500">
@@ -161,7 +161,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
             href={getVideoWatchUrl(video.uid)}
             className="text-blue-600 hover:text-blue-800 flex items-center font-medium"
           >
-            Watch
+            Assistir
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
