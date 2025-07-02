@@ -69,7 +69,7 @@ export default function CoverUploader({ onCoverSelect, currentCover }: CoverUplo
               }}
             />
             <p className="text-sm text-gray-500">
-              Click or drag to replace the cover image
+              Clique ou arraste para substituir a imagem de capa
             </p>
           </div>
         ) : (
@@ -89,8 +89,8 @@ export default function CoverUploader({ onCoverSelect, currentCover }: CoverUplo
               />
             </svg>
             <div className="text-sm text-gray-600">
-              <p className="font-medium">Click to upload or drag and drop</p>
-              <p>PNG, JPG, GIF up to 10MB</p>
+              <p className="font-medium">Clique para enviar ou arraste e solte</p>
+              <p>PNG, JPG, GIF até 10MB</p>
             </div>
           </div>
         )}
