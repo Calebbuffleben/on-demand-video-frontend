@@ -22,14 +22,6 @@ interface VideoUpload {
   size: string;
 }
 
-interface PopularVideo {
-  id: string;
-  title: string;
-  thumbnailUrl: string;
-  views: number;
-  duration: string;
-}
-
 // ClientOnly wrapper component
 const ClientOnly = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false);
@@ -66,9 +58,6 @@ const DashboardPage = () => {
   
   // Recent uploads
   const [recentUploads, setRecentUploads] = useState<VideoUpload[]>([]);
-  
-  // Popular videos
-  const [popularVideos, setPopularVideos] = useState<PopularVideo[]>([]);
   
   // Analytics loading state
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
@@ -191,7 +180,6 @@ const DashboardPage = () => {
         if (response.success) {
           setPlatformStats(response.data.platformStats);
           setRecentUploads(response.data.recentUploads);
-          setPopularVideos(response.data.popularVideos);
         } else {
           setAnalyticsError(response.message || 'Falha ao carregar dados de análise');
         }
