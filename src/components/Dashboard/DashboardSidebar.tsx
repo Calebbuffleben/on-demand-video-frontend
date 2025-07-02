@@ -16,12 +16,12 @@ const DashboardSidebar: React.FC = () => {
   };
 
   const navigationItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: 'home' },
-    { name: 'My Videos', href: tenantId ? '/videos' : '/my-videos', icon: 'video' },
-    { name: 'Upload Video', href: '/upload-video', icon: 'upload' },
-    { name: 'Analytics', href: '/analytics', icon: 'analytics', isNew: true },
-    { name: 'Embed Codes', href: '/embed-codes', icon: 'code', isNew: true },
-    { name: 'Storage', href: '/storage', icon: 'storage', isNew: true },
+    { name: 'Painel de Controle', href: '/dashboard', icon: 'home' },
+    { name: 'Meus Vídeos', href: tenantId ? '/videos' : '/my-videos', icon: 'video' },
+    { name: 'Enviar Vídeo', href: '/upload-video', icon: 'upload' },
+    { name: 'Análises', href: '/analytics', icon: 'analytics', isNew: true },
+    { name: 'Códigos de Incorporação', href: '/embed-codes', icon: 'code', isNew: true },
+    { name: 'Armazenamento', href: '/storage', icon: 'storage', isNew: true },
   ];
 
   return (
@@ -45,8 +45,8 @@ const DashboardSidebar: React.FC = () => {
             U
           </div>
           <div>
-            <p className="text-sm font-medium text-white">User Profile</p>
-            <p className="text-xs text-gray-400">Creator Account</p>
+            <p className="text-sm font-medium text-white">Perfil do Usuário</p>
+            <p className="text-xs text-gray-400">Conta de Criador</p>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@ const DashboardSidebar: React.FC = () => {
                 <span className="flex-1">{item.name}</span>
                 {item.isNew && (
                   <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
-                    New
+                    Novo
                   </span>
                 )}
               </Link>
@@ -79,7 +79,7 @@ const DashboardSidebar: React.FC = () => {
           
           <div className="pt-2 border-t border-gray-800">
             <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Platform Tools
+              Ferramentas da Plataforma
             </p>
             <div className="mt-2 space-y-2">
               {navigationItems.slice(4).map((item) => (
@@ -97,7 +97,7 @@ const DashboardSidebar: React.FC = () => {
                   <span className="flex-1">{item.name}</span>
                   {item.isNew && (
                     <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
-                      New
+                      Novo
                     </span>
                   )}
                 </Link>
@@ -111,13 +111,13 @@ const DashboardSidebar: React.FC = () => {
       <div className="px-3 py-3 border-t border-gray-800">
         <div className="flex flex-col space-y-2">
           <Link href={getUrl('/documentation')} className="text-xs text-gray-400 hover:text-white">
-            API Documentation
+            Documentação da API
           </Link>
           <Link href={getUrl('/help')} className="text-xs text-gray-400 hover:text-white">
-            Help Center
+            Central de Ajuda
           </Link>
           <Link href={getUrl('/contact')} className="text-xs text-gray-400 hover:text-white">
-            Contact Support
+            Contatar Suporte
           </Link>
         </div>
       </div>

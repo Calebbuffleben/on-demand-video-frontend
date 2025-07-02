@@ -189,10 +189,10 @@ const videoService = {
   getUploadUrl: async (maxDurationSeconds: number = 3600, organizationId: string): Promise<UploadUrlResponse> => {
     try {
       if (!organizationId) {
-        throw new Error('Organization ID is required');
+        throw new Error('Id da organização é obrigatório');
       }
       
-      console.log('Requesting upload URL with params:', {
+      console.log('Requisição de URL de Upload com parâmetros:', {
         maxDurationSeconds,
         organizationId
       });
@@ -200,19 +200,19 @@ const videoService = {
       const response = await api.post<{ success: boolean; status: number; message: string; data: UploadUrlResponse }>('videos/get-upload-url', {
         maxDurationSeconds,
         organizationId,
-        name: 'Uploaded video',
-        description: 'Uploaded through the web interface'
+        name: 'Vídeo Enviado',
+        description: 'Enviado através da interface web'
       });
-      console.log('Upload URL response:', response.data);
+      console.log('URL de Upload:', response.data);
       
       if (!response.data.success) {
-        console.error('Failed to get upload URL:', response.data);
-        throw new Error(response.data.message || 'Failed to get upload URL');
+        console.error('Falha ao obter URL de Upload:', response.data);
+        throw new Error(response.data.message || 'Falha ao obter URL de Upload');
       }
 
       if (!response.data.data?.uploadURL || !response.data.data?.uid) {
-        console.error('Invalid upload URL response:', response.data);
-        throw new Error('Invalid upload URL response from server');
+        console.error('URL de Upload inválida:', response.data);
+        throw new Error('URL de Upload inválida');
       }
       
       return response.data.data;
@@ -253,14 +253,14 @@ const videoService = {
   ): Promise<void> => {
     try {
       if (!uploadURL) {
-        throw new Error('Upload URL is required');
+        throw new Error('URL de Upload é obrigatória');
       }
 
       if (!file) {
-        throw new Error('File is required');
+        throw new Error('Arquivo é obrigatório');
       }
 
-      console.log('Starting video upload to Mux:', {
+      console.log('Iniciando upload de vídeo para Mux:', {
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
@@ -311,13 +311,10 @@ const videoService = {
   checkVideoStatus: async (videoId: string): Promise<VideoStatusResponse> => {
     try {
       if (!videoId) {
-        throw new Error('Video ID is required');
+        throw new Error('Id do vídeo é obrigatório');
       }
-
-        console.log('[VideoService] Checking video status for ID:', videoId);
       
       const response = await api.get<VideoStatusResponse>(`videos/${videoId}/status`);
-      console.log('[VideoService] Raw status response:', JSON.stringify(response.data, null, 2));
       
       // Ensure we have a valid response structure
       if (!response.data) {
@@ -337,15 +334,6 @@ const videoService = {
         };
       }
 
-      // Detailed logging about video status
-      console.log('[VideoService] Video Status Details:', {
-        uid: response.data.video.uid,
-        readyToStream: response.data.video.readyToStream,
-        status: response.data.video.status?.state,
-        playback: response.data.video.playback,
-        thumbnail: response.data.video.thumbnail
-      });
-
       // Ensure the video object has the required fields
       if (!response.data.video.uid) {
         response.data.video.uid = videoId;
@@ -360,8 +348,6 @@ const videoService = {
           state: 'processing'
         };
       }
-
-      console.log('[VideoService] Processed status response:', JSON.stringify(response.data, null, 2));
       return response.data;
     } catch (error) {
       console.error(`[VideoService] Error checking status for video ${videoId}:`, error);
@@ -401,24 +387,9 @@ const videoService = {
     }
   ): Promise<VideoApiResponse> => {
     try {
-      console.log('-----------------Display Options-----------------');
-      console.log('Display Options called with:', {
-        displayOptions,
-      });
-      console.log('Raw soundControlText:', displayOptions.soundControlText);
-      console.log('Type of soundControlText:', typeof displayOptions.soundControlText);
-
       // Make a copy to avoid modifying original objects
       const formattedDisplayOptions = { ...displayOptions };
       const formattedEmbedOptions = { ...embedOptions };
-      
-      // Log sound control specific values
-      console.log('Sound control values being sent:', {
-        text: formattedDisplayOptions.soundControlText,
-        color: formattedDisplayOptions.soundControlColor,
-        opacity: formattedDisplayOptions.soundControlOpacity,
-        size: formattedDisplayOptions.soundControlSize
-      });
       
       // Ensure color values have # prefix
       if (formattedDisplayOptions.progressBarColor && !formattedDisplayOptions.progressBarColor.startsWith('#')) {
@@ -479,9 +450,6 @@ const videoService = {
         }
       });
       
-      console.log('Final formatted display options:', formattedDisplayOptions);
-      console.log('Final soundControlText:', formattedDisplayOptions.soundControlText);
-      
       const response = await api.put<VideoApiResponse>(`videos/organization/${uid}`, {
         displayOptions: formattedDisplayOptions,
         embedOptions: formattedEmbedOptions,
@@ -507,7 +475,6 @@ const videoService = {
     try {
       const response = await api.get<EmbedVideoResponse>(`/videos/embed/${videoId}`);
 
-      console.log('******************Embed video response:', response.data);
       return response.data;
     } catch (error) {
       console.error(`Error fetching embed video for ID ${videoId}:`, error);
@@ -557,12 +524,9 @@ const videoService = {
    * @param text The new text to display
    */
   updateStreamText: async ({ uid, text }: StreamTextUpdate): Promise<VideoApiResponse> => {
-    try {
-      console.log('Updating video text:', { uid, text });
-      
+    try {  
       const response = await api.patch<VideoApiResponse>(`videos/${uid}/text`, { text });
-      
-      console.log('Update text response:', response.data);
+    
       return response.data;
     } catch (error) {
       console.error(`Error updating text for video ${uid}:`, error);
@@ -591,16 +555,13 @@ const videoService = {
    */
   updateSoundControl: async ({ id, text, size, color, opacity }: SoundControlUpdate): Promise<VideoApiResponse> => {
     try {
-      console.log('Updating sound control settings:', { id, text, size, color, opacity });
-      
       const response = await api.patch<VideoApiResponse>(`videos/${id}/sound-control`, {
         text,
         size,
         color: color?.startsWith('#') ? color : color ? `#${color}` : undefined,
         opacity: typeof opacity === 'number' ? Math.max(0, Math.min(1, opacity)) : undefined
       });
-      
-      console.log('Update sound control response:', response.data);
+  
       return response.data;
     } catch (error) {
       console.error(`Error updating sound control for video ${id}:`, error);
@@ -618,6 +579,16 @@ const videoService = {
       throw error;
     }
   },
+
+  deleteVideo: async (videoId: string): Promise<void> => {
+    try {
+      await api.delete(`videos/organization/${videoId}`);
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      throw error;
+    }
+  }
+  
 };
 
 export default videoService; 

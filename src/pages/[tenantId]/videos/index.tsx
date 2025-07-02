@@ -43,11 +43,11 @@ export default function TenantVideosPage() {
       if (response.success && response.data.result) {
         setVideos(response.data.result);
       } else {
-        throw new Error('Failed to fetch videos');
+        throw new Error('Falha ao buscar vídeos');
       }
     } catch (err: unknown) {
       console.error('Error fetching videos:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load videos';
+      const errorMessage = err instanceof Error ? err.message : 'Falha ao carregar vídeos';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -63,12 +63,17 @@ export default function TenantVideosPage() {
     // For now, we'll just remove it from the local state
     setVideos(prev => prev.filter(video => video.uid !== videoId));
     // TODO: Implement actual deletion API call when backend supports it
+    try {
+      await videoService.deleteVideo(videoId);
+    } catch (error) {
+      console.error('Error deleting video:', error);
+    }
   };
 
   return (
     <>
       <Head>
-        <title>My Videos - Cloudflare Stream</title>
+        <title>Meus Vídeos - Cloudflare Stream</title>
       </Head>
       
       <DashboardLayout sidebar={<DashboardSidebar />}>
@@ -76,8 +81,8 @@ export default function TenantVideosPage() {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">My Videos</h1>
-                <p className="text-gray-600 text-sm mt-1">Manage your uploaded videos</p>
+                <h1 className="text-2xl font-semibold">Meus Vídeos</h1>
+                <p className="text-gray-600 text-sm mt-1">Gerencie seus vídeos enviados</p>
               </div>
               <DashboardMenu />
             </div>
@@ -89,7 +94,7 @@ export default function TenantVideosPage() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              Back to Dashboard
+              Voltar ao Painel
             </Link>
           </div>
 
@@ -99,7 +104,7 @@ export default function TenantVideosPage() {
               <div className="w-64">
                 <input
                   type="text"
-                  placeholder="Search videos..."
+                  placeholder="Buscar vídeos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -110,7 +115,7 @@ export default function TenantVideosPage() {
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
               >
                 <ArrowUpTrayIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                Upload Video
+                Enviar Vídeo
               </Link>
             </div>
           </div>
@@ -119,7 +124,7 @@ export default function TenantVideosPage() {
           {loading && (
             <div className="bg-white p-12 rounded-lg shadow-sm flex flex-col items-center justify-center">
               <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-              <p className="text-gray-600">Loading your videos...</p>
+              <p className="text-gray-600">Carregando seus vídeos...</p>
             </div>
           )}
 
@@ -141,7 +146,7 @@ export default function TenantVideosPage() {
                       onClick={fetchVideos}
                       className="text-sm text-red-700 underline hover:text-red-800"
                     >
-                      Try again
+                      Tentar novamente
                     </button>
                   </div>
                 </div>
@@ -156,15 +161,15 @@ export default function TenantVideosPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No videos match your search</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum vídeo corresponde à sua busca</h3>
                 <p className="text-gray-500 mb-4">
-                  Try using different keywords or clear your search
+                  Tente usar palavras-chave diferentes ou limpe sua busca
                 </p>
                 <button
                   onClick={() => setSearchTerm('')}
                   className="text-blue-600 hover:text-blue-800 underline"
                 >
-                  Clear search
+                  Limpar busca
                 </button>
               </div>
             ) : (
@@ -178,12 +183,12 @@ export default function TenantVideosPage() {
               <div className="mb-4 flex justify-between items-center">
                 <h2 className="text-lg font-medium text-gray-900">
                   {searchTerm 
-                    ? `Search results (${filteredVideos.length})` 
-                    : `All Videos (${videos.length})`
+                    ? `Resultados da busca (${filteredVideos.length})` 
+                    : `Todos os Vídeos (${videos.length})`
                   }
                 </h2>
                 <div className="text-sm text-gray-500">
-                  {videos.filter(v => v.readyToStream).length} of {videos.length} ready to stream
+                  {videos.filter(v => v.readyToStream).length} de {videos.length} prontos para reprodução
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

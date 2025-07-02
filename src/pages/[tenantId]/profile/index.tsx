@@ -33,7 +33,7 @@ export default function TenantProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">
-              Your Profile
+              Seu Perfil
             </h1>
             <DashboardMenu />
           </div>
@@ -55,11 +55,11 @@ export default function TenantProfilePage() {
 
         {/* Recent Activity Section (Optional) */}
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+          <h2 className="text-xl font-semibold mb-4">Atividade Recente</h2>
           <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-gray-500 text-sm">Your recent activity will appear here.</p>
+            <p className="text-gray-500 text-sm">Sua atividade recente aparecerá aqui.</p>
             {/* Add tenant-specific activity if needed */}
-            <p className="text-gray-500 text-sm mt-2">Organization ID: {tenantId}</p>
+            <p className="text-gray-500 text-sm mt-2">ID da Organização: {tenantId}</p>
           </div>
         </div>
       </main>

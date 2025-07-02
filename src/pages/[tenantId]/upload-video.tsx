@@ -94,7 +94,7 @@ export default function UploadVideoPage() {
   return (
     <>
       <Head>
-        <title>Upload Video</title>
+        <title>Enviar Vídeo</title>
       </Head>
       <DashboardLayout sidebar={<DashboardSidebar />}>
         <div className="px-6 py-4">
@@ -105,9 +105,9 @@ export default function UploadVideoPage() {
               onClick={() => router.push(tenantId ? `/${tenantId}/videos` : '/my-videos')}
               className="mr-4"
             >
-              Back to Videos
+              Voltar aos Vídeos
             </Button>
-            <h1 className="text-2xl font-semibold">Upload Video</h1>
+            <h1 className="text-2xl font-semibold">Enviar Vídeo</h1>
           </div>
           
           <div className="bg-white rounded-lg shadow p-6">
@@ -124,8 +124,8 @@ export default function UploadVideoPage() {
                 {isProcessing && (
                   <div className="mt-8 text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-                    <p className="text-gray-700">Video is being processed...</p>
-                    <p className="text-xs text-gray-500 mt-1">This may take a few minutes</p>
+                    <p className="text-gray-700">Vídeo está sendo processado...</p>
+                    <p className="text-xs text-gray-500 mt-1">Isso pode levar alguns minutos</p>
                   </div>
                 )}
                 
@@ -137,7 +137,7 @@ export default function UploadVideoPage() {
                 
                 {isReady && (
                   <div className="mt-8">
-                    <h2 className="text-xl font-medium mb-4">Video Ready!</h2>
+                    <h2 className="text-xl font-medium mb-4">Vídeo Pronto!</h2>
                     
                     {videoPlaybackSrc ? (
                       <>
@@ -149,13 +149,13 @@ export default function UploadVideoPage() {
                             variant="primary"
                             onClick={() => router.push(tenantId ? `/${tenantId}/videos/${videoUid}` : `/videos/${videoUid}`)}
                           >
-                            View Video Details
+                            Ver Detalhes do Vídeo
                           </Button>
                         </div>
                       </>
                     ) : (
                       <div className="p-4 bg-yellow-50 text-yellow-800 rounded-md">
-                        Video is ready but playback URLs are not available.
+                        Vídeo está pronto mas os URLs de reprodução não estão disponíveis.
                       </div>
                     )}
                   </div>

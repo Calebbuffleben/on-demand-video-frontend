@@ -40,23 +40,23 @@ export default function VideoEmbedPage() {
           console.log('Video data:', JSON.stringify(video, null, 2));
           setVideoData(video);
         } else {
-          throw new Error('No video data available');
+          throw new Error('Nenhum dado de vídeo disponível');
         }
       } else {
         // Only throw an error if the response indicates a failure
         if (!response.success) {
-          const errorMessage = response.message || 'Failed to load video';
+          const errorMessage = response.message || 'Falha ao carregar vídeo';
           console.error('API response error:', response);
           throw new Error(errorMessage);
         } else {
           // Handle case where response is successful but no video data
           console.error('API response has no video data:', response);
-          throw new Error('No video data available');
+          throw new Error('Nenhum dado de vídeo disponível');
         }
       }
     } catch (err) {
       console.error('Error fetching video:', err);
-      setError('Failed to load video');
+      setError('Falha ao carregar vídeo');
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ export default function VideoEmbedPage() {
   return (
     <>
       <Head>
-        <title>{videoData?.meta?.name || 'Video Player'}</title>
+        <title>{videoData?.meta?.name || 'Reprodutor de Vídeo'}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex" />
         <style>{`
@@ -83,7 +83,7 @@ export default function VideoEmbedPage() {
         {loading && (
           <div className="text-white flex flex-col items-center">
             <div className="w-10 h-10 border-2 border-gray-600 border-t-white rounded-full animate-spin mb-2"></div>
-            <p className="text-sm">Loading video...</p>
+            <p className="text-sm">Carregando vídeo...</p>
           </div>
         )}
         
