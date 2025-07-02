@@ -170,12 +170,12 @@ const analyticsService = {
         status: axios.isAxiosError(error) ? error.response?.status || 500 : 500,
         message: axios.isAxiosError(error) ? 
           `API Error: ${error.response?.data?.message || error.message}` : 
-          'Unknown error fetching analytics',
+          'Erro desconhecido ao buscar análises',
         data: defaultMockData,
         error: {
           message: axios.isAxiosError(error) ? 
             error.response?.data?.message || error.message : 
-            'Unknown error',
+            'Erro desconhecido',
           statusCode: axios.isAxiosError(error) ? error.response?.status || 500 : 500
         }
       };

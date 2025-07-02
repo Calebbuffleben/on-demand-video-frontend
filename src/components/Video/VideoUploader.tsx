@@ -118,12 +118,12 @@ export default function VideoUploader({
 
   const uploadVideo = useCallback(async () => {
     if (!videoFile) {
-      setError('Please select a video file');
+      setError('Por favor, selecione um arquivo de vídeo');
       return;
     }
 
     if (!organizationId) {
-      setError('Organization ID is required');
+      setError('ID da organização é obrigatório');
       return;
     }
 
@@ -151,7 +151,7 @@ export default function VideoUploader({
           uid: uid,
           fullResponse: uploadResponse
         });
-        throw new Error('Failed to get upload URL or video ID');
+        throw new Error('Falha ao obter URL de envio ou ID do vídeo');
       }
 
       console.log('Starting upload with:', {
@@ -192,7 +192,7 @@ export default function VideoUploader({
 
     } catch (err) {
       console.error('Error uploading video:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido ocorreu';
       setError(errorMessage);
       
       if (onUploadError && err instanceof Error) {
@@ -257,8 +257,8 @@ export default function VideoUploader({
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
               />
             </svg>
-            <p className="text-gray-700 font-medium mb-2">Drag and drop your video or click to browse</p>
-            <p className="text-sm text-gray-500">MP4, MKV, MOV, AVI up to 30GB</p>
+            <p className="text-gray-700 font-medium mb-2">Arraste e solte seu vídeo ou clique para navegar</p>
+            <p className="text-sm text-gray-500">MP4, MKV, MOV, AVI até 30GB</p>
           </>
         )}
         
@@ -296,7 +296,7 @@ export default function VideoUploader({
         {uploading && (
           <div className="w-full">
             <div className="mb-2 flex justify-between">
-              <span className="text-sm font-medium text-gray-700">Uploading...</span>
+              <span className="text-sm font-medium text-gray-700">Enviando...</span>
               <span className="text-sm font-medium text-gray-700">{uploadProgress}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -325,45 +325,45 @@ export default function VideoUploader({
               />
             </svg>
             <p className="text-gray-700 font-medium mb-2">
-              {isProcessing ? 'Video is being processed...' : (embedInfo.readyToStream || embedInfo.status === 'ready' ? 'Upload Successful!' : 'Processing Complete')}
+              {isProcessing ? 'Vídeo está sendo processado...' : (embedInfo.readyToStream || embedInfo.status === 'ready' ? 'Envio Bem-sucedido!' : 'Processamento Concluído')}
             </p>
             <p className="text-sm text-gray-500 mb-2">
-              {isProcessing ? 'This may take a few minutes' : (embedInfo.hls ? 'Video is ready for embedding' : 'Video will be available shortly')}
+              {isProcessing ? 'Isso pode levar alguns minutos' : (embedInfo.hls ? 'Vídeo está pronto para incorporação' : 'Vídeo estará disponível em breve')}
             </p>
             
             {embedInfo.hls && (
               <div className="mt-4 bg-gray-100 p-4 rounded-md">
-                <p className="text-sm font-medium text-gray-700 mb-2">HLS URL (for Safari/iOS):</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">URL HLS (para Safari/iOS):</p>
                 <code className="text-xs bg-white p-2 block rounded border border-gray-300 break-all">
                   {embedInfo.hls}
                 </code>
                 
                 {embedInfo.dash && (
                   <>
-                    <p className="text-sm font-medium text-gray-700 mt-4 mb-2">DASH URL (for Chrome/Android):</p>
+                    <p className="text-sm font-medium text-gray-700 mt-4 mb-2">URL DASH (para Chrome/Android):</p>
                     <code className="text-xs bg-white p-2 block rounded border border-gray-300 break-all">
                       {embedInfo.dash}
                     </code>
                   </>
                 )}
                 
-                <p className="text-sm font-medium text-gray-700 mt-4 mb-2">Embed Code:</p>
+                <p className="text-sm font-medium text-gray-700 mt-4 mb-2">Código de Incorporação:</p>
                 <code className="text-xs bg-white p-2 block rounded border border-gray-300 break-all">
                   {`<video id="player" controls>
-  <source src="${embedInfo.hls}" type="application/x-mpegURL">
-  ${embedInfo.dash ? `<source src="${embedInfo.dash}" type="application/dash+xml">` : ''}
-  Your browser doesn't support HTML5 video.
-</video>`}
+                      <source src="${embedInfo.hls}" type="application/x-mpegURL">
+                      ${embedInfo.dash ? `<source src="${embedInfo.dash}" type="application/dash+xml">` : ''}
+                      Seu navegador não suporta vídeo HTML5.
+                    </video>`}
                 </code>
               </div>
             )}
             
             {embedInfo.thumbnailUrl && (
               <div className="mt-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Thumbnail:</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">Miniatura:</p>
                 <Image
                   src={embedInfo.thumbnailUrl}
-                  alt="Video thumbnail"
+                  alt="Miniatura do vídeo"
                   className="mx-auto max-w-full h-auto rounded-md border border-gray-300"
                   width={320}
                   height={180}
@@ -390,7 +390,7 @@ export default function VideoUploader({
             }}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md mr-2 hover:bg-gray-50"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             onClick={(e) => {
@@ -399,7 +399,7 @@ export default function VideoUploader({
             }}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
           >
-            Upload Video
+            Enviar Vídeo
           </button>
         </div>
       )}
@@ -414,7 +414,7 @@ export default function VideoUploader({
             }}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
           >
-            Upload Another Video
+            Enviar Outro Vídeo
           </button>
         </div>
       )}

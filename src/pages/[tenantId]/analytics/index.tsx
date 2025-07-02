@@ -50,10 +50,10 @@ export default function AnalyticsPage() {
         if (response.success) {
           setData(response.data);
         } else {
-          setError(response.message || 'Failed to load analytics data');
+          setError(response.message || 'Falha ao carregar dados de análise');
         }
       } catch (err) {
-        setError('Failed to load analytics data');
+        setError('Falha ao carregar dados de análise');
         console.error(err);
       } finally {
         setLoading(false);
@@ -70,8 +70,8 @@ export default function AnalyticsPage() {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
-                <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+                <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+                <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
             </div>
@@ -89,8 +89,8 @@ export default function AnalyticsPage() {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
-                <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+                <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+                <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
             </div>
@@ -110,8 +110,8 @@ export default function AnalyticsPage() {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
-                <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+                <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+                <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
             </div>
@@ -127,8 +127,8 @@ export default function AnalyticsPage() {
         <header className="bg-white shadow-sm mb-6 rounded-lg">
           <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-semibold">Analytics Dashboard</h1>
-              <p className="text-gray-600 text-sm mt-1">View your content performance</p>
+              <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+              <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
             </div>
             <DashboardMenu />
           </div>
@@ -138,19 +138,19 @@ export default function AnalyticsPage() {
           {/* Platform Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
-              title="Total Videos"
+              title="Total de Vídeos"
               value={formatNumber(data.platformStats.totalVideos)}
             />
             <StatCard
-              title="Total Views"
+              title="Total de Visualizações"
               value={formatNumber(data.platformStats.totalViews)}
             />
             <StatCard
-              title="Total Storage"
+              title="Armazenamento Total"
               value={data.platformStats.totalStorage}
             />
             <StatCard
-              title="Total Bandwidth"
+              title="Largura de Banda Total"
               value={data.platformStats.totalBandwidth}
             />
           </div>
@@ -158,7 +158,7 @@ export default function AnalyticsPage() {
           {/* Recent Uploads */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Uploads</CardTitle>
+              <CardTitle>Envios Recentes</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -180,7 +180,7 @@ export default function AnalyticsPage() {
           {/* Popular Videos */}
           <Card>
             <CardHeader>
-              <CardTitle>Popular Videos</CardTitle>
+              <CardTitle>Vídeos Populares</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -251,14 +251,14 @@ function VideoCard({
             href={`/${tenantId}/analytics/videos/${id}`}
             className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50"
           >
-            View Analytics
+            Ver Análises
           </Link>
         </div>
       </div>
       <CardContent className="p-4">
         <h3 className="font-semibold truncate">{title}</h3>
         <div className="text-sm text-gray-500 mt-2">
-          {views !== undefined && <div>{formatNumber(views)} views</div>}
+          {views !== undefined && <div>{formatNumber(views)} visualizações</div>}
           {date && <div>{formatDate(new Date(date))}</div>}
           {duration && <div>{duration}</div>}
           {size && <div>{size}</div>}
@@ -285,10 +285,10 @@ function AnalyticsSkeleton() {
 
 function formatDate(date: Date): string {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    return 'Invalid date';
+    return 'Data inválida';
   }
   
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('pt-BR', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

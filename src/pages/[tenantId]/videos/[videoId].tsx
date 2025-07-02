@@ -44,23 +44,23 @@ export default function VideoDetailPage() {
           console.log('Video data:', JSON.stringify(videoData, null, 2));
           setVideo(videoData);
         } else {
-          throw new Error('No video data available');
+          throw new Error('Nenhum dado de vídeo disponível');
         }
       } else {
         // Only throw an error if the response indicates a failure
         if (!response.success) {
-          const errorMessage = response.message || 'Failed to load video';
+          const errorMessage = response.message || 'Falha ao carregar vídeo';
           console.error('API response error:', response);
           throw new Error(errorMessage);
         } else {
           // Handle case where response is successful but no video data
           console.error('API response has no video data:', response);
-          throw new Error('No video data available');
+          throw new Error('Nenhum dado de vídeo disponível');
         }
       }
     } catch (err: unknown) {
       console.error('Error fetching video:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load video';
+      const errorMessage = err instanceof Error ? err.message : 'Falha ao carregar vídeo';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -93,7 +93,7 @@ export default function VideoDetailPage() {
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, { 
+    return date.toLocaleDateString('pt-BR', { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric',
@@ -103,7 +103,7 @@ export default function VideoDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this video? This cannot be undone.')) {
+    if (window.confirm('Tem certeza de que deseja excluir este vídeo? Esta ação não pode ser desfeita.')) {
       // In a real implementation, you'd call an API to delete the video
       // For now, we'll just redirect back to the videos page
       router.push(getVideosUrl());
@@ -113,13 +113,13 @@ export default function VideoDetailPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert('Copied to clipboard!');
+    alert('Copiado para a área de transferência!');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Head>
-        <title>{video?.meta?.name || 'Video Detail'} - Cloudflare Stream</title>
+        <title>{video?.meta?.name || 'Detalhes do Vídeo'}</title>
       </Head>
 
       <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-md">
@@ -127,9 +127,9 @@ export default function VideoDetailPage() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-semibold text-white truncate">
-                {video?.meta?.name || 'Video Detail'}
+                {video?.meta?.name || 'Detalhes do Vídeo'}
               </h1>
-              <p className="text-blue-100 text-sm mt-1">Video Management</p>
+              <p className="text-blue-100 text-sm mt-1">Gerenciamento de Vídeo</p>
             </div>
             <DashboardMenu />
           </div>
@@ -143,7 +143,7 @@ export default function VideoDetailPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Videos
+            Voltar aos Vídeos
           </Link>
         </div>
 
@@ -151,7 +151,7 @@ export default function VideoDetailPage() {
         {loading && (
           <div className="bg-white p-12 rounded-lg shadow-sm flex flex-col items-center justify-center">
             <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-600">Loading video...</p>
+            <p className="text-gray-600">Carregando vídeo...</p>
           </div>
         )}
 
@@ -173,7 +173,7 @@ export default function VideoDetailPage() {
                     onClick={() => router.back()}
                     className="text-sm text-red-700 underline hover:text-red-800"
                   >
-                    Go back
+                    Voltar
                   </button>
                 </div>
               </div>
@@ -224,8 +224,8 @@ export default function VideoDetailPage() {
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <p>Video playback not available</p>
-                          <p className="text-sm text-gray-400 mt-1">The video may still be processing</p>
+                          <p>Reprodução de vídeo não disponível</p>
+                          <p className="text-sm text-gray-400 mt-1">O vídeo pode ainda estar sendo processado</p>
                         </div>
                       </div>
                     )}
@@ -238,20 +238,20 @@ export default function VideoDetailPage() {
                 
                 <div className="flex flex-wrap gap-3 mb-4">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {video.meta?.filetype ? video.meta.filetype.toUpperCase() : 'UNKNOWN TYPE'}
+                    {video.meta?.filetype ? video.meta.filetype.toUpperCase() : 'TIPO DESCONHECIDO'}
                   </span>
                   
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    {formatDuration(video.duration)} duration
+                    {formatDuration(video.duration)} duração
                   </span>
                   
                   {video.readyToStream ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Ready to Stream
+                      Pronto para Reprodução
                     </span>
                   ) : (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      Processing
+                      Processando
                     </span>
                   )}
                 </div>
@@ -260,7 +260,7 @@ export default function VideoDetailPage() {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  Uploaded on {formatDate(video.created)}
+                  Enviado em {formatDate(video.created)}
                 </div>
                 
                 <div className="border-t border-gray-200 pt-4">
@@ -272,7 +272,7 @@ export default function VideoDetailPage() {
                       <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
-                      Delete Video
+                      Excluir Vídeo
                     </button>
                     
                     <Link 
@@ -282,7 +282,7 @@ export default function VideoDetailPage() {
                       <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
-                      Edit Video
+                      Editar Vídeo
                     </Link>
                     
                     <button 
@@ -292,7 +292,7 @@ export default function VideoDetailPage() {
                       <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
-                      Copy Stream URL
+                      Copiar URL do Stream
                     </button>
                   </div>
                 </div>
@@ -303,40 +303,40 @@ export default function VideoDetailPage() {
             <div>
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-medium text-gray-900">Video Information</h3>
+                  <h3 className="text-lg font-medium text-gray-900">Informações do Vídeo</h3>
                 </div>
                 
                 <div className="p-6">
                   <dl className="space-y-4">
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt className="text-sm font-medium text-gray-500">Video ID</dt>
+                      <dt className="text-sm font-medium text-gray-500">ID do Vídeo</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 font-mono">{video.uid}</dd>
                     </div>
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt className="text-sm font-medium text-gray-500">Original File</dt>
-                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{video.meta?.filename || 'Unknown'}</dd>
+                      <dt className="text-sm font-medium text-gray-500">Arquivo Original</dt>
+                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{video.meta?.filename || 'Desconhecido'}</dd>
                     </div>
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt className="text-sm font-medium text-gray-500">Size</dt>
+                      <dt className="text-sm font-medium text-gray-500">Tamanho</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{formatFileSize(video.size || 0)}</dd>
                     </div>
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt className="text-sm font-medium text-gray-500">Resolution</dt>
+                      <dt className="text-sm font-medium text-gray-500">Resolução</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        {video.input ? `${video.input.width || 0} x ${video.input.height || 0}` : 'Unknown'}
+                        {video.input ? `${video.input.width || 0} x ${video.input.height || 0}` : 'Desconhecida'}
                       </dd>
                     </div>
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt className="text-sm font-medium text-gray-500">Created</dt>
+                      <dt className="text-sm font-medium text-gray-500">Criado</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{formatDate(video.created)}</dd>
                     </div>
                     
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt className="text-sm font-medium text-gray-500">Modified</dt>
+                      <dt className="text-sm font-medium text-gray-500">Modificado</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{formatDate(video.modified)}</dd>
                     </div>
                     
@@ -351,9 +351,9 @@ export default function VideoDetailPage() {
                     )}
 
                     <div className="sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt className="text-sm font-medium text-gray-500">Organization</dt>
+                      <dt className="text-sm font-medium text-gray-500">Organização</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        {tenantId || 'Personal'}
+                        {tenantId || 'Pessoal'}
                       </dd>
                     </div>
                   </dl>
@@ -363,18 +363,18 @@ export default function VideoDetailPage() {
               {video.playback?.hls ? (
                 <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
                   <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900">Embed Code</h3>
+                    <h3 className="text-lg font-medium text-gray-900">Código de Incorporação</h3>
                   </div>
                   <div className="p-6">
-                    <p className="text-sm text-gray-500 mb-4">Use this code to embed the video on your website:</p>
+                    <p className="text-sm text-gray-500 mb-4">Use este código para incorporar o vídeo em seu site:</p>
                     <div className="bg-gray-50 p-4 rounded-md font-mono text-xs overflow-x-auto">
                       {`<iframe
-  src="${window.location.origin}/${tenantId}/embed/${videoId}"
-  style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"
-  frameborder="0"
-  allow="autoplay; fullscreen"
-  allowfullscreen
-></iframe>`}
+                          src="${window.location.origin}/${tenantId}/embed/${videoId}"
+                          style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"
+                          frameborder="0"
+                          allow="autoplay; fullscreen"
+                          allowfullscreen
+                        ></iframe>`}
                     </div>
                     <button 
                       onClick={() => copyToClipboard(`<iframe src=\"${window.location.origin}/${tenantId}/embed/${videoId}\" style=\"width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;\" frameborder=\"0\" allow=\"autoplay; fullscreen\" allowfullscreen></iframe>`)}
@@ -383,18 +383,18 @@ export default function VideoDetailPage() {
                       <svg xmlns="http://www.w3.org/2000/svg" className="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                       </svg>
-                      Copy Embed Code
+                      Copiar Código de Incorporação
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
                   <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900">Embed Code</h3>
+                    <h3 className="text-lg font-medium text-gray-900">Código de Incorporação</h3>
                   </div>
                   <div className="p-6">
                     <p className="text-sm text-gray-500">
-                      Embed code not available. The video may still be processing.
+                      Código de incorporação não disponível. O vídeo pode ainda estar sendo processado.
                     </p>
                   </div>
                 </div>

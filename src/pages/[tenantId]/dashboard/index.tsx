@@ -94,7 +94,7 @@ const DashboardPage = () => {
       setSubscription(subscription);
     } catch (err: unknown) {
       console.error("Error fetching subscription:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to load subscription details";
+      const errorMessage = err instanceof Error ? err.message : "Falha ao carregar detalhes da assinatura";
       console.error(errorMessage);
       
       // Check for token issues
@@ -193,11 +193,11 @@ const DashboardPage = () => {
           setRecentUploads(response.data.recentUploads);
           setPopularVideos(response.data.popularVideos);
         } else {
-          setAnalyticsError(response.message || 'Failed to load analytics data');
+          setAnalyticsError(response.message || 'Falha ao carregar dados de análise');
         }
       } catch (err) {
         console.error('Error loading analytics:', err);
-        setAnalyticsError('Failed to load analytics data');
+        setAnalyticsError('Falha ao carregar dados de análise');
       } finally {
         setAnalyticsLoading(false);
       }
@@ -209,15 +209,15 @@ const DashboardPage = () => {
   return (
     <ClientOnly>
       <Head>
-        <title>Dashboard</title>
+        <title>Painel de Controle</title>
       </Head>
       <DashboardLayout sidebar={<DashboardSidebar />}>
         <div className="p-4 md:p-6 bg-gray-50">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Dashboard</h1>
-                <p className="text-gray-600 text-sm mt-1">{organization?.name || 'Organization'}</p>
+                <h1 className="text-2xl font-semibold">Painel de Controle</h1>
+                <p className="text-gray-600 text-sm mt-1">{organization?.name || 'Organização'}</p>
               </div>
               <DashboardMenu />
             </div>
@@ -226,8 +226,8 @@ const DashboardPage = () => {
           {/* Quick Actions */}
           <div className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg overflow-hidden shadow-md">
             <div className="p-6 md:p-8">
-              <h2 className="text-xl font-bold text-white mb-2">Ready to upload new content?</h2>
-              <p className="text-blue-100 mb-6">Share your videos with your audience today.</p>
+              <h2 className="text-xl font-bold text-white mb-2">Pronto para enviar novo conteúdo?</h2>
+              <p className="text-blue-100 mb-6">Compartilhe seus vídeos com seu público hoje.</p>
               <div className="flex flex-wrap gap-4">
                 <Link
                   href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
@@ -236,7 +236,7 @@ const DashboardPage = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Upload Video
+                  Enviar Vídeo
                 </Link>
                 
                 <Link
@@ -246,7 +246,7 @@ const DashboardPage = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  View Analytics
+                  Ver Análises
                 </Link>
                 
                 <Link
@@ -256,7 +256,7 @@ const DashboardPage = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  My Videos
+                  Meus Vídeos
                 </Link>
               </div>
             </div>
@@ -264,7 +264,7 @@ const DashboardPage = () => {
 
           {/* Platform Stats */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Platform Overview</h2>
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Visão Geral da Plataforma</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {analyticsLoading ? (
                 // Loading skeletons
@@ -283,19 +283,19 @@ const DashboardPage = () => {
                 // Stats cards
                 <>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Total Videos</h3>
+                    <h3 className="text-sm font-medium text-gray-500">Total de Vídeos</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalVideos}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Total Views</h3>
+                    <h3 className="text-sm font-medium text-gray-500">Total de Visualizações</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalViews}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Total Storage</h3>
+                    <h3 className="text-sm font-medium text-gray-500">Armazenamento Total</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalStorage}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Total Bandwidth</h3>
+                    <h3 className="text-sm font-medium text-gray-500">Largura de Banda Total</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalBandwidth}</p>
                   </div>
                 </>
@@ -305,7 +305,7 @@ const DashboardPage = () => {
 
           {/* Recent Uploads */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Recent Uploads</h2>
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Envios Recentes</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {analyticsLoading ? (
                 // Loading skeletons
@@ -349,7 +349,7 @@ const DashboardPage = () => {
               ) : (
                 // Empty state
                 <div className="col-span-full text-center text-gray-500 py-8">
-                  No recent uploads
+                  Nenhum envio recente
                 </div>
               )}
             </div>
@@ -357,7 +357,7 @@ const DashboardPage = () => {
 
           {/* Organization Overview */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Organization Overview</h2>
+            <h2 className="text-lg font-medium mb-4 text-gray-900">Visão Geral da Organização</h2>
             <div className="grid grid-cols-1 gap-5">
               <OrganizationOverviewCard />
             </div>
