@@ -20,7 +20,7 @@ const EmptyDataState: React.FC<{ title: string; description?: string }> = ({ tit
     </div>
     <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
     <p className="text-sm text-gray-500 text-center max-w-xs">
-      {description || 'No data available yet. Analytics will appear once your video starts receiving views.'}
+      {description || 'Nenhum dado disponível ainda. As análises aparecerão quando seu vídeo começar a receber visualizações.'}
     </p>
   </div>
 );
@@ -38,10 +38,10 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
   if (!hasTotalViews && !hasDeviceData && !hasBrowserData && !hasLocationData && !hasOSData && !hasConnectionData) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Viewer Demographics</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Demografia dos Visualizadores</h2>
         <EmptyDataState 
-          title="No Analytics Data Available"
-          description="Your video hasn't received any views yet, or analytics data is still being processed. Check back later to see viewer demographics and engagement metrics."
+          title="Nenhum Dado de Análise Disponível"
+          description="Seu vídeo ainda não recebeu visualizações, ou os dados de análise ainda estão sendo processados. Volte mais tarde para ver a demografia dos visualizadores e métricas de engajamento."
         />
       </div>
     );
@@ -49,12 +49,12 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Viewer Demographics</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Demografia dos Visualizadores</h2>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Device Breakdown */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Device Breakdown</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuição por Dispositivo</h3>
           {hasDeviceData ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -74,20 +74,20 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
                 </Pie>
                 <Tooltip
                   formatter={(value: number, name: string, props: { payload?: DeviceBreakdown }) => [
-                    `${value} views (${props.payload?.percentage?.toFixed(1) || 0}%)`,
-                    props.payload?.device || 'Unknown Device'
+                    `${value} visualizações (${props.payload?.percentage?.toFixed(1) || 0}%)`,
+                    props.payload?.device || 'Dispositivo Desconhecido'
                   ]}
                 />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyDataState title="No Device Data" />
+            <EmptyDataState title="Nenhum Dado de Dispositivo" />
           )}
         </div>
 
         {/* Browser Breakdown */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Browser Breakdown</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuição por Navegador</h3>
           {hasBrowserData ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -107,20 +107,20 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
                 </Pie>
                 <Tooltip
                   formatter={(value: number, name: string, props: { payload?: BrowserBreakdown }) => [
-                    `${value} views (${props.payload?.percentage?.toFixed(1) || 0}%)`,
-                    props.payload?.browser || 'Unknown Browser'
+                    `${value} visualizações (${props.payload?.percentage?.toFixed(1) || 0}%)`,
+                    props.payload?.browser || 'Navegador Desconhecido'
                   ]}
                 />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyDataState title="No Browser Data" />
+            <EmptyDataState title="Nenhum Dado de Navegador" />
           )}
         </div>
 
         {/* Geographic Distribution */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Geographic Distribution</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuição Geográfica</h3>
           {hasLocationData ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.locations}>
@@ -134,21 +134,21 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
                 <YAxis />
                 <Tooltip
                   formatter={(value: number, name: string, props: { payload?: LocationBreakdown }) => [
-                    `${value} views (${props.payload?.percentage?.toFixed(1) || 0}%)`,
-                    props.payload?.country || 'Unknown Country'
+                    `${value} visualizações (${props.payload?.percentage?.toFixed(1) || 0}%)`,
+                    props.payload?.country || 'País Desconhecido'
                   ]}
                 />
                 <Bar dataKey="views" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyDataState title="No Geographic Data" />
+            <EmptyDataState title="Nenhum Dado Geográfico" />
           )}
         </div>
 
         {/* Operating System Breakdown */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Operating System</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Sistema Operacional</h3>
           {hasOSData ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.operatingSystems}>
@@ -157,21 +157,21 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
                 <YAxis />
                 <Tooltip
                   formatter={(value: number, name: string, props: { payload?: OSBreakdown }) => [
-                    `${value} views (${props.payload?.percentage?.toFixed(1) || 0}%)`,
-                    props.payload?.os || 'Unknown OS'
+                    `${value} visualizações (${props.payload?.percentage?.toFixed(1) || 0}%)`,
+                    props.payload?.os || 'SO Desconhecido'
                   ]}
                 />
                 <Bar dataKey="views" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyDataState title="No Operating System Data" />
+            <EmptyDataState title="Nenhum Dado de Sistema Operacional" />
           )}
         </div>
 
         {/* Connection Type */}
         <div className="bg-gray-50 rounded-lg p-4 lg:col-span-2">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Connection Type</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Tipo de Conexão</h3>
           {hasConnectionData ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.connections}>
@@ -180,15 +180,15 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
                 <YAxis />
                 <Tooltip
                   formatter={(value: number, name: string, props: { payload?: ConnectionBreakdown }) => [
-                    `${value} views (${props.payload?.percentage?.toFixed(1) || 0}%)`,
-                    props.payload?.connectionType || 'Unknown Connection'
+                    `${value} visualizações (${props.payload?.percentage?.toFixed(1) || 0}%)`,
+                    props.payload?.connectionType || 'Conexão Desconhecida'
                   ]}
                 />
                 <Bar dataKey="views" fill="#ffc658" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <EmptyDataState title="No Connection Data" />
+            <EmptyDataState title="Nenhum Dado de Conexão" />
           )}
         </div>
       </div>
