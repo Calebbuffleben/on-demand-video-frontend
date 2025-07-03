@@ -8,6 +8,30 @@ interface TestResponse {
   message: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  imageUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface Organization {
+  id: string;
+  name: string;
+  clerkId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface AuthMeResponse {
+  user: User;
+  organization: Organization | null;
+  message: string;
+}
+
 export default function ApiTestComponent() {
   const { get, loading, error } = useApi();
   const { refreshToken, isAuthenticated } = useAuth();
@@ -38,7 +62,7 @@ export default function ApiTestComponent() {
   const testAuthEndpoint = async () => {
     try {
       addTestResult('Testing authenticated endpoint...');
-      const data = await get<{ user: any; organization: any; message: string }>('/api/auth/me');
+      const data = await get<AuthMeResponse>('/api/auth/me');
       if (data) {
         addTestResult('✅ Authenticated endpoint successful');
         addTestResult(`User: ${data.user?.email || 'Unknown'}`);
