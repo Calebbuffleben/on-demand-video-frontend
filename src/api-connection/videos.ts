@@ -1,4 +1,4 @@
-import api from '../api';
+import api from './service';
 import axios from 'axios';
 
 export interface DisplayOptions {

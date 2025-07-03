@@ -71,7 +71,7 @@ api.interceptors.request.use(
     }
 );
 
-// Add response interceptor for error handling
+// Add response interceptor to handle authentication errors
 api.interceptors.response.use(
     (response) => {
         console.log(`API response from ${response.config.url}: Status ${response.status}`);
@@ -96,7 +96,7 @@ api.interceptors.response.use(
         
         return response;
     },
-    (error) => {
+    async (error) => {
         console.error('API error:', error?.response?.data || error.message);
         
         // Only attempt to use localStorage and event dispatching on the client
@@ -107,9 +107,43 @@ api.interceptors.response.use(
             
             // Handle specific error conditions
             if (error.response?.status === 401) {
-                // Unauthorized - token is invalid or missing
+                // Unauthorized - token is invalid or expired
                 console.error('Authentication error: Your session may have expired');
+                
+                // Trigger token refresh by dispatching the unauthorized event
+                // This will be caught by the useClerkToken hook
                 window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+                
+                // If this is a retry attempt, don't retry again to avoid infinite loops
+                if (error.config?._retry) {
+                    console.error('Token refresh failed, redirecting to login...');
+                    // Could redirect to login page here
+                    return Promise.reject(error);
+                }
+                
+                // Mark this request as retried
+                error.config._retry = true;
+                
+                // Try to get a fresh token from Clerk
+                try {
+                    console.log('Attempting to get fresh token from Clerk...');
+                    
+                    // Dispatch event to trigger token refresh
+                    window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+                    
+                    // Wait a bit for the token to be refreshed
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Get the fresh token
+                    const freshToken = localStorage.getItem('token');
+                    if (freshToken && freshToken !== error.config.headers['Authorization']?.split(' ')[1]) {
+                        console.log('Fresh token obtained, retrying request...');
+                        error.config.headers['Authorization'] = `Bearer ${freshToken}`;
+                        return api(error.config);
+                    }
+                } catch (refreshError) {
+                    console.error('Failed to refresh token:', refreshError);
+                }
             } else if (error.response?.status === 400) {
                 // Organization access issue
                 console.error('Request error:', error.response.data.message);
