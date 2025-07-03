@@ -56,9 +56,9 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Viewer Retention</span>
+          <span>Retenção de Visualizadores</span>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Show:</span>
+            <span className="text-sm text-gray-600">Mostrar:</span>
             <button
               onClick={() => setShowPercentage(true)}
               className={`px-3 py-1 text-sm rounded-md transition-colors ${
@@ -67,7 +67,7 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Percentage
+              Porcentagem
             </button>
             <button
               onClick={() => setShowPercentage(false)}
@@ -77,7 +77,7 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Views
+              Visualizações
             </button>
           </div>
         </CardTitle>

@@ -77,14 +77,14 @@ const VideoAnalyticsPage: React.FC = () => {
         if (analyticsResponse.success) {
           setAnalytics(analyticsResponse.data);
         } else {
-          setError('Failed to fetch analytics data');
+          setError('Falha ao carregar dados de análise');
         }
 
         if (viewerAnalyticsResponse.success) {
           setViewerAnalytics(viewerAnalyticsResponse.data);
         }
       } catch (err) {
-        setError('Error loading data');
+        setError('Erro ao carregar dados');
         console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
@@ -122,8 +122,8 @@ const VideoAnalyticsPage: React.FC = () => {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Video Analytics</h1>
-                <p className="text-gray-600 text-sm mt-1">Detailed video performance metrics</p>
+                <h1 className="text-2xl font-semibold">Análises do Vídeo</h1>
+                <p className="text-gray-600 text-sm mt-1">Métricas detalhadas de desempenho do vídeo</p>
               </div>
               <DashboardMenu />
             </div>
@@ -141,8 +141,8 @@ const VideoAnalyticsPage: React.FC = () => {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Video Analytics</h1>
-                <p className="text-gray-600 text-sm mt-1">Detailed video performance metrics</p>
+                <h1 className="text-2xl font-semibold">Análises do Vídeo</h1>
+                <p className="text-gray-600 text-sm mt-1">Métricas detalhadas de desempenho do vídeo</p>
               </div>
               <DashboardMenu />
             </div>
@@ -164,15 +164,15 @@ const VideoAnalyticsPage: React.FC = () => {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Video Analytics</h1>
-                <p className="text-gray-600 text-sm mt-1">Detailed video performance metrics</p>
+                <h1 className="text-2xl font-semibold">Análises do Vídeo</h1>
+                <p className="text-gray-600 text-sm mt-1">Métricas detalhadas de desempenho do vídeo</p>
               </div>
               <DashboardMenu />
             </div>
           </header>
           <Card>
             <CardContent className="p-6">
-              <p>No data available</p>
+              <p>Nenhum dado disponível</p>
             </CardContent>
           </Card>
         </div>
@@ -186,8 +186,8 @@ const VideoAnalyticsPage: React.FC = () => {
         <header className="bg-white shadow-sm mb-6 rounded-lg">
           <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-semibold">Video Analytics</h1>
-              <p className="text-gray-600 text-sm mt-1">Detailed video performance metrics</p>
+              <h1 className="text-2xl font-semibold">Análises do Vídeo</h1>
+              <p className="text-gray-600 text-sm mt-1">Métricas detalhadas de desempenho do vídeo</p>
             </div>
             <DashboardMenu />
           </div>
@@ -197,7 +197,7 @@ const VideoAnalyticsPage: React.FC = () => {
           {/* Time Range Controls */}
           <Card>
             <CardHeader>
-              <CardTitle>Time Range</CardTitle>
+              <CardTitle>Período de Tempo</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleFormSubmit} className="flex items-center space-x-4">
@@ -207,10 +207,10 @@ const VideoAnalyticsPage: React.FC = () => {
                   defaultValue={timeRange.timezone || 'UTC'}
                 >
                   <option value="UTC">UTC</option>
-                  <option value="America/New_York">Eastern Time</option>
-                  <option value="America/Chicago">Central Time</option>
-                  <option value="America/Denver">Mountain Time</option>
-                  <option value="America/Los_Angeles">Pacific Time</option>
+                  <option value="America/New_York">Horário do Leste</option>
+                  <option value="America/Chicago">Horário Central</option>
+                  <option value="America/Denver">Horário das Montanhas</option>
+                  <option value="America/Los_Angeles">Horário do Pacífico</option>
                 </select>
                 <input
                   type="date"
@@ -229,35 +229,35 @@ const VideoAnalyticsPage: React.FC = () => {
                   className="rounded-md border border-gray-300 px-3 py-2 text-sm"
                   defaultValue={timeRange.granularity || 5}
                 >
-                  <optgroup label="Seconds">
-                    <option value="1">1 second</option>
-                    <option value="5">5 seconds</option>
-                    <option value="10">10 seconds</option>
-                    <option value="15">15 seconds</option>
-                    <option value="30">30 seconds</option>
+                  <optgroup label="Segundos">
+                    <option value="1">1 segundo</option>
+                    <option value="5">5 segundos</option>
+                    <option value="10">10 segundos</option>
+                    <option value="15">15 segundos</option>
+                    <option value="30">30 segundos</option>
                   </optgroup>
-                  <optgroup label="Minutes">
-                    <option value="60">1 minute</option>
-                    <option value="300">5 minutes</option>
-                    <option value="900">15 minutes</option>
-                    <option value="1800">30 minutes</option>
-                    <option value="3600">1 hour</option>
+                  <optgroup label="Minutos">
+                    <option value="60">1 minuto</option>
+                    <option value="300">5 minutos</option>
+                    <option value="900">15 minutos</option>
+                    <option value="1800">30 minutos</option>
+                    <option value="3600">1 hora</option>
                   </optgroup>
                 </select>
                 <button
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
                 >
-                  Apply Filters
+                  Aplicar Filtros
                 </button>
               </form>
             </CardContent>
           </Card>
 
-          {/* Video Info */}
+          {/* Video Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Video Information</CardTitle>
+              <CardTitle>Informações do Vídeo</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-4">
@@ -270,62 +270,78 @@ const VideoAnalyticsPage: React.FC = () => {
                 />
                 <div>
                   <h2 className="text-xl font-semibold">{videoData.meta.name}</h2>
-                  <p className="text-gray-500">Duration: {formatDuration(videoData.duration)}</p>
+                  <p className="text-gray-500">Duração: {formatDuration(videoData.duration)}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Overview Cards */}
+          {/* Analytics Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Total Views</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total de Visualizações</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatNumber(analytics.totalViews)}</p>
+                <div className="text-2xl font-bold">{formatNumber(analytics.totalViews)}</div>
               </CardContent>
             </Card>
+            
             <Card>
-              <CardHeader>
-                <CardTitle>Average Watch Time</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Tempo Médio de Visualização</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatDuration(analytics.averageWatchTime)}</p>
+                <div className="text-2xl font-bold">{formatDuration(analytics.averageWatchTime)}</div>
               </CardContent>
             </Card>
+            
             <Card>
-              <CardHeader>
-                <CardTitle>Engagement Rate</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Taxa de Engajamento</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{analytics.engagementRate.toFixed(1)}%</p>
+                <div className="text-2xl font-bold">{(analytics.engagementRate * 100).toFixed(1)}%</div>
               </CardContent>
             </Card>
+            
             <Card>
-              <CardHeader>
-                <CardTitle>Unique Viewers</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Visualizadores Únicos</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">{formatNumber(analytics.uniqueViewers)}</p>
+                <div className="text-2xl font-bold">{formatNumber(analytics.uniqueViewers)}</div>
               </CardContent>
             </Card>
           </div>
 
           {/* Viewer Timeline Chart */}
-          <ViewerTimelineChart
-            data={analytics.retentionData}
-            videoDuration={videoData.duration}
-            granularity={timeRange.granularity}
-            totalViews={analytics.totalViews}
-          />
-
-          {/* Viewer Analytics Breakdown */}
           {viewerAnalytics && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Viewer Demographics</h2>
-              <ViewerBreakdownCharts data={viewerAnalytics} />
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Timeline de Visualizadores</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ViewerTimelineChart 
+                  data={analytics.retentionData}
+                  videoDuration={videoData.duration}
+                  granularity={timeRange.granularity}
+                  totalViews={analytics.totalViews}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Viewer Breakdown Charts */}
+          {viewerAnalytics && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Análise de Visualizadores</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ViewerBreakdownCharts data={viewerAnalytics} />
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>
