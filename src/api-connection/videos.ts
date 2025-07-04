@@ -155,11 +155,11 @@ const videoService = {
   },
 
   /**
-   * Get a list of all videos
+   * Get a list of all videos for the current organization
    */
   getAllVideos: async (): Promise<VideoApiResponse> => {
     try {
-      const response = await api.get<VideoApiResponse>('videos');
+      const response = await api.get<VideoApiResponse>('videos/organization');
       return response.data;
     } catch (error) {
       console.error('Error fetching videos:', error);

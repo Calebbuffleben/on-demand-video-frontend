@@ -17,12 +17,12 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
   
   // Helper functions to get tenant-aware URLs
   const getVideoWatchUrl = (uid: string) => {
-    return tenantId ? `/${tenantId}/videos/watch/${uid}` : `/videos/watch/${uid}`;
+    return `/${tenantId}/videos/watch/${uid}`;
   };
 
   
   const getEmbedUrl = (uid: string) => {
-    return tenantId ? `/${tenantId}/embed/${uid}` : `/embed/${uid}`;
+    return `/${tenantId}/embed/${uid}`;
   };
 
   return (

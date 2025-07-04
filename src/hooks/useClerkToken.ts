@@ -29,12 +29,12 @@ export function useClerkToken() {
       // Get organization-aware token
       const tokenOptions = organization?.id 
         ? { 
-          /*  template: 'token_videos_on_demand_2',  // Use a template with organization claims
+            template: 'token_videos_on_demand_3',  // Use a template with organization claims
               // You can also provide session data if needed
               session: {
                 resources: ["organization"],
                 organizationId: organization.id,
-              }*/
+              }
             } 
           : {};
       
