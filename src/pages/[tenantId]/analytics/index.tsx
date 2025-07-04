@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+                <h1 className="text-2xl font-semibold">Analytics</h1>
                 <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
@@ -89,7 +89,7 @@ export default function AnalyticsPage() {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+                <h1 className="text-2xl font-semibold">Analytics</h1>
                 <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
@@ -251,7 +251,7 @@ function VideoCard({
             href={`/${tenantId}/analytics/videos/${id}`}
             className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50"
           >
-            Ver Análises
+            Ver Analytics
           </Link>
         </div>
       </div>

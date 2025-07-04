@@ -141,7 +141,7 @@ const VideoAnalyticsPage: React.FC = () => {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Análises do Vídeo</h1>
+                <h1 className="text-2xl font-semibold">Dados do Vídeo</h1>
                 <p className="text-gray-600 text-sm mt-1">Métricas detalhadas de desempenho do vídeo</p>
               </div>
               <DashboardMenu />
@@ -164,7 +164,7 @@ const VideoAnalyticsPage: React.FC = () => {
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold">Análises do Vídeo</h1>
+                <h1 className="text-2xl font-semibold">Dados do Vídeo</h1>
                 <p className="text-gray-600 text-sm mt-1">Métricas detalhadas de desempenho do vídeo</p>
               </div>
               <DashboardMenu />
@@ -186,7 +186,7 @@ const VideoAnalyticsPage: React.FC = () => {
         <header className="bg-white shadow-sm mb-6 rounded-lg">
           <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-semibold">Análises do Vídeo</h1>
+              <h1 className="text-2xl font-semibold">Dados do Vídeo</h1>
               <p className="text-gray-600 text-sm mt-1">Métricas detalhadas de desempenho do vídeo</p>
             </div>
             <DashboardMenu />
@@ -336,7 +336,7 @@ const VideoAnalyticsPage: React.FC = () => {
           {viewerAnalytics && (
             <Card>
               <CardHeader>
-                <CardTitle>Análise de Visualizadores</CardTitle>
+                <CardTitle>Dados de Visualizadores</CardTitle>
               </CardHeader>
               <CardContent>
                 <ViewerBreakdownCharts data={viewerAnalytics} />
