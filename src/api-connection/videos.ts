@@ -134,27 +134,6 @@ export interface EmbedVideoResponse {
 
 const videoService = {
   /**
-   * Test Cloudflare connection and get a sample video
-   */
-  testCloudflareConnection: async (): Promise<VideoApiResponse> => {
-    try {
-      const response = await api.get<VideoApiResponse>('videos/test-cloudflare-connection');
-      return response.data;
-    } catch (error) {
-      console.error('Error testing Cloudflare connection:', error);
-      // Handle common errors with better messages
-      if (axios.isAxiosError(error)) {
-        if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-          throw new Error('Network Error: Cannot connect to the video API server. Please ensure the backend server is running.');
-        } else if (error.response) {
-          throw new Error(`API Error (${error.response.status}): ${error.response.data?.message || error.message}`);
-        }
-      }
-      throw error;
-    }
-  },
-
-  /**
    * Get a list of all videos for the current organization
    */
   getAllVideos: async (): Promise<VideoApiResponse> => {
@@ -241,7 +220,7 @@ const videoService = {
   },
 
   /**
-   * Upload a video file to Cloudflare Stream using a one-time upload URL
+   * 
    * @param uploadURL The one-time upload URL from getUploadUrl
    * @param file The video file to upload
    * @param onUploadProgress Optional callback for upload progress

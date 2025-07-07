@@ -24,7 +24,7 @@ export default function SignInPage() {
         padding: '20px'
       }}
     >
-      <SignIn fallbackRedirectUrl={"/organization-selector"} />
+      <SignIn />
     </div>
   );
 } 

@@ -90,9 +90,12 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  // If no organization in path but user is authenticated
+  // If no organization in path but user is authenticated and not on a public route
   if (!tenantId && !isPublicRoute(req)) {
     await auth.protect();
+    
+    // For authenticated users without organization context, redirect to organization selector
+    // The organization selector will handle the logic of whether to show create organization or select existing
     return NextResponse.redirect(new URL('/organization-selector', req.url));
   }
 

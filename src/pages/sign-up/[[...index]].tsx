@@ -13,7 +13,7 @@ export default function SignUpPage() {
       minHeight: '100vh',
       padding: '20px'
     }}>
-      <SignUp fallbackRedirectUrl={inviteToken ? "/dashboard" : "/create-organization"} />
+      <SignUp />
     </div>
   );
 } 
