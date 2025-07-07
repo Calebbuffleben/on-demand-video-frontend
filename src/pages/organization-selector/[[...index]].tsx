@@ -48,7 +48,7 @@ export default function OrganizationSelectorPage() {
       }}>
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">No Organizations Found</h1>
-          <p className="mb-4">You don't have any organizations yet.</p>
+          <p className="mb-4">You don&apos;t have any organizations yet.</p>
           <button 
             onClick={() => router.push('/create-organization')}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
