@@ -50,11 +50,11 @@ export default function OrganizationMembersCard({
           formattedMembers.push({
             id: membership.id,
             role: membership.role,
-            userId: publicUserData.userId || membership.id, // fallback to membership id if userId is undefined
-            firstName: publicUserData.firstName || undefined,
-            lastName: publicUserData.lastName || undefined,
-            imageUrl: publicUserData.imageUrl || undefined,
-            email: publicUserData.identifier, // usually the email
+            userId: publicUserData?.userId || membership.id, // fallback to membership id if userId is undefined
+            firstName: publicUserData?.firstName || undefined,
+            lastName: publicUserData?.lastName || undefined,
+            imageUrl: publicUserData?.imageUrl || undefined,
+            email: publicUserData?.identifier, // usually the email
             createdAt: new Date(membership.createdAt)
           });
         }
