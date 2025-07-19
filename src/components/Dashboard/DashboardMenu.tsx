@@ -15,7 +15,6 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // For dark mode toggle demo
   const menuRef = useRef<HTMLDivElement>(null);
   const { tenantId } = router.query;
 
@@ -33,14 +32,6 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
     };
   }, []);
 
-  // Check for dark mode from localStorage on initial load
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isDark = localStorage.getItem('darkMode') === 'true';
-      setDarkMode(isDark);
-    }
-  }, []);
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -49,18 +40,6 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
     await signOut(() => {
       router.push('/sign-in');
     });
-  };
-
-  // Toggle dark mode and save preference to localStorage
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('darkMode', String(newMode));
-      
-      // This would typically update body classes or theme context
-      // For demo purposes, we're just storing the preference
-    }
   };
 
   // Build the proper profile URL with tenant context if available
