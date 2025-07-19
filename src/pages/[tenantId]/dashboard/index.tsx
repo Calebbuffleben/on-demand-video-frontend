@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import Link from 'next/link';
 import Head from 'next/head';
 import Image from 'next/image';
-import OrganizationOverviewCard from '@/components/Organization/OrganizationOverviewCard';
+import VideoRetentionChart from '@/components/analytics/VideoRetentionChart';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
@@ -366,12 +366,9 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Organization Overview */}
+          {/* Video Retention Analytics */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-scale-900">Visão Geral da Organização</h2>
-            <div className="grid grid-cols-1 gap-5">
-              <OrganizationOverviewCard />
-            </div>
+            <VideoRetentionChart />
           </div>
         </div>
       </DashboardLayout>
