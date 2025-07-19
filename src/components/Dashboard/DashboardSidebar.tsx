@@ -26,18 +26,21 @@ const DashboardSidebar: React.FC = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-scale-900 text-white">
+    <div className="h-full flex flex-col bg-gradient-to-br from-scale-900 via-scale-700 to-scale-800 text-white relative overflow-hidden">
+      {/* Gradient overlay for enhanced effect */}
+      <div className="absolute inset-0 bg-gradient-to-t from-scale-900/50 via-transparent to-scale-800/30 pointer-events-none"></div>
+      
       {/* Logo and brand */}
-      <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-scale-800">
+      <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-scale-800 relative z-10">
         <Link href={getUrl('/dashboard')}>
           <ScaleLogo size="md" showText={true} variant="light" />
         </Link>
       </div>
       
       {/* User profile section */}
-      <div className="px-4 py-3 border-b border-scale-800">
+      <div className="px-4 py-3 border-b border-scale-800 relative z-10">
         <div className="flex items-center">
-          <div className="h-9 w-9 rounded-full bg-scale-700 flex items-center justify-center text-white font-semibold mr-3">
+          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-silver-600 to-silver-800 flex items-center justify-center text-white font-semibold mr-3 shadow-lg">
             U
           </div>
           <div>
@@ -48,7 +51,7 @@ const DashboardSidebar: React.FC = () => {
       </div>
       
       {/* Navigation */}
-      <div className="mt-3 flex-grow flex flex-col overflow-y-auto">
+      <div className="mt-3 flex-grow flex flex-col overflow-y-auto relative z-10">
         <nav className="flex-1 px-2 space-y-1">
           <div className="space-y-2 pb-2">
             {navigationItems.slice(0, 4).map((item) => (
@@ -56,16 +59,16 @@ const DashboardSidebar: React.FC = () => {
                 key={item.name}
                 href={getUrl(item.href)}
                 className={`
-                  group flex items-center px-2 py-2 text-sm font-medium rounded-md
+                  group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all duration-200
                   ${isActive(item.href)
-                    ? 'bg-scale-800 text-white'
-                    : 'text-white hover:bg-silver-600 hover:text-white'}
+                    ? 'bg-gradient-to-r from-scale-800 to-scale-700 text-white shadow-lg'
+                    : 'text-white hover:bg-gradient-to-r hover:from-silver-600 hover:to-silver-700 hover:text-white hover:shadow-md'}
                 `}
               >
                 {renderIcon(item.icon, isActive(item.href))}
                 <span className="flex-1">{item.name}</span>
                 {item.isNew && (
-                  <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-scale-700 text-white">
+                  <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-scale-700 to-scale-600 text-white shadow-sm">
                     Novo
                   </span>
                 )}
@@ -83,16 +86,16 @@ const DashboardSidebar: React.FC = () => {
                   key={item.name}
                   href={getUrl(item.href)}
                   className={`
-                    group flex items-center px-2 py-2 text-sm font-medium rounded-md
+                    group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all duration-200
                     ${isActive(item.href)
-                      ? 'bg-scale-800 text-white'
-                      : 'text-white hover:bg-silver-600 hover:text-white'}
+                      ? 'bg-gradient-to-r from-scale-800 to-scale-700 text-white shadow-lg'
+                      : 'text-white hover:bg-gradient-to-r hover:from-silver-600 hover:to-silver-700 hover:text-white hover:shadow-md'}
                   `}
                 >
                   {renderIcon(item.icon, isActive(item.href))}
                   <span className="flex-1">{item.name}</span>
                   {item.isNew && (
-                    <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-scale-700 text-white">
+                    <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-scale-700 to-scale-600 text-white shadow-sm">
                       Novo
                     </span>
                   )}
@@ -104,15 +107,15 @@ const DashboardSidebar: React.FC = () => {
       </div>
       
       {/* Help & Info Links */}
-      <div className="px-3 py-3 border-t border-scale-800">
+      <div className="px-3 py-3 border-t border-scale-800 relative z-10">
         <div className="flex flex-col space-y-2">
-          <Link href={getUrl('/documentation')} className="text-xs text-white hover:text-white">
+          <Link href={getUrl('/documentation')} className="text-xs text-white hover:text-white transition-colors duration-200">
             Documentação da API
           </Link>
-          <Link href={getUrl('/help')} className="text-xs text-white hover:text-white">
+          <Link href={getUrl('/help')} className="text-xs text-white hover:text-white transition-colors duration-200">
             Central de Ajuda
           </Link>
-          <Link href={getUrl('/contact')} className="text-xs text-white hover:text-white">
+          <Link href={getUrl('/contact')} className="text-xs text-white hover:text-white transition-colors duration-200">
             Contatar Suporte
           </Link>
         </div>
