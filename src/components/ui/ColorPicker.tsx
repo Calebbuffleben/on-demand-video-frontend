@@ -285,28 +285,28 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
   return (
     <div className={`relative ${className || ''}`} ref={pickerRef}>
       <div className="flex items-center mt-2">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+        <label htmlFor={id} className="block text-sm font-medium text-silver-700 mr-3 mb-0">
           {label}
         </label>
         
         {/* Color swatch button */}
         <button
           type="button"
-          className="w-8 h-8 rounded shadow border border-gray-200"
+          className="w-8 h-8 rounded shadow border border-silver-200"
           style={{ backgroundColor: localValue }}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle color picker"
         />
         
         {/* Current color text */}
-        <span className="ml-2 text-xs font-mono text-gray-600">
+        <span className="ml-2 text-xs font-mono text-silver-600">
           {supportAlpha && localValue.startsWith('rgba') ? localValue : localValue}
         </span>
       </div>
       
       {/* Color picker dropdown */}
       {isOpen && (
-        <div className="absolute z-50 mt-2 p-4 bg-white rounded-lg shadow-md border border-gray-200 w-64">
+        <div className="absolute z-50 mt-2 p-4 bg-white rounded-lg shadow-md border border-silver-200 w-64">
           {/* Color gradient */}
           <div className="mb-4">
             <div
@@ -361,8 +361,8 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
           {/* Alpha slider */}
           {supportAlpha && (
             <div className="mb-4">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Transparency</label>
-              <div className="h-6 w-full relative rounded overflow-hidden cursor-pointer bg-gray-200"
+              <label className="block text-xs font-medium text-silver-700 mb-1">Transparency</label>
+              <div className="h-6 w-full relative rounded overflow-hidden cursor-pointer bg-silver-200"
                    style={{
                      backgroundImage: `linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
                      backgroundSize: '8px 8px',
@@ -395,7 +395,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
                   />
                 </div>
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-silver-500 mt-1">
                 <span>Transparent</span>
                 <span>{Math.round(currentAlpha * 100)}%</span>
                 <span>Opaque</span>
@@ -407,7 +407,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
           <div className="mb-4">
             <div className="flex mb-2">
               <div className="w-1/2 pr-1">
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-silver-700 mb-1">
                   {supportAlpha ? 'RGBA' : 'Hex'}
                 </label>
                 <input
@@ -415,13 +415,13 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
                   value={supportAlpha ? localValue : localValue}
                   onChange={supportAlpha ? undefined : handleHexChange}
                   readOnly={supportAlpha}
-                  className="w-full p-1 text-xs border border-gray-300 rounded font-mono"
+                  className="w-full p-1 text-xs border border-silver-300 rounded font-mono"
                 />
               </div>
               <div className="w-1/2 pl-1">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Preview</label>
+                <label className="block text-xs font-medium text-silver-700 mb-1">Preview</label>
                 <div
-                  className="h-7 rounded border border-gray-300"
+                  className="h-7 rounded border border-silver-300"
                   style={{ 
                     backgroundColor: supportAlpha ? localValue : localValue,
                     backgroundImage: supportAlpha && currentAlpha < 1 ? 
@@ -436,36 +436,36 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
             {/* RGB inputs */}
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">R</label>
+                <label className="block text-xs font-medium text-silver-700 mb-1">R</label>
                 <input
                   type="number"
                   min="0"
                   max="255"
                   value={rgb.r}
                   onChange={(e) => handleRgbChange('r', e.target.value)}
-                  className="w-full p-1 text-xs border border-gray-300 rounded"
+                  className="w-full p-1 text-xs border border-silver-300 rounded"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">G</label>
+                <label className="block text-xs font-medium text-silver-700 mb-1">G</label>
                 <input
                   type="number"
                   min="0"
                   max="255"
                   value={rgb.g}
                   onChange={(e) => handleRgbChange('g', e.target.value)}
-                  className="w-full p-1 text-xs border border-gray-300 rounded"
+                  className="w-full p-1 text-xs border border-silver-300 rounded"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">B</label>
+                <label className="block text-xs font-medium text-silver-700 mb-1">B</label>
                 <input
                   type="number"
                   min="0"
                   max="255"
                   value={rgb.b}
                   onChange={(e) => handleRgbChange('b', e.target.value)}
-                  className="w-full p-1 text-xs border border-gray-300 rounded"
+                  className="w-full p-1 text-xs border border-silver-300 rounded"
                 />
               </div>
             </div>
@@ -475,14 +475,14 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, id, value, onChange, c
           <div className="flex justify-end">
             <button
               type="button"
-              className="px-3 py-1 text-xs text-gray-700 bg-gray-200 hover:bg-gray-300 rounded mr-2"
+              className="px-3 py-1 text-xs text-silver-700 bg-silver-200 hover:bg-silver-300 rounded mr-2"
               onClick={() => setIsOpen(false)}
             >
               Cancel
             </button>
             <button
               type="button"
-              className="px-3 py-1 text-xs text-white bg-blue-500 hover:bg-blue-600 rounded"
+              className="px-3 py-1 text-xs text-white bg-scale-900 hover:bg-scale-800 rounded"
               onClick={finalizeColor}
             >
               Apply

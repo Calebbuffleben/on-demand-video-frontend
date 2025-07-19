@@ -228,7 +228,7 @@ export default function VideoUploader({
     <div className={`w-full ${className}`}>
       <div 
         className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer
-          ${error ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'}`}
+          ${error ? 'border-red-400 bg-red-50' : 'border-silver-300 bg-silver-50 hover:bg-silver-100'}`}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={handleBrowseClick}
@@ -245,7 +245,7 @@ export default function VideoUploader({
           <>
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              className="h-12 w-12 text-gray-400 mb-4" 
+              className="h-12 w-12 text-silver-400 mb-4" 
               fill="none" 
               viewBox="0 0 24 24" 
               stroke="currentColor"
@@ -257,8 +257,8 @@ export default function VideoUploader({
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
               />
             </svg>
-            <p className="text-gray-700 font-medium mb-2">Arraste e solte seu vídeo ou clique para navegar</p>
-            <p className="text-sm text-gray-500">MP4, MKV, MOV, AVI até 30GB</p>
+            <p className="text-silver-700 font-medium mb-2">Arraste e solte seu vídeo ou clique para navegar</p>
+            <p className="text-sm text-silver-500">MP4, MKV, MOV, AVI até 30GB</p>
           </>
         )}
         

@@ -1,6 +1,6 @@
-# On demand videos
+# Scale
 
-A multi-tenant product management system built with Next.js, Clerk, and Prisma.
+A multi-tenant video management system built with Next.js, Clerk, and Prisma.
 
 ## Features
 
@@ -8,10 +8,10 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - Organization-based data isolation
 - Secure tenant routing
 - Automatic organization context handling
-- Organization-specific product management
+- Organization-specific video management
 
 ### Video Management
-- Direct video upload to Cloudflare Stream
+- Direct video upload to Mux
 - Real-time upload progress tracking
 - Video status monitoring
 - HLS video playback
@@ -40,11 +40,11 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - Responsive design for all device sizes
 - Video content section with quick access
 
-### Product Management
-- Create, read, update, and delete products
-- Organization-specific product catalogs
-- SKU management (unique within organizations)
-- Inventory tracking
+### Video Management
+- Create, read, update, and delete videos
+- Organization-specific video catalogs
+- Video metadata management
+- Analytics tracking
 
 ## Tech Stack
 
@@ -54,7 +54,7 @@ A multi-tenant product management system built with Next.js, Clerk, and Prisma.
 - **ORM**: Prisma 6.3.1
 - **Styling**: Tailwind CSS 3.4.1
 - **Type Safety**: TypeScript
-- **Video Streaming**: Cloudflare Stream
+- **Video Streaming**: Mux
 
 ## Project Structure
 

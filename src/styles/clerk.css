@@ -17,7 +17,7 @@
 }
 
 .cl-formButtonPrimary {
-  background-color: #000;
+  background-color: #171717;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -27,19 +27,19 @@
 }
 
 .cl-formButtonPrimary:hover {
-  opacity: 0.9;
+  background-color: #262626;
 }
 
 .cl-formFieldInput {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #d4d4d4;
   border-radius: 0.25rem;
   margin-top: 0.25rem;
 }
 
 .cl-formFieldLabel {
   font-size: 0.875rem;
-  color: #4a5568;
+  color: #525252;
   margin-bottom: 0.25rem;
 } 

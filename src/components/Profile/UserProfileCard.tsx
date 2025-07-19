@@ -38,7 +38,7 @@ export default function UserProfileCard() {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       {/* Header with cover image */}
-      <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+      <div className="h-32 bg-gradient-to-r from-scale-700 to-scale-800"></div>
       
       {/* Profile content */}
       <div className="px-6 py-4 relative">
@@ -54,7 +54,7 @@ export default function UserProfileCard() {
                 className="object-cover"
               />
             ) : (
-              <div className="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400">
+              <div className="h-full w-full flex items-center justify-center bg-silver-100 text-silver-400">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -67,7 +67,7 @@ export default function UserProfileCard() {
         <div className="flex justify-end mb-8">
           <button
             onClick={handleEditToggle}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+            className="text-sm font-medium text-scale-600 hover:text-scale-800"
           >
             {isEditing ? 'Cancel' : 'Edit Profile'}
           </button>

@@ -30,7 +30,7 @@ export default function EditVideoPage() {
     muted: false,
     loop: false,
     useOriginalProgressBar: false,
-    progressBarColor: '#3b82f6',
+    progressBarColor: '#171717',
     progressEasing: 0,
     playButtonColor: '#fff',
     playButtonSize: 32,
@@ -272,7 +272,7 @@ export default function EditVideoPage() {
     <div className="min-h-screen bg-gray-50">
       <Head>
         {/* Page title for SEO and browser tab */}
-        <title>{loading ? 'Editar Vídeo' : `Editar: ${video?.meta?.name}`} - Stream</title>
+        <title>{loading ? 'Editar Vídeo' : `Editar: ${video?.meta?.name}`} - Scale</title>
       </Head>
 
       {/* Header with navigation and menu */}

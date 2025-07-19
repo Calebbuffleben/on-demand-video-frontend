@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import ScaleLogo from '../ui/ScaleLogo';
 
 const DashboardSidebar: React.FC = () => {
   const router = useRouter();
@@ -25,28 +26,23 @@ const DashboardSidebar: React.FC = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-gray-900 text-gray-100">
+    <div className="h-full flex flex-col bg-scale-900 text-silver-100">
       {/* Logo and brand */}
-      <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-800">
+      <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-scale-800">
         <Link href={getUrl('/dashboard')}>
-          <span className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-            </svg>
-            <span className="ml-2 text-lg font-bold text-white">Stream</span>
-          </span>
+          <ScaleLogo size="md" showText={true} variant="light" />
         </Link>
       </div>
       
       {/* User profile section */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-scale-800">
         <div className="flex items-center">
-          <div className="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold mr-3">
+          <div className="h-9 w-9 rounded-full bg-scale-700 flex items-center justify-center text-white font-semibold mr-3">
             U
           </div>
           <div>
             <p className="text-sm font-medium text-white">Perfil do Usuário</p>
-            <p className="text-xs text-gray-400">Conta de Criador</p>
+            <p className="text-xs text-silver-400">Conta de Criador</p>
           </div>
         </div>
       </div>
@@ -62,14 +58,14 @@ const DashboardSidebar: React.FC = () => {
                 className={`
                   group flex items-center px-2 py-2 text-sm font-medium rounded-md
                   ${isActive(item.href)
-                    ? 'bg-gray-800 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+                    ? 'bg-scale-800 text-white'
+                    : 'text-silver-300 hover:bg-scale-700 hover:text-white'}
                 `}
               >
                 {renderIcon(item.icon, isActive(item.href))}
                 <span className="flex-1">{item.name}</span>
                 {item.isNew && (
-                  <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
+                  <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-scale-700 text-white">
                     Novo
                   </span>
                 )}
@@ -77,8 +73,8 @@ const DashboardSidebar: React.FC = () => {
             ))}
           </div>
           
-          <div className="pt-2 border-t border-gray-800">
-            <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <div className="pt-2 border-t border-scale-800">
+            <p className="px-3 text-xs font-semibold text-silver-400 uppercase tracking-wider">
               Ferramentas da Plataforma
             </p>
             <div className="mt-2 space-y-2">
@@ -89,14 +85,14 @@ const DashboardSidebar: React.FC = () => {
                   className={`
                     group flex items-center px-2 py-2 text-sm font-medium rounded-md
                     ${isActive(item.href)
-                      ? 'bg-gray-800 text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+                      ? 'bg-scale-800 text-white'
+                      : 'text-silver-300 hover:bg-scale-700 hover:text-white'}
                   `}
                 >
                   {renderIcon(item.icon, isActive(item.href))}
                   <span className="flex-1">{item.name}</span>
                   {item.isNew && (
-                    <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
+                    <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-scale-700 text-white">
                       Novo
                     </span>
                   )}
@@ -108,15 +104,15 @@ const DashboardSidebar: React.FC = () => {
       </div>
       
       {/* Help & Info Links */}
-      <div className="px-3 py-3 border-t border-gray-800">
+      <div className="px-3 py-3 border-t border-scale-800">
         <div className="flex flex-col space-y-2">
-          <Link href={getUrl('/documentation')} className="text-xs text-gray-400 hover:text-white">
+          <Link href={getUrl('/documentation')} className="text-xs text-silver-400 hover:text-white">
             Documentação da API
           </Link>
-          <Link href={getUrl('/help')} className="text-xs text-gray-400 hover:text-white">
+          <Link href={getUrl('/help')} className="text-xs text-silver-400 hover:text-white">
             Central de Ajuda
           </Link>
-          <Link href={getUrl('/contact')} className="text-xs text-gray-400 hover:text-white">
+          <Link href={getUrl('/contact')} className="text-xs text-silver-400 hover:text-white">
             Contatar Suporte
           </Link>
         </div>
@@ -127,7 +123,7 @@ const DashboardSidebar: React.FC = () => {
 
 // Helper function to render icons based on their type
 function renderIcon(iconName: string, isActive: boolean) {
-  const className = `mr-3 flex-shrink-0 h-5 w-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`;
+  const className = `mr-3 flex-shrink-0 h-5 w-5 ${isActive ? 'text-white' : 'text-silver-400 group-hover:text-silver-300'}`;
   
   switch (iconName) {
     case 'home':
