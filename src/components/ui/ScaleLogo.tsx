@@ -26,8 +26,8 @@ const ScaleLogo: React.FC<ScaleLogoProps> = ({
   };
 
   const isLight = variant === 'light';
-  const bgColor = isLight ? 'bg-white' : 'bg-scale-900';
-  const textColor = isLight ? 'text-scale-900' : 'text-white';
+  const bgColor = isLight ? 'bg-transparent' : 'bg-scale-900';
+  const textColor = isLight ? 'text-white' : 'text-scale-900';
 
   return (
     <div className={`flex items-center ${className}`}>
