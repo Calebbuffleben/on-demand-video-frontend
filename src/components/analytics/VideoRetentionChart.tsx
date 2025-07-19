@@ -339,26 +339,85 @@ const VideoRetentionChart: React.FC<VideoRetentionChartProps> = ({ className = '
                 <span className="mr-2">📊</span>
                 Análise de Retenção
               </h5>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: '0-25%', data: selectedVideoData.retention.filter(p => p.retention <= 25).length, color: 'red' },
-                  { label: '25-50%', data: selectedVideoData.retention.filter(p => p.retention > 25 && p.retention <= 50).length, color: 'orange' },
-                  { label: '50-75%', data: selectedVideoData.retention.filter(p => p.retention > 50 && p.retention <= 75).length, color: 'yellow' },
-                  { label: '75-100%', data: selectedVideoData.retention.filter(p => p.retention > 75).length, color: 'green' },
-                ].map((stat, index) => (
-                  <div key={index} className="text-center p-4 rounded-xl border-2 border-silver-200 bg-white hover:shadow-lg transition-all duration-200">
-                    <div className={`text-2xl font-bold mb-1 ${getRetentionColor(stat.color === 'red' ? 20 : stat.color === 'orange' ? 40 : stat.color === 'yellow' ? 60 : 80)}`}>
-                      {stat.data}
-                    </div>
-                    <div className="text-xs text-silver-600 font-medium">{stat.label}</div>
-                    <div className="mt-2 w-full bg-silver-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-500 ${getRetentionBarColor(stat.color === 'red' ? 20 : stat.color === 'orange' ? 40 : stat.color === 'yellow' ? 60 : 80)}`}
-                        style={{ width: `${(stat.data / selectedVideoData.retention.length) * 100}%` }}
-                      ></div>
+              
+              {/* Simplified metrics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Retention Score */}
+                <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <h6 className="text-lg font-semibold text-green-900">🎯 Score de Retenção</h6>
+                    <div className={`text-2xl font-bold ${getRetentionColor(averageRetention)}`}>
+                      {averageRetention}%
                     </div>
                   </div>
-                ))}
+                  <div className="w-full bg-green-200 rounded-full h-3 mb-3">
+                    <div 
+                      className={`h-3 rounded-full transition-all duration-500 ${getRetentionBarColor(averageRetention)}`}
+                      style={{ width: `${averageRetention}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    {averageRetention >= 80 ? 'Excelente! Seu vídeo mantém o público engajado.' :
+                     averageRetention >= 60 ? 'Bom! Há espaço para melhorar o engajamento.' :
+                     averageRetention >= 40 ? 'Regular. Considere otimizar o conteúdo.' :
+                     'Baixo. Recomendamos revisar a estratégia do vídeo.'}
+                  </p>
+                </div>
+
+                {/* Drop-off Points */}
+                <div className="p-6 bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-xl">
+                  <h6 className="text-lg font-semibold text-red-900 mb-4">⚠️ Pontos de Abandono</h6>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-red-700">Primeiros 10 segundos:</span>
+                      <span className="font-bold text-red-900">
+                        {selectedVideoData.retention[10] ? (100 - selectedVideoData.retention[10].retention).toFixed(1) : '0'}% abandonaram
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-red-700">Meio do vídeo:</span>
+                      <span className="font-bold text-red-900">
+                        {selectedVideoData.retention[Math.floor(selectedVideoData.retention.length / 2)] ? 
+                         (100 - selectedVideoData.retention[Math.floor(selectedVideoData.retention.length / 2)].retention).toFixed(1) : '0'}% abandonaram
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-red-700">Final do vídeo:</span>
+                      <span className="font-bold text-red-900">
+                        {selectedVideoData.retention[selectedVideoData.retention.length - 1] ? 
+                         (100 - selectedVideoData.retention[selectedVideoData.retention.length - 1].retention).toFixed(1) : '0'}% assistiram até o fim
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Simple insights */}
+              <div className="mt-6 p-6 bg-blue-50 border border-blue-200 rounded-xl">
+                <h6 className="text-lg font-semibold text-blue-900 mb-3 flex items-center">
+                  <span className="mr-2">💡</span>
+                  Dicas para melhorar a retenção
+                </h6>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-blue-800">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-600 mt-1">🎬</span>
+                    <div>
+                      <strong>Início forte:</strong> Capture a atenção nos primeiros 10 segundos
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-600 mt-1">⚡</span>
+                    <div>
+                      <strong>Ritmo constante:</strong> Mantenha o interesse ao longo do vídeo
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-blue-600 mt-1">🎯</span>
+                    <div>
+                      <strong>Final impactante:</strong> Deixe uma impressão memorável
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
