@@ -132,7 +132,7 @@ export default function OrganizationMembersCard({
         <div className="space-y-3">
           {members.slice(0, maxDisplayed).map(member => (
             <div key={member.id} className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3 flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-silver-200 overflow-hidden mr-3 flex-shrink-0">
                 {member.imageUrl ? (
                   <Image 
                     src={member.imageUrl} 
@@ -142,7 +142,7 @@ export default function OrganizationMembersCard({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-sm font-bold">
+                  <div className="w-full h-full flex items-center justify-center bg-scale-700 text-white text-sm font-bold">
                     {member.firstName?.[0] || member.email?.[0] || '?'}
                   </div>
                 )}
@@ -152,12 +152,12 @@ export default function OrganizationMembersCard({
                   {member.firstName && member.lastName 
                     ? `${member.firstName} ${member.lastName}`
                     : member.email || 'Unknown member'}
-                  <span className="ml-2 text-xs text-gray-500 font-normal capitalize">
+                  <span className="ml-2 text-xs text-silver-500 font-normal capitalize">
                     {member.role}
                   </span>
                 </p>
                 {member.email && (
-                  <p className="text-xs text-gray-500">{member.email}</p>
+                  <p className="text-xs text-silver-500">{member.email}</p>
                 )}
               </div>
             </div>
@@ -166,10 +166,10 @@ export default function OrganizationMembersCard({
         
         {/* Show more link if needed */}
         {members.length > maxDisplayed && (
-          <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+          <div className="mt-4 pt-4 border-t border-silver-100 text-center">
             <Link 
               href="/organization-profile" 
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-scale-600 hover:text-scale-800 text-sm font-medium"
             >
               View all {members.length} members
             </Link>

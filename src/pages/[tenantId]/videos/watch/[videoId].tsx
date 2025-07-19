@@ -76,7 +76,7 @@ export default function VideoWatchPage() {
   return (
     <>
       <Head>
-        <title>{videoData?.meta?.name || 'Reprodutor de Vídeo'} - Stream</title>
+        <title>{videoData?.meta?.name || 'Reprodutor de Vídeo'} - Scale</title>
       </Head>
       
       <DashboardLayout sidebar={<DashboardSidebar />}>

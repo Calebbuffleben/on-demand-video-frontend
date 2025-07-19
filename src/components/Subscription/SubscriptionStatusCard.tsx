@@ -129,10 +129,10 @@ export default function SubscriptionStatusCard({ className = '' }: SubscriptionS
         
         {!subscription ? (
           <div className="text-center py-4">
-            <p className="text-gray-500 mb-4">No active subscription found</p>
+            <p className="text-silver-500 mb-4">No active subscription found</p>
             <Link 
               href="/pricing" 
-              className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="inline-block px-4 py-2 bg-scale-900 text-white rounded hover:bg-scale-800"
             >
               View Pricing Options
             </Link>
@@ -155,13 +155,13 @@ export default function SubscriptionStatusCard({ className = '' }: SubscriptionS
             
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">Plan</span>
+                <span className="text-silver-600">Plan</span>
                 <span className="font-medium">{subscription.planName}</span>
               </div>
               
               {subscription.price && subscription.interval && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Price</span>
+                  <span className="text-silver-600">Price</span>
                   <span className="font-medium">
                     {subscription.price}/{subscription.interval}
                   </span>
@@ -169,15 +169,15 @@ export default function SubscriptionStatusCard({ className = '' }: SubscriptionS
               )}
               
               <div className="flex justify-between">
-                <span className="text-gray-600">Current Period Ends</span>
+                <span className="text-silver-600">Current Period Ends</span>
                 <span className="font-medium">{subscription.currentPeriodEnd}</span>
               </div>
             </div>
             
-            <div className="mt-6 pt-4 border-t border-gray-100 text-right">
+            <div className="mt-6 pt-4 border-t border-silver-100 text-right">
               <Link 
                 href={`/subscriptions/manage`} 
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-scale-600 hover:text-scale-800 text-sm font-medium"
               >
                 Manage Subscription
               </Link>

@@ -107,12 +107,12 @@ export default function TenantVideosPage() {
                   placeholder="Buscar vídeos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2 border border-silver-300 rounded-md shadow-sm focus:ring-scale-500 focus:border-scale-500"
                 />
               </div>
               <Link 
                 href={tenantId ? `/${tenantId}/upload-video` : '/upload-video'} 
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-scale-900 hover:bg-scale-800"
               >
                 <ArrowUpTrayIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 Enviar Vídeo
@@ -123,8 +123,8 @@ export default function TenantVideosPage() {
           {/* Content (loading, error, empty, or videos grid) */}
           {loading && (
             <div className="bg-white p-12 rounded-lg shadow-sm flex flex-col items-center justify-center">
-              <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-              <p className="text-gray-600">Carregando seus vídeos...</p>
+              <div className="w-12 h-12 border-4 border-silver-200 border-t-scale-600 rounded-full animate-spin mb-4"></div>
+              <p className="text-silver-600">Carregando seus vídeos...</p>
             </div>
           )}
 

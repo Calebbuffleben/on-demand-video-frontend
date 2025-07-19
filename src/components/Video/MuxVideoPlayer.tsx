@@ -57,7 +57,7 @@ export default function MuxVideoPlayer({
   loop = false,
   showTechnicalInfo = false,
   useOriginalProgressBar = false,
-  progressBarColor = '#3b82f6',
+  progressBarColor = '#171717',
   progressEasing = 2,
   playButtonColor = '#fff',
   playButtonSize = 24,
@@ -411,7 +411,7 @@ export default function MuxVideoPlayer({
             href={ctaLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center"
+            className="inline-block px-4 py-2 bg-scale-900 text-white rounded hover:bg-scale-800 transition text-center"
             style={{ wordBreak: 'break-word' }}
           >
             {ctaButtonText}

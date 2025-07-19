@@ -200,26 +200,26 @@ const DashboardPage = () => {
         <title>Painel de Controle</title>
       </Head>
       <DashboardLayout sidebar={<DashboardSidebar />}>
-        <div className="p-4 md:p-6 bg-gray-50">
+        <div className="p-4 md:p-6 bg-silver-50">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-semibold">Painel de Controle</h1>
-                <p className="text-gray-600 text-sm mt-1">{organization?.name || 'Organização'}</p>
+                <p className="text-silver-600 text-sm mt-1">{organization?.name || 'Organização'}</p>
               </div>
               <DashboardMenu />
             </div>
           </header>
 
           {/* Quick Actions */}
-          <div className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg overflow-hidden shadow-md">
+          <div className="mb-8 bg-gradient-to-br from-scale-950 via-scale-900 to-scale-600 rounded-lg overflow-hidden shadow-lg">
             <div className="p-6 md:p-8">
               <h2 className="text-xl font-bold text-white mb-2">Pronto para enviar novo conteúdo?</h2>
-              <p className="text-blue-100 mb-6">Compartilhe seus vídeos com seu público hoje.</p>
+              <p className="text-silver-200 mb-6">Compartilhe seus vídeos com seu público hoje.</p>
               <div className="flex flex-wrap gap-4">
                 <Link
                   href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
-                  className="inline-flex items-center px-5 py-2.5 bg-white text-sm font-medium rounded-md text-blue-600 hover:bg-blue-50"
+                  className="inline-flex items-center px-5 py-2.5 bg-white text-sm font-medium rounded-md text-scale-600 hover:bg-silver-50"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -229,7 +229,7 @@ const DashboardPage = () => {
                 
                 <Link
                   href={tenantId ? `/${tenantId}/analytics` : "/analytics"}
-                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-blue-700"
+                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-scale-700"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -239,7 +239,7 @@ const DashboardPage = () => {
                 
                 <Link
                   href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
-                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-blue-700"
+                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-scale-700"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -252,14 +252,14 @@ const DashboardPage = () => {
 
           {/* Platform Stats */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Visão Geral da Plataforma</h2>
+            <h2 className="text-lg font-medium mb-4 text-scale-900">Visão Geral da Plataforma</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {analyticsLoading ? (
                 // Loading skeletons
                 Array(4).fill(0).map((_, i) => (
                   <div key={i} className="bg-white rounded-lg shadow p-4 animate-pulse">
-                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                    <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-silver-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-8 bg-silver-200 rounded w-3/4"></div>
                   </div>
                 ))
               ) : analyticsError ? (
@@ -271,19 +271,19 @@ const DashboardPage = () => {
                 // Stats cards
                 <>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Total de Vídeos</h3>
+                    <h3 className="text-sm font-medium text-silver-500">Total de Vídeos</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalVideos}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Total de Visualizações</h3>
+                    <h3 className="text-sm font-medium text-silver-500">Total de Visualizações</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalViews}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Armazenamento Total</h3>
+                    <h3 className="text-sm font-medium text-silver-500">Armazenamento Total</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalStorage}</p>
                   </div>
                   <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="text-sm font-medium text-gray-500">Largura de Banda Total</h3>
+                    <h3 className="text-sm font-medium text-silver-500">Largura de Banda Total</h3>
                     <p className="text-2xl font-semibold mt-1">{platformStats.totalBandwidth}</p>
                   </div>
                 </>
@@ -293,16 +293,16 @@ const DashboardPage = () => {
 
           {/* Recent Uploads */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Envios Recentes</h2>
+            <h2 className="text-lg font-medium mb-4 text-scale-900">Envios Recentes</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {analyticsLoading ? (
                 // Loading skeletons
                 Array(3).fill(0).map((_, i) => (
                   <div key={i} className="bg-white rounded-lg shadow overflow-hidden animate-pulse">
-                    <div className="aspect-video bg-gray-200"></div>
+                    <div className="aspect-video bg-silver-200"></div>
                     <div className="p-4">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-4 bg-silver-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-4 bg-silver-200 rounded w-1/2"></div>
                     </div>
                   </div>
                 ))
@@ -326,7 +326,7 @@ const DashboardPage = () => {
                     </div>
                     <div className="p-4">
                       <h3 className="font-semibold truncate">{upload.title}</h3>
-                      <div className="text-sm text-gray-500 mt-2">
+                      <div className="text-sm text-silver-500 mt-2">
                         <div>{new Date(upload.uploadDate).toLocaleDateString()}</div>
                         <div>{upload.duration}</div>
                         <div>{upload.size}</div>
@@ -336,7 +336,7 @@ const DashboardPage = () => {
                 ))
               ) : (
                 // Empty state
-                <div className="col-span-full text-center text-gray-500 py-8">
+                <div className="col-span-full text-center text-silver-500 py-8">
                   Nenhum envio recente
                 </div>
               )}
@@ -345,7 +345,7 @@ const DashboardPage = () => {
 
           {/* Organization Overview */}
           <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-gray-900">Visão Geral da Organização</h2>
+            <h2 className="text-lg font-medium mb-4 text-scale-900">Visão Geral da Organização</h2>
             <div className="grid grid-cols-1 gap-5">
               <OrganizationOverviewCard />
             </div>

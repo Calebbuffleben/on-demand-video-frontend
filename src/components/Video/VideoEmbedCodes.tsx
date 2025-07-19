@@ -42,14 +42,14 @@ export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="border-b border-gray-200">
+      <div className="border-b border-silver-200">
         <nav className="flex -mb-px">
           <button
             onClick={() => setActiveTab('iframe')}
             className={`py-3 px-4 text-sm font-medium ${
               activeTab === 'iframe'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-b-2 border-scale-700 text-scale-700'
+                : 'text-silver-500 hover:text-silver-700 hover:border-silver-300'
             }`}
           >
             Iframe Embed
@@ -58,8 +58,8 @@ export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
             onClick={() => setActiveTab('direct')}
             className={`py-3 px-4 text-sm font-medium ${
               activeTab === 'direct'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-b-2 border-scale-700 text-scale-700'
+                : 'text-silver-500 hover:text-silver-700 hover:border-silver-300'
             }`}
           >
             Direct URL
@@ -68,8 +68,8 @@ export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
             onClick={() => setActiveTab('hls')}
             className={`py-3 px-4 text-sm font-medium ${
               activeTab === 'hls'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-b-2 border-scale-700 text-scale-700'
+                : 'text-silver-500 hover:text-silver-700 hover:border-silver-300'
             }`}
           >
             HLS URL

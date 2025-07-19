@@ -26,10 +26,10 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white border border-silver-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       {/* Thumbnail or placeholder */}
       <Link href={getVideoWatchUrl(video.uid)} className="block relative">
-        <div className="aspect-video bg-gray-100 relative">
+        <div className="aspect-video bg-silver-100 relative">
           {video.thumbnail ? (
             <Image
               src={video.thumbnail}
@@ -40,8 +40,8 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
               style={{ objectFit: 'cover' }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-full h-full flex items-center justify-center bg-silver-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-silver-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </div>
@@ -49,7 +49,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
           
           <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
             <div className="bg-white rounded-full p-3 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-scale-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               </svg>
             </div>
@@ -66,7 +66,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
       {/* Video info */}
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-gray-900 truncate">
+          <h3 className="font-medium text-scale-900 truncate">
             <Link href={getVideoWatchUrl(video.uid)} className="hover:underline">
               {video.meta?.name || 'Vídeo Sem Título'}
             </Link>
@@ -76,7 +76,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
           <div className="relative">
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="p-1 text-silver-500 hover:text-silver-700 focus:outline-none"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -84,10 +84,10 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
             </button>
             
             {isMenuOpen && (
-              <div className="absolute right-full mr-2 top-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+              <div className="absolute right-full mr-2 top-0 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-silver-200">
                 <Link 
                   href={tenantId ? `/${tenantId}/videos/edit/${video.uid}` : `/videos/edit/${video.uid}`}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block px-4 py-2 text-sm text-scale-700 hover:bg-silver-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Editar detalhes do vídeo
@@ -95,7 +95,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                 
                 <Link 
                   href={getVideoWatchUrl(video.uid)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block px-4 py-2 text-sm text-scale-700 hover:bg-silver-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Detalhes do vídeo
@@ -103,7 +103,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                 
                 <Link 
                   href={getEmbedUrl(video.uid)} 
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block px-4 py-2 text-sm text-scale-700 hover:bg-silver-100"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setIsMenuOpen(false)}
@@ -112,7 +112,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                 </Link>
                 
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm text-scale-700 hover:bg-silver-100"
                   onClick={() => {
                     setIsMenuOpen(false);
                     const embedCode = `<iframe 
@@ -132,7 +132,7 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
                 
                 {onDelete && (
                   <button
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-silver-100"
                     onClick={() => {
                       setIsMenuOpen(false);
                       if (confirm('Tem certeza de que deseja excluir este vídeo?')) {
@@ -148,18 +148,18 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
           </div>
         </div>
         
-        <p className="text-gray-500 text-sm mb-3 truncate">
+        <p className="text-silver-500 text-sm mb-3 truncate">
           {video.meta?.filename || 'Nome do arquivo não disponível'}
         </p>
         
-        <div className="flex justify-between items-center text-xs text-gray-500">
+        <div className="flex justify-between items-center text-xs text-silver-500">
           <span>
             {new Date(video.created).toLocaleDateString()}
           </span>
           
           <Link 
             href={getVideoWatchUrl(video.uid)}
-            className="text-blue-600 hover:text-blue-800 flex items-center font-medium"
+            className="text-scale-900 hover:text-scale-700 flex items-center font-medium"
           >
             Assistir
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
