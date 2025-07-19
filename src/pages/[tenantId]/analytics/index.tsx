@@ -249,7 +249,7 @@ function VideoCard({
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
           <Link
             href={`/${tenantId}/analytics/videos/${id}`}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50"
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-scale-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-silver-50"
           >
             Ver Analytics
           </Link>
@@ -257,7 +257,7 @@ function VideoCard({
       </div>
       <CardContent className="p-4">
         <h3 className="font-semibold truncate">{title}</h3>
-        <div className="text-sm text-gray-500 mt-2">
+        <div className="text-sm text-silver-500 mt-2">
           {views !== undefined && <div>{formatNumber(views)} visualizações</div>}
           {date && <div>{formatDate(new Date(date))}</div>}
           {duration && <div>{duration}</div>}

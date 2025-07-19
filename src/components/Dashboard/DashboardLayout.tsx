@@ -9,12 +9,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, sidebar }) 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen bg-silver-100 dark:bg-scale-900">
       {/* Mobile sidebar toggle */}
       <div className="md:hidden fixed top-4 left-4 z-30">
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 rounded-md bg-gray-800 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="p-2 rounded-md bg-scale-800 text-white hover:bg-scale-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-scale-500"
         >
           {isSidebarOpen ? (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -33,7 +33,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, sidebar }) 
         <>
           {/* Desktop sidebar */}
           <div className="hidden md:flex md:flex-shrink-0">
-            <div className="flex flex-col w-64 border-r border-gray-800 bg-gray-900">
+            <div className="flex flex-col w-64 border-r border-scale-800 bg-scale-900">
               {sidebar}
             </div>
           </div>
@@ -41,7 +41,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, sidebar }) 
           {/* Mobile sidebar with overlay */}
           <div className={`md:hidden fixed inset-0 z-20 transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <div className="absolute inset-0 bg-black opacity-50" onClick={() => setIsSidebarOpen(false)}></div>
-            <div className={`absolute inset-y-0 left-0 w-64 bg-gray-900 transform transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className={`absolute inset-y-0 left-0 w-64 bg-scale-900 transform transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
               {sidebar}
             </div>
           </div>

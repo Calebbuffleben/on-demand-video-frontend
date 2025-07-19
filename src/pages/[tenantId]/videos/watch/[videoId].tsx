@@ -85,7 +85,7 @@ export default function VideoWatchPage() {
             <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-semibold">Reprodutor de Vídeo</h1>
-                <p className="text-gray-600 text-sm mt-1">Assista e compartilhe seu vídeo</p>
+                <p className="text-silver-600 text-sm mt-1">Assista e compartilhe seu vídeo</p>
               </div>
               <DashboardMenu />
             </div>
@@ -93,7 +93,7 @@ export default function VideoWatchPage() {
 
           {/* Breadcrumb */}
           <div className="mb-6">
-            <Link href={getVideosUrl()} className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+            <Link href={getVideosUrl()} className="inline-flex items-center text-sm text-scale-600 hover:text-scale-800">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
@@ -110,22 +110,22 @@ export default function VideoWatchPage() {
                 <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
                   <div className="absolute inset-0">
                     {loading ? (
-                      <div className="aspect-video bg-gray-900 flex items-center justify-center">
+                      <div className="aspect-video bg-scale-900 flex items-center justify-center">
                         <div className="flex flex-col items-center">
-                          <div className="w-12 h-12 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin mb-3"></div>
-                          <p className="text-gray-400">Carregando vídeo...</p>
+                          <div className="w-12 h-12 border-4 border-silver-600 border-t-scale-500 rounded-full animate-spin mb-3"></div>
+                          <p className="text-silver-400">Carregando vídeo...</p>
                         </div>
                       </div>
                     ) : error ? (
-                      <div className="aspect-video bg-gray-900 flex items-center justify-center">
-                        <div className="text-center text-gray-400 p-4">
+                      <div className="aspect-video bg-scale-900 flex items-center justify-center">
+                        <div className="text-center text-silver-400 p-4">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                           </svg>
                           <p className="mb-2">{error}</p>
                           <button 
                             onClick={() => router.reload()}
-                            className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                            className="px-4 py-2 bg-scale-600 text-white rounded text-sm hover:bg-scale-700"
                           >
                             Tentar Novamente
                           </button>
@@ -160,8 +160,8 @@ export default function VideoWatchPage() {
                         ctaEndTime={videoData.ctaEndTime}
                       />
                     ) : (
-                      <div className="aspect-video bg-gray-900 flex items-center justify-center">
-                        <div className="text-center text-gray-400 p-4">
+                      <div className="aspect-video bg-scale-900 flex items-center justify-center">
+                        <div className="text-center text-silver-400 p-4">
                           <p>Vídeo não disponível para reprodução</p>
                           {videoData && videoData.readyToStream === false && (
                             <p className="text-xs mt-2">O vídeo ainda está sendo processado. Por favor, verifique mais tarde.</p>
@@ -175,10 +175,10 @@ export default function VideoWatchPage() {
                 {/* Video details */}
                 {videoData && (
                   <div className="p-4">
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">
+                    <h2 className="text-xl font-bold text-scale-900 mb-2">
                       {videoData.meta?.name || 'Vídeo Sem Título'}
                     </h2>
-                    <div className="flex items-center text-sm text-gray-500 space-x-4 mb-4">
+                    <div className="flex items-center text-sm text-silver-500 space-x-4 mb-4">
                       <span className="flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -193,7 +193,7 @@ export default function VideoWatchPage() {
                     <div className="flex justify-between items-center">
                       <button
                         onClick={() => setShowEmbedCodes(!showEmbedCodes)}
-                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        className="inline-flex items-center px-3 py-2 border border-silver-300 shadow-sm text-sm leading-4 font-medium rounded-md text-silver-700 bg-white hover:bg-silver-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-scale-500"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />

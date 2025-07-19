@@ -117,19 +117,19 @@ export default function VideoDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-silver-50">
       <Head>
         <title>{video?.meta?.name || 'Detalhes do Vídeo'}</title>
       </Head>
 
-      <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-md">
+      <header className="bg-gradient-to-r from-scale-700 to-scale-800 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-semibold text-white truncate">
                 {video?.meta?.name || 'Detalhes do Vídeo'}
               </h1>
-              <p className="text-blue-100 text-sm mt-1">Gerenciamento de Vídeo</p>
+              <p className="text-silver-100 text-sm mt-1">Gerenciamento de Vídeo</p>
             </div>
             <DashboardMenu />
           </div>
@@ -139,7 +139,7 @@ export default function VideoDetailPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="mb-6">
-          <Link href={getVideosUrl()} className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+          <Link href={getVideosUrl()} className="inline-flex items-center text-sm text-scale-600 hover:text-scale-800">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -150,8 +150,8 @@ export default function VideoDetailPage() {
         {/* Loading State */}
         {loading && (
           <div className="bg-white p-12 rounded-lg shadow-sm flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-600">Carregando vídeo...</p>
+            <div className="w-12 h-12 border-4 border-silver-200 border-t-scale-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-silver-600">Carregando vídeo...</p>
           </div>
         )}
 

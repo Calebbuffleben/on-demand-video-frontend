@@ -269,21 +269,21 @@ export default function EditVideoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-silver-50">
       <Head>
         {/* Page title for SEO and browser tab */}
         <title>{loading ? 'Editar Vídeo' : `Editar: ${video?.meta?.name}`} - Scale</title>
       </Head>
 
       {/* Header with navigation and menu */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-md">
+      <header className="bg-gradient-to-r from-scale-700 to-scale-800 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-semibold text-white truncate">
                 Editar Vídeo
               </h1>
-              <p className="text-blue-100 text-sm mt-1">Atualizar informações do vídeo</p>
+              <p className="text-silver-100 text-sm mt-1">Atualizar informações do vídeo</p>
             </div>
             <DashboardMenu />
           </div>
@@ -293,7 +293,7 @@ export default function EditVideoPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb navigation */}
         <div className="mb-6">
-          <Link href={getVideoDetailsUrl()} className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+          <Link href={getVideoDetailsUrl()} className="inline-flex items-center text-sm text-scale-600 hover:text-scale-800">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -304,8 +304,8 @@ export default function EditVideoPage() {
         {/* Loading State */}
         {loading && (
           <div className="bg-white p-12 rounded-lg shadow-sm flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-600">Carregando informações do vídeo...</p>
+            <div className="w-12 h-12 border-4 border-silver-200 border-t-scale-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-silver-600">Carregando informações do vídeo...</p>
           </div>
         )}
 
@@ -379,23 +379,23 @@ export default function EditVideoPage() {
               
               {/* Video information summary */}
               <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Informações do Vídeo</h3>
+                <h3 className="text-lg font-medium text-scale-900 mb-4">Informações do Vídeo</h3>
                 <dl className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">ID do Vídeo:</dt>
-                    <dd className="text-gray-900 font-mono">{video.uid}</dd>
+                    <dt className="text-silver-500">ID do Vídeo:</dt>
+                    <dd className="text-scale-900 font-mono">{video.uid}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">Duração:</dt>
-                    <dd className="text-gray-900">{Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}</dd>
+                    <dt className="text-silver-500">Duração:</dt>
+                    <dd className="text-scale-900">{Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">Tamanho do Arquivo:</dt>
-                    <dd className="text-gray-900">{Math.round(video.size / (1024 * 1024))} MB</dd>
+                    <dt className="text-silver-500">Tamanho do Arquivo:</dt>
+                    <dd className="text-scale-900">{Math.round(video.size / (1024 * 1024))} MB</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">Enviado:</dt>
-                    <dd className="text-gray-900">{new Date(video.created).toLocaleDateString()}</dd>
+                    <dt className="text-silver-500">Enviado:</dt>
+                    <dd className="text-scale-900">{new Date(video.created).toLocaleDateString()}</dd>
                   </div>
                 </dl>
               </div>
@@ -404,8 +404,8 @@ export default function EditVideoPage() {
             {/* Edit Form Column */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-lg font-medium text-gray-900">Editar Detalhes do Vídeo</h2>
+                <div className="px-6 py-4 border-b border-silver-200">
+                  <h2 className="text-lg font-medium text-scale-900">Editar Detalhes do Vídeo</h2>
                 </div>
                 
                 {/* Main edit form for video details and options */}
@@ -413,7 +413,7 @@ export default function EditVideoPage() {
                   <div className="space-y-6">
                     {/* Video Title */}
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="name" className="block text-sm font-medium text-silver-700">
                         Título do Vídeo
                       </label>
                       <div className="mt-1">
@@ -423,7 +423,7 @@ export default function EditVideoPage() {
                           id="name"
                           value={formData.name}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="shadow-sm focus:ring-scale-500 focus:border-scale-500 block w-full sm:text-sm border-silver-300 rounded-md"
                           placeholder="Digite o título do vídeo"
                           required
                         />
@@ -432,7 +432,7 @@ export default function EditVideoPage() {
                     
                     {/* Video Description */}
                     <div>
-                      <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="description" className="block text-sm font-medium text-silver-700">
                         Descrição
                       </label>
                       <div className="mt-1">
@@ -442,18 +442,18 @@ export default function EditVideoPage() {
                           rows={5}
                           value={formData.description}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="shadow-sm focus:ring-scale-500 focus:border-scale-500 block w-full sm:text-sm border-silver-300 rounded-md"
                           placeholder="Digite a descrição do vídeo"
                         />
                       </div>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-2 text-sm text-silver-500">
                         Breve descrição do conteúdo do seu vídeo
                       </p>
                     </div>
 
                     {/* Video Cover */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-silver-700 mb-2">
                         Capa do Vídeo
                       </label>
                       <CoverUploader
@@ -465,7 +465,7 @@ export default function EditVideoPage() {
                           Enviando imagem de capa...
                         </p>
                       )}
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-2 text-sm text-silver-500">
                         Envie uma miniatura personalizada para seu vídeo
                       </p>
                       {video.thumbnail && (
@@ -492,21 +492,20 @@ export default function EditVideoPage() {
                     
                     {/* Player Display Options Section */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-silver-700 mb-3">
                         Opções de Exibição do Player
                       </label>
                       <div className="space-y-3">
                         {/* Show progress bar toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-progress-bar"
-                            name="showProgressBar"
                             type="checkbox"
+                            id="show-progress-bar"
                             checked={displayOptions.showProgressBar}
                             onChange={() => handleToggleOption('showProgressBar')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-progress-bar" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-progress-bar" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar barra de progresso
                           </label>
                         </div>
@@ -514,14 +513,13 @@ export default function EditVideoPage() {
                         {/* Show title toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-title"
-                            name="showTitle"
                             type="checkbox"
+                            id="show-title"
                             checked={displayOptions.showTitle}
                             onChange={() => handleToggleOption('showTitle')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-title" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-title" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar título do vídeo
                           </label>
                         </div>
@@ -529,14 +527,13 @@ export default function EditVideoPage() {
                         {/* Show playback controls toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-playback-controls"
-                            name="showPlaybackControls"
                             type="checkbox"
+                            id="show-playback-controls"
                             checked={displayOptions.showPlaybackControls}
                             onChange={() => handleToggleOption('showPlaybackControls')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-playback-controls" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-playback-controls" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar controles de reprodução
                           </label>
                         </div>
@@ -544,14 +541,13 @@ export default function EditVideoPage() {
                         {/* Autoplay toggle */}
                         <div className="flex items-center">
                           <input
-                            id="autoplay"
-                            name="autoPlay"
                             type="checkbox"
+                            id="autoplay"
                             checked={displayOptions.autoPlay}
                             onChange={() => handleToggleOption('autoPlay')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="autoplay" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="autoplay" className="ml-3 block text-sm font-medium text-silver-700">
                             Reprodução automática
                           </label>
                         </div>
@@ -559,14 +555,13 @@ export default function EditVideoPage() {
                         {/* Muted toggle */}
                         <div className="flex items-center">
                           <input
-                            id="muted"
-                            name="muted"
                             type="checkbox"
+                            id="muted"
                             checked={displayOptions.muted}
                             onChange={() => handleToggleOption('muted')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="muted" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="muted" className="ml-3 block text-sm font-medium text-silver-700">
                             Sem som
                           </label>
                         </div>
@@ -574,14 +569,13 @@ export default function EditVideoPage() {
                         {/* Loop toggle */}
                         <div className="flex items-center">
                           <input
-                            id="loop"
-                            name="loop"
                             type="checkbox"
+                            id="loop"
                             checked={displayOptions.loop}
                             onChange={() => handleToggleOption('loop')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="loop" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="loop" className="ml-3 block text-sm font-medium text-silver-700">
                             Repetir vídeo
                           </label>
                         </div>
@@ -589,9 +583,8 @@ export default function EditVideoPage() {
                         {/* Autoplay Muted toggle */}
                         <div className="flex items-center">
                           <input
-                            id="autoplay-muted"
-                            name="autoplayMuted"
                             type="checkbox"
+                            id="autoplay-muted"
                             checked={displayOptions.autoPlay && displayOptions.muted}
                             onChange={() => {
                               const newValue = !(displayOptions.autoPlay && displayOptions.muted);
@@ -602,13 +595,13 @@ export default function EditVideoPage() {
                                 showSoundControl: newValue
                               }));
                             }}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="autoplay-muted" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="autoplay-muted" className="ml-3 block text-sm font-medium text-silver-700">
                             Reprodução Automática Sem Som
                           </label>
                           <div className="ml-2">
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-silver-500">
                               (O vídeo começará a reproduzir automaticamente com o som desativado)
                             </span>
                           </div>
@@ -617,17 +610,13 @@ export default function EditVideoPage() {
                         {/* Show Sound Control toggle (optional, for manual override) */}
                         <div className="flex items-center">
                           <input
-                            id="show-sound-control"
-                            name="showSoundControl"
                             type="checkbox"
-                            checked={displayOptions.showSoundControl ?? (displayOptions.autoPlay && displayOptions.muted)}
-                            onChange={() => setDisplayOptions(prev => ({
-                              ...prev,
-                              showSoundControl: !prev.showSoundControl
-                            }))}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            id="show-sound-control"
+                            checked={displayOptions.showSoundControl}
+                            onChange={() => handleToggleOption('showSoundControl')}
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-sound-control" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-sound-control" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar Controle de Som
                           </label>
                         </div>
@@ -635,14 +624,13 @@ export default function EditVideoPage() {
                         {/* Use original Mux progress bar toggle */}
                         <div className="flex items-center">
                           <input
-                            id="use-original-progress-bar"
-                            name="useOriginalProgressBar"
                             type="checkbox"
+                            id="use-original-progress-bar"
                             checked={displayOptions.useOriginalProgressBar}
                             onChange={() => handleToggleOption('useOriginalProgressBar')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="use-original-progress-bar" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="use-original-progress-bar" className="ml-3 block text-sm font-medium text-silver-700">
                             Usar barra de progresso original do Mux
                           </label>
                         </div>
@@ -658,7 +646,7 @@ export default function EditVideoPage() {
                         />
                         {/* Progress bar easing slider */}
                         <div className="flex items-center mt-2">
-                          <label htmlFor="progress-easing" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                          <label htmlFor="progress-easing" className="block text-sm font-medium text-silver-700 mr-3 mb-0">
                             Suavização da barra de progresso
                           </label>
                           <input
@@ -672,9 +660,9 @@ export default function EditVideoPage() {
                             onChange={e => setDisplayOptions(prev => ({ ...prev, progressEasing: parseFloat(e.target.value) }))}
                             className="w-32 ml-2"
                           />
-                          <span className="ml-2 text-xs text-gray-500">{displayOptions.progressEasing}</span>
+                          <span className="ml-2 text-xs text-silver-500">{displayOptions.progressEasing}</span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-silver-500 mt-1">
                           Negativo: começa lento, termina rápido. Positivo: começa rápido, termina lento. 0: progresso linear.
                         </p>
                         {/* Play button color picker */}
@@ -689,7 +677,7 @@ export default function EditVideoPage() {
                         />
                         {/* Play button size slider */}
                         <div className="flex items-center mt-2">
-                          <label htmlFor="play-button-size" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                          <label htmlFor="play-button-size" className="block text-sm font-medium text-silver-700 mr-3 mb-0">
                             Tamanho do botão de reprodução
                           </label>
                           <input
@@ -703,7 +691,7 @@ export default function EditVideoPage() {
                             onChange={e => setDisplayOptions(prev => ({ ...prev, playButtonSize: parseInt(e.target.value) }))}
                             className="w-32 ml-2"
                           />
-                          <span className="ml-2 text-xs text-gray-500">{displayOptions.playButtonSize}px</span>
+                          <span className="ml-2 text-xs text-silver-500">{displayOptions.playButtonSize}px</span>
                         </div>
                         {/* Play button background color picker */}
                         <ColorPicker
@@ -719,7 +707,7 @@ export default function EditVideoPage() {
 
                         {/* Sound Control Size slider */}
                         <div className="flex items-center mt-2">
-                          <label htmlFor="sound-control-size" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                          <label htmlFor="sound-control-size" className="block text-sm font-medium text-silver-700 mr-3 mb-0">
                             Tamanho do controle de som
                           </label>
                           <input
@@ -740,7 +728,7 @@ export default function EditVideoPage() {
                             }}
                             className="w-32 ml-2"
                           />
-                          <span className="ml-2 text-xs text-gray-500">{displayOptions.soundControlSize}px</span>
+                          <span className="ml-2 text-xs text-silver-500">{displayOptions.soundControlSize}px</span>
                         </div>
 
                         {/* Sound Control Color picker */}
@@ -756,7 +744,7 @@ export default function EditVideoPage() {
 
                         {/* Sound Control Opacity slider */}
                         <div className="flex items-center mt-2">
-                          <label htmlFor="sound-control-opacity" className="block text-sm font-medium text-gray-700 mr-3 mb-0">
+                          <label htmlFor="sound-control-opacity" className="block text-sm font-medium text-silver-700 mr-3 mb-0">
                             Opacidade do controle de som
                           </label>
                           <input
@@ -777,12 +765,12 @@ export default function EditVideoPage() {
                             }}
                             className="w-32 ml-2"
                           />
-                          <span className="ml-2 text-xs text-gray-500">{Math.round(displayOptions.soundControlOpacity * 100)}%</span>
+                          <span className="ml-2 text-xs text-silver-500">{Math.round(displayOptions.soundControlOpacity * 100)}%</span>
                         </div>
 
                         {/* Sound Control Text input */}
                         <div>
-                          <label htmlFor="sound-control-text" className="block text-sm font-medium text-gray-700">
+                          <label htmlFor="sound-control-text" className="block text-sm font-medium text-silver-700">
                             Texto do controle de som
                           </label>
                           <input
@@ -794,33 +782,32 @@ export default function EditVideoPage() {
                               ...prev,
                               soundControlText: e.target.value
                             }))}
-                            className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                            className="shadow-sm focus:ring-scale-500 focus:border-scale-500 block w-full sm:text-sm border-silver-300 rounded-md"
                             placeholder="Digite o texto do controle de som"
                           />
                         </div>
                       </div>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-2 text-sm text-silver-500">
                         Personalize como o player de vídeo aparece para os espectadores.
                       </p>
                     </div>
                     
                     {/* Embed Options Section */}
                     <div className="mt-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-silver-700 mb-3">
                         Opções da Página de Incorporação
                       </label>
                       <div className="space-y-3">
                         {/* Show video title on embed page toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-video-title"
-                            name="showVideoTitle"
                             type="checkbox"
+                            id="show-video-title"
                             checked={embedOptions.showVideoTitle}
                             onChange={() => handleToggleEmbedOption('showVideoTitle')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-video-title" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-video-title" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar título do vídeo na página de incorporação
                           </label>
                         </div>
@@ -828,14 +815,13 @@ export default function EditVideoPage() {
                         {/* Show upload date toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-upload-date"
-                            name="showUploadDate"
                             type="checkbox"
+                            id="show-upload-date"
                             checked={embedOptions.showUploadDate}
                             onChange={() => handleToggleEmbedOption('showUploadDate')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-upload-date" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-upload-date" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar data de envio
                           </label>
                         </div>
@@ -843,14 +829,13 @@ export default function EditVideoPage() {
                         {/* Show metadata toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-metadata"
-                            name="showMetadata"
                             type="checkbox"
+                            id="show-metadata"
                             checked={embedOptions.showMetadata}
                             onChange={() => handleToggleEmbedOption('showMetadata')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-metadata" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-metadata" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar metadados do vídeo (resolução, tamanho, etc.)
                           </label>
                         </div>
@@ -858,14 +843,13 @@ export default function EditVideoPage() {
                         {/* Allow fullscreen toggle */}
                         <div className="flex items-center">
                           <input
-                            id="allow-fullscreen"
-                            name="allowFullscreen"
                             type="checkbox"
+                            id="allow-fullscreen"
                             checked={embedOptions.allowFullscreen}
                             onChange={() => handleToggleEmbedOption('allowFullscreen')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="allow-fullscreen" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="allow-fullscreen" className="ml-3 block text-sm font-medium text-silver-700">
                             Permitir tela cheia
                           </label>
                         </div>
@@ -873,14 +857,13 @@ export default function EditVideoPage() {
                         {/* Responsive embed toggle */}
                         <div className="flex items-center">
                           <input
-                            id="responsive"
-                            name="responsive"
                             type="checkbox"
+                            id="responsive"
                             checked={embedOptions.responsive}
                             onChange={() => handleToggleEmbedOption('responsive')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="responsive" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="responsive" className="ml-3 block text-sm font-medium text-silver-700">
                             Incorporação responsiva (se adapta ao container)
                           </label>
                         </div>
@@ -888,14 +871,13 @@ export default function EditVideoPage() {
                         {/* Show branding toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-branding"
-                            name="showBranding"
                             type="checkbox"
+                            id="show-branding"
                             checked={embedOptions.showBranding}
                             onChange={() => handleToggleEmbedOption('showBranding')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-branding" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-branding" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar marca
                           </label>
                         </div>
@@ -903,19 +885,18 @@ export default function EditVideoPage() {
                         {/* Show technical info toggle */}
                         <div className="flex items-center">
                           <input
-                            id="show-technical-info"
-                            name="showTechnicalInfo"
                             type="checkbox"
+                            id="show-technical-info"
                             checked={embedOptions.showTechnicalInfo}
                             onChange={() => handleToggleEmbedOption('showTechnicalInfo')}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
-                          <label htmlFor="show-technical-info" className="ml-3 block text-sm font-medium text-gray-700">
+                          <label htmlFor="show-technical-info" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar informações técnicas (progresso, tempo, etc.)
                           </label>
                         </div>
                       </div>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-2 text-sm text-silver-500">
                         Personalize como seu vídeo aparece quando incorporado em outros sites.
                       </p>
                     </div>
@@ -924,9 +905,8 @@ export default function EditVideoPage() {
                     <div className="space-y-4">
                       <div className="flex items-center">
                         <input
-                          id="show-cta"
-                          name="showCta"
                           type="checkbox"
+                          id="show-cta"
                           checked={ctaFields.showCta}
                           onChange={(e) => {
                             setCtaFields(prev => ({
@@ -934,9 +914,9 @@ export default function EditVideoPage() {
                               showCta: e.target.checked
                             }));
                           }}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                         />
-                        <label htmlFor="show-cta" className="ml-3 block text-sm font-medium text-gray-700">
+                        <label htmlFor="show-cta" className="ml-3 block text-sm font-medium text-silver-700">
                           Mostrar CTA
                         </label>
                       </div>
@@ -945,7 +925,7 @@ export default function EditVideoPage() {
                         <>
                           <div className="space-y-4">
                             <div>
-                              <label htmlFor="cta-text" className="block text-sm font-medium text-gray-700">
+                              <label htmlFor="cta-text" className="block text-sm font-medium text-silver-700">
                                 Texto do CTA
                               </label>
                               <input
@@ -953,11 +933,11 @@ export default function EditVideoPage() {
                                 id="cta-text"
                                 value={ctaFields.ctaText}
                                 onChange={(e) => setCtaFields(prev => ({ ...prev, ctaText: e.target.value }))}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500 sm:text-sm"
                               />
                             </div>
                             <div>
-                              <label htmlFor="cta-button-text" className="block text-sm font-medium text-gray-700">
+                              <label htmlFor="cta-button-text" className="block text-sm font-medium text-silver-700">
                                 Texto do Botão CTA
                               </label>
                               <input
@@ -965,23 +945,23 @@ export default function EditVideoPage() {
                                 id="cta-button-text"
                                 value={ctaFields.ctaButtonText}
                                 onChange={(e) => setCtaFields(prev => ({ ...prev, ctaButtonText: e.target.value }))}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500 sm:text-sm"
                               />
                             </div>
                             <div>
-                              <label htmlFor="cta-link" className="block text-sm font-medium text-gray-700">
+                              <label htmlFor="cta-link" className="block text-sm font-medium text-silver-700">
                                 Link do CTA
                               </label>
                               <input
-                                type="text"
+                                type="url"
                                 id="cta-link"
                                 value={ctaFields.ctaLink}
                                 onChange={(e) => setCtaFields(prev => ({ ...prev, ctaLink: e.target.value }))}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500 sm:text-sm"
                               />
                             </div>
                             <div>
-                              <label htmlFor="cta-start-time" className="block text-sm font-medium text-gray-700">
+                              <label htmlFor="cta-start-time" className="block text-sm font-medium text-silver-700">
                                 Tempo de Início do CTA (segundos)
                               </label>
                               <input
@@ -989,11 +969,11 @@ export default function EditVideoPage() {
                                 id="cta-start-time"
                                 value={ctaFields.ctaStartTime ?? ''}
                                 onChange={(e) => setCtaFields(prev => ({ ...prev, ctaStartTime: e.target.value ? Number(e.target.value) : undefined }))}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500 sm:text-sm"
                               />
                             </div>
                             <div>
-                              <label htmlFor="cta-end-time" className="block text-sm font-medium text-gray-700">
+                              <label htmlFor="cta-end-time" className="block text-sm font-medium text-silver-700">
                                 Tempo de Fim do CTA (segundos)
                               </label>
                               <input
@@ -1001,7 +981,7 @@ export default function EditVideoPage() {
                                 id="cta-end-time"
                                 value={ctaFields.ctaEndTime ?? ''}
                                 onChange={(e) => setCtaFields(prev => ({ ...prev, ctaEndTime: e.target.value ? Number(e.target.value) : undefined }))}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500 sm:text-sm"
                               />
                             </div>
                           </div>

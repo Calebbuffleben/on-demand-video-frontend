@@ -37,7 +37,7 @@ const VideoSettings: React.FC<VideoSettingsProps> = ({
                   onChange={(e) => onToggleAutoplayMuted(e.target.checked)}
                 />
                 <div className={`w-10 h-6 rounded-full transition-colors ${
-                  enableAutoplayMuted ? 'bg-blue-600' : 'bg-gray-600'
+                  enableAutoplayMuted ? 'bg-scale-600' : 'bg-silver-600'
                 }`} />
                 <div className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform transform ${
                   enableAutoplayMuted ? 'translate-x-4' : 'translate-x-0'
