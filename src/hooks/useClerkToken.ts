@@ -26,19 +26,28 @@ export function useClerkToken() {
       console.log('Getting fresh token from Clerk session...');
       console.log('Current organization:', organization?.id, organization?.name);
       
-      // Get organization-aware token
-      const tokenOptions = organization?.id 
-        ? { 
-            template: 'token_videos_on_demand_3',  // Use a template with organization claims
-              // You can also provide session data if needed
-              session: {
-                resources: ["organization"],
-                organizationId: organization.id,
-              }
-            } 
-          : {};
+      // Get organization-aware token for multi-tenancy
+      let token;
       
-      const token = await session.getToken(tokenOptions);
+      if (organization?.id) {
+        // For multi-tenancy, we need to get a token with organization context
+        try {
+          // Try with template first
+          token = await session.getToken({
+            template: 'token_videos_on_demand_3',
+          });
+          
+          console.log('Token obtained with template for organization:', organization.id);
+        } catch (error) {
+          console.error('Template token failed, trying without template:', error);
+          // Fallback to basic token
+          token = await session.getToken();
+        }
+      } else {
+        // No organization context, get basic token
+        console.log('No organization context, getting basic token');
+        token = await session.getToken();
+      }
       
       if (token) {
         // Store token with organization info
