@@ -238,7 +238,7 @@ const DashboardPage = () => {
                 </Link>
                 
                 <Link
-                  href={tenantId ? `/${tenantId}/my-videos` : "/my-videos"}
+                  href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
                   className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-blue-700"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
