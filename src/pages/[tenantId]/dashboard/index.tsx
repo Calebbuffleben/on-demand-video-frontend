@@ -212,40 +212,63 @@ const DashboardPage = () => {
           </header>
 
           {/* Quick Actions */}
-          <div className="mb-8 bg-gradient-to-br from-scale-950 via-scale-900 to-scale-600 rounded-lg overflow-hidden shadow-lg">
-            <div className="p-6 md:p-8">
-              <h2 className="text-xl font-bold text-white mb-2">Pronto para enviar novo conteúdo?</h2>
-              <p className="text-silver-200 mb-6">Compartilhe seus vídeos com seu público hoje.</p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
-                  className="inline-flex items-center px-5 py-2.5 bg-white text-sm font-medium rounded-md text-scale-600 hover:bg-silver-50"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Enviar Vídeo
-                </Link>
+          <div className="mb-8 relative rounded-lg overflow-hidden shadow-2xl">
+            {/* Main gradient background */}
+            <div className="bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800 relative">
+              {/* High contrast overlay */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-scale-700/40"></div>
+              
+              {/* Radial gradient for depth */}
+              <div className="absolute inset-0 bg-radial-gradient from-white/20 via-transparent to-transparent"></div>
+              
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent transform -skew-x-12 animate-pulse"></div>
+              
+              {/* Content */}
+              <div className="relative z-10 p-6 md:p-8">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-white to-silver-200 rounded-full flex items-center justify-center mr-4 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-scale-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">Pronto para enviar novo conteúdo?</h2>
+                    <p className="text-white/90 text-lg drop-shadow">Compartilhe seus vídeos com seu público hoje.</p>
+                  </div>
+                </div>
                 
-                <Link
-                  href={tenantId ? `/${tenantId}/analytics` : "/analytics"}
-                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-scale-700"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Ver Analytics
-                </Link>
-                
-                <Link
-                  href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
-                  className="inline-flex items-center px-5 py-2.5 border border-white text-sm font-medium rounded-md text-white hover:bg-scale-700"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Meus Vídeos
-                </Link>
+                <div className="flex flex-wrap gap-4 mt-6">
+                  <Link
+                    href={tenantId ? `/${tenantId}/upload-video` : "/upload-video"}
+                    className="group inline-flex items-center px-6 py-3 bg-white text-sm font-semibold rounded-lg text-scale-800 hover:bg-silver-50 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl border border-white/20"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-3 h-5 w-5 group-hover:rotate-90 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Enviar Vídeo
+                  </Link>
+                  
+                  <Link
+                    href={tenantId ? `/${tenantId}/analytics` : "/analytics"}
+                    className="group inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm border-2 border-white/40 text-sm font-semibold rounded-lg text-white hover:bg-white/20 hover:border-white/60 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-3 h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Ver Analytics
+                  </Link>
+                  
+                  <Link
+                    href={tenantId ? `/${tenantId}/videos` : "/my-videos"}
+                    className="group inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm border-2 border-white/40 text-sm font-semibold rounded-lg text-white hover:bg-white/20 hover:border-white/60 transform hover:scale-105 transition-all duration-200 shadow-xl hover:shadow-2xl"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="-ml-1 mr-3 h-5 w-5 group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Meus Vídeos
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
