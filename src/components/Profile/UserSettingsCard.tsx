@@ -67,15 +67,15 @@ export default function UserSettingsCard({ className = '' }: UserSettingsCardPro
         <div className="space-y-6">
           {/* Security Section */}
           <div>
-            <h3 className="font-medium text-gray-600 mb-3 text-sm">Security</h3>
+            <h3 className="font-medium text-silver-600 mb-3 text-sm">Security</h3>
             <div className="space-y-4">
               <div>
                 <button 
                   onClick={openUserProfile}
-                  className="w-full flex justify-between items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition"
+                  className="w-full flex justify-between items-center px-4 py-2 bg-silver-50 hover:bg-silver-100 rounded-md transition"
                 >
                   <span className="text-sm">Change Password</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-silver-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -84,10 +84,10 @@ export default function UserSettingsCard({ className = '' }: UserSettingsCardPro
               <div>
                 <button 
                   onClick={openUserProfile}
-                  className="w-full flex justify-between items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-md transition"
+                  className="w-full flex justify-between items-center px-4 py-2 bg-silver-50 hover:bg-silver-100 rounded-md transition"
                 >
                   <span className="text-sm">Two-Factor Authentication</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-silver-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -97,13 +97,13 @@ export default function UserSettingsCard({ className = '' }: UserSettingsCardPro
           
           {/* Preferences Section */}
           <div>
-            <h3 className="font-medium text-gray-600 mb-3 text-sm">Preferences</h3>
+            <h3 className="font-medium text-silver-600 mb-3 text-sm">Preferences</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-md">
+              <div className="flex items-center justify-between px-4 py-2 bg-silver-50 rounded-md">
                 <span className="text-sm">Dark Mode</span>
                 <button 
                   onClick={toggleDarkMode}
-                  className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${isDarkMode ? 'bg-blue-600' : 'bg-gray-300'}`}
+                  className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${isDarkMode ? 'bg-scale-600' : 'bg-silver-300'}`}
                 >
                   <span 
                     className={`inline-block w-4 h-4 transform transition-transform bg-white rounded-full ${isDarkMode ? 'translate-x-6' : 'translate-x-1'}`} 
@@ -111,11 +111,11 @@ export default function UserSettingsCard({ className = '' }: UserSettingsCardPro
                 </button>
               </div>
               
-              <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-md">
+              <div className="flex items-center justify-between px-4 py-2 bg-silver-50 rounded-md">
                 <span className="text-sm">Email Notifications</span>
                 <button 
                   onClick={toggleEmailNotifications}
-                  className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${emailNotifications ? 'bg-blue-600' : 'bg-gray-300'}`}
+                  className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ${emailNotifications ? 'bg-scale-600' : 'bg-silver-300'}`}
                 >
                   <span 
                     className={`inline-block w-4 h-4 transform transition-transform bg-white rounded-full ${emailNotifications ? 'translate-x-6' : 'translate-x-1'}`} 
