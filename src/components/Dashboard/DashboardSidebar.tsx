@@ -26,7 +26,7 @@ const DashboardSidebar: React.FC = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-scale-900 text-silver-100">
+    <div className="h-full flex flex-col bg-scale-900 text-white">
       {/* Logo and brand */}
       <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-scale-800">
         <Link href={getUrl('/dashboard')}>
@@ -42,7 +42,7 @@ const DashboardSidebar: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-white">Perfil do Usuário</p>
-            <p className="text-xs text-silver-400">Conta de Criador</p>
+            <p className="text-xs text-white opacity-70">Conta de Criador</p>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@ const DashboardSidebar: React.FC = () => {
                   group flex items-center px-2 py-2 text-sm font-medium rounded-md
                   ${isActive(item.href)
                     ? 'bg-scale-800 text-white'
-                    : 'text-silver-300 hover:bg-scale-700 hover:text-white'}
+                    : 'text-white hover:bg-silver-600 hover:text-white'}
                 `}
               >
                 {renderIcon(item.icon, isActive(item.href))}
@@ -74,7 +74,7 @@ const DashboardSidebar: React.FC = () => {
           </div>
           
           <div className="pt-2 border-t border-scale-800">
-            <p className="px-3 text-xs font-semibold text-silver-400 uppercase tracking-wider">
+            <p className="px-3 text-xs font-semibold text-white uppercase tracking-wider">
               Ferramentas da Plataforma
             </p>
             <div className="mt-2 space-y-2">
@@ -86,7 +86,7 @@ const DashboardSidebar: React.FC = () => {
                     group flex items-center px-2 py-2 text-sm font-medium rounded-md
                     ${isActive(item.href)
                       ? 'bg-scale-800 text-white'
-                      : 'text-silver-300 hover:bg-scale-700 hover:text-white'}
+                      : 'text-white hover:bg-silver-600 hover:text-white'}
                   `}
                 >
                   {renderIcon(item.icon, isActive(item.href))}
@@ -106,13 +106,13 @@ const DashboardSidebar: React.FC = () => {
       {/* Help & Info Links */}
       <div className="px-3 py-3 border-t border-scale-800">
         <div className="flex flex-col space-y-2">
-          <Link href={getUrl('/documentation')} className="text-xs text-silver-400 hover:text-white">
+          <Link href={getUrl('/documentation')} className="text-xs text-white hover:text-white">
             Documentação da API
           </Link>
-          <Link href={getUrl('/help')} className="text-xs text-silver-400 hover:text-white">
+          <Link href={getUrl('/help')} className="text-xs text-white hover:text-white">
             Central de Ajuda
           </Link>
-          <Link href={getUrl('/contact')} className="text-xs text-silver-400 hover:text-white">
+          <Link href={getUrl('/contact')} className="text-xs text-white hover:text-white">
             Contatar Suporte
           </Link>
         </div>
@@ -123,7 +123,7 @@ const DashboardSidebar: React.FC = () => {
 
 // Helper function to render icons based on their type
 function renderIcon(iconName: string, isActive: boolean) {
-  const className = `mr-3 flex-shrink-0 h-5 w-5 ${isActive ? 'text-white' : 'text-silver-400 group-hover:text-silver-300'}`;
+  const className = `mr-3 flex-shrink-0 h-5 w-5 ${isActive ? 'text-white' : 'text-white group-hover:text-white'}`;
   
   switch (iconName) {
     case 'home':
