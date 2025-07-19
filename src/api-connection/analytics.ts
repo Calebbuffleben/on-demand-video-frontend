@@ -53,6 +53,14 @@ export interface VideoAnalytics {
   }[];
 }
 
+export interface VideoRetentionData {
+  videoId: string;
+  title: string;
+  retention: RetentionDataPoint[];
+  totalViews: number;
+  averageWatchTime: number;
+}
+
 export interface RetentionDataPoint {
   time: number;
   retention: number;
@@ -298,6 +306,21 @@ const analyticsService = {
           totalViews: 0
         }
       };
+    }
+  },
+
+  /**
+   * Get retention data for all videos in the organization
+   */
+  getOrganizationRetention: async (timeRange?: TimeRange): Promise<{ success: boolean; data: VideoRetentionData[] }> => {
+    try {
+      const response = await api.get<{ success: boolean; data: VideoRetentionData[] }>('analytics/organization/retention', {
+        params: timeRange
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching organization retention data:', error);
+      throw error;
     }
   }
 };
