@@ -5,6 +5,7 @@ import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
 import videoService, { VideoData } from '@/api-connection/videos';
+import { useOrganization } from '@/hooks/useOrganization';
 
 export default function VideoDetailPage() {
   const [video, setVideo] = useState<VideoData | null>(null);
@@ -12,6 +13,7 @@ export default function VideoDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { videoId, tenantId } = router.query;
+  const { organization, isLoaded } = useOrganization();
 
   useEffect(() => {
     if (videoId && typeof videoId === 'string') {
@@ -369,7 +371,7 @@ export default function VideoDetailPage() {
                     <p className="text-sm text-gray-500 mb-4">Use este código para incorporar o vídeo em seu site:</p>
                     <div className="bg-gray-50 p-4 rounded-md font-mono text-xs overflow-x-auto">
                       {`<iframe
-                          src="${window.location.origin}/${tenantId}/embed/${videoId}"
+                          src="${window.location.origin}/${organization?.id || tenantId}/embed/${videoId}"
                           style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"
                           frameborder="0"
                           allow="autoplay; fullscreen"
@@ -377,7 +379,7 @@ export default function VideoDetailPage() {
                         ></iframe>`}
                     </div>
                     <button 
-                      onClick={() => copyToClipboard(`<iframe src=\"${window.location.origin}/${tenantId}/embed/${videoId}\" style=\"width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;\" frameborder=\"0\" allow=\"autoplay; fullscreen\" allowfullscreen></iframe>`)}
+                      onClick={() => copyToClipboard(`<iframe src=\"${window.location.origin}/${organization?.id || tenantId}/embed/${videoId}\" style=\"width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;\" frameborder=\"0\" allow=\"autoplay; fullscreen\" allowfullscreen></iframe>`)}
                       className="mt-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

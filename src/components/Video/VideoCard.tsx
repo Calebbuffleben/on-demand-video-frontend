@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { VideoData } from '../../api-connection/videos';
 import Image from 'next/image';
+import { useOrganization } from '@/hooks/useOrganization';
 
 interface VideoCardProps {
   video: VideoData;
@@ -14,15 +15,18 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const { tenantId } = router.query;
+  const { organization } = useOrganization();
   
   // Helper functions to get tenant-aware URLs
   const getVideoWatchUrl = (uid: string) => {
-    return `/${tenantId}/videos/watch/${uid}`;
+    const orgId = organization?.id || tenantId;
+    return `/${orgId}/videos/watch/${uid}`;
   };
 
   
   const getEmbedUrl = (uid: string) => {
-    return `/${tenantId}/embed/${uid}`;
+    const orgId = organization?.id || tenantId;
+    return `/${orgId}/embed/${uid}`;
   };
 
   return (
