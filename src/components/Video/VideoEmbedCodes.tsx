@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { VideoData } from '../../api-connection/videos';
 import { useRouter } from 'next/router';
+import { useOrganization } from '@/hooks/useOrganization';
 
 interface VideoEmbedCodesProps {
   video: VideoData;
@@ -11,18 +12,20 @@ export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
   const { tenantId } = router.query;
+  const { organization } = useOrganization();
   
   const baseUrl = typeof window !== 'undefined' 
     ? `${window.location.protocol}//${window.location.host}`
     : 'https://yourdomain.com';
 
   const getVideoWatchUrl = (uid: string) => {
-    return tenantId ? `${baseUrl}/${tenantId}/videos/watch/${uid}` : `${baseUrl}/videos/watch/${uid}`;
+    const orgId = organization?.id || tenantId;
+    return orgId ? `${baseUrl}/${orgId}/videos/watch/${uid}` : `${baseUrl}/videos/watch/${uid}`;
   };
   
   const embedUrls = {
     iframe: `<iframe 
-  src="${baseUrl}/embed/${video.uid}" 
+  src="${baseUrl}/${organization?.id || tenantId}/embed/${video.uid}" 
   width="640" 
   height="360" 
   frameborder="0" 
