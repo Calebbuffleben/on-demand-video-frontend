@@ -10,7 +10,8 @@ const isPublicRoute = createRouteMatcher([
   '/create-organization(.*)',
   '/organization-profile(.*)',
   '/organization-selector(.*)',
-  '/api/public/(.*)'
+  '/api/public/(.*)',
+  '/([^/]+)/embed/(.*)' // Add embed routes as public
 ]);
 
 // Organization routes with different access levels

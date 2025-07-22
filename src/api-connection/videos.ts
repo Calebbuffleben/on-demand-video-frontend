@@ -124,11 +124,8 @@ export interface SoundControlUpdate {
 
 export interface EmbedVideoResponse {
   success: boolean;
-  status: number;
-  message: string;
   data: {
     video: VideoData;
-    embedCode: string;
   };
 }
 

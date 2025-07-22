@@ -16,26 +16,6 @@ const nextConfig: NextConfig = {
       'image.mux.com' // Allow images from Mux
     ],
   },
-
-  // Configure headers to allow iframe embedding
-  async headers() {
-    return [
-      {
-        // Apply to all embed routes
-        source: '/:orgId/embed/:videoId',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'ALLOWALL',
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: "frame-ancestors *;",
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default nextConfig;
