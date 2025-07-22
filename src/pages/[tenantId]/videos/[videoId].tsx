@@ -13,7 +13,7 @@ export default function VideoDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { videoId, tenantId } = router.query;
-  const { organization, isLoaded } = useOrganization();
+  const { organization } = useOrganization();
 
   useEffect(() => {
     if (videoId && typeof videoId === 'string') {

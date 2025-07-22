@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useOrganization } from '@clerk/nextjs';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '../../../components/Dashboard/DashboardMenu';
@@ -17,7 +16,6 @@ export default function TenantVideosPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
-  const { organization } = useOrganization();
   const { tenantId } = router.query;
 
   // Get filtered videos based on search term
@@ -25,13 +23,7 @@ export default function TenantVideosPage() {
     video.meta?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Helper function to navigate back to dashboard
-  const getDashboardUrl = () => {
-    if (tenantId && typeof tenantId === 'string') {
-      return `/${tenantId}/dashboard`;
-    }
-    return organization?.id ? `/${organization.id}/dashboard` : '/dashboard';
-  };
+
 
   const fetchVideos = async () => {
     try {
