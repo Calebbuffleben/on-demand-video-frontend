@@ -22,37 +22,22 @@ export default function VideoEmbedPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await videoService.getVideoByUid(videoId);
+      console.log('Fetching video for embed with ID:', videoId);
+      const response = await videoService.getVideoForEmbed(videoId);
+      console.log('Full API response:', JSON.stringify(response, null, 2));
 
-      if (response.success && response.data) {
-        // Handle both array and object responses
-        let video: VideoData | null = null;
-        
-        if (response.data.result && Array.isArray(response.data.result) && response.data.result.length > 0) {
-          // If result is an array, get the first element
-          video = response.data.result[0];
-        } else if (response.data.result && typeof response.data.result === 'object') {
-          // If result is a direct object, use it
-          video = response.data.result as unknown as VideoData;
-        }
-        
-        if (video) {
-          console.log('Video data:', JSON.stringify(video, null, 2));
-          setVideoData(video);
-        } else {
-          throw new Error('Nenhum dado de vídeo disponível');
-        }
+      if (response.success && response.data && response.data.video) {
+        const video = response.data.video;
+        console.log('Video data:', JSON.stringify(video, null, 2));
+        setVideoData(video);
       } else {
-        // Only throw an error if the response indicates a failure
-        if (!response.success) {
-          const errorMessage = response.message || 'Falha ao carregar vídeo';
-          console.error('API response error:', response);
-          throw new Error(errorMessage);
-        } else {
-          // Handle case where response is successful but no video data
-          console.error('API response has no video data:', response);
-          throw new Error('Nenhum dado de vídeo disponível');
-        }
+        console.error('Response structure:', {
+          success: response.success,
+          hasData: !!response.data,
+          hasVideo: !!(response.data && response.data.video),
+          dataKeys: response.data ? Object.keys(response.data) : 'no data'
+        });
+        throw new Error('Nenhum dado de vídeo disponível');
       }
     } catch (err) {
       console.error('Error fetching video:', err);
