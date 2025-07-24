@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 PRODUCTION DEBUG - Cross-Domain Embed Test</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .debug-section {
+            background: #2a2a2a;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .cross-domain-section {
+            background: #2a1a2a;
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .iframe-container {
+            background: #333;
+            border: 2px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #666;
+        }
+        .logs {
+            background: #000;
+            color: #0ff;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: scroll;
+            white-space: pre-wrap;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff6b6b; }
+        .warning { color: #ffff00; }
+        .info { color: #00bfff; }
+        .cross-domain { color: #ff00ff; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: monospace;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.cross-domain {
+            background: #ff00ff;
+        }
+        button.cross-domain:hover {
+            background: #cc00cc;
+        }
+        .url-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #333;
+            color: #fff;
+            border: 1px solid #666;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #00ff00; }
+        .status-error { background: #ff6b6b; }
+        .status-cross-domain { background: #ff00ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 PRODUCTION DEBUG - Cross-Domain Embed Test</h1>
+        <p class="info">FOCUS: Testing cross-domain embedding. The root cause is domain differences!</p>
+        
+        <div class="cross-domain-section">
+            <h2>🌐 1. Cross-Domain Detection</h2>
+            <div id="crossDomainInfo" class="logs"></div>
+            <button class="cross-domain" onclick="analyzeCrossDomain()">🔍 Analyze Cross-Domain Context</button>
+        </div>
+        
+        <div class="debug-section">
+            <h2>🎯 2. URL Configuration</h2>
+            <label>Production Embed URL:</label>
+            <input type="text" id="embedUrl" class="url-input" 
+                   placeholder="https://your-production-domain.com/embed/VIDEO_ID" 
+                   value="">
+            <br>
+            <label>Local/Dev Embed URL (para comparação):</label>
+            <input type="text" id="devUrl" class="url-input" 
+                   placeholder="http://localhost:3000/embed/VIDEO_ID" 
+                   value="http://localhost:3000/embed/05379784-3b0d-411e-9d04-73d48ea1aa28">
+            <br>
+            <button onclick="updateIframe()">🔄 Update Embed</button>
+            <button onclick="clearCache()">🧹 Clear Cache</button>
+            <button onclick="testDirectAccess()">🔗 Test Direct Access</button>
+            <button class="cross-domain" onclick="testCrossDomainHeaders()">🌐 Test Cross-Domain Headers</button>
+        </div>
+
+        <div class="debug-section">
+            <h2>📊 3. Environment Detection</h2>
+            <div id="environmentInfo" class="logs"></div>
+        </div>
+
+        <div class="cross-domain-section">
+            <h2>🌐 4. Cross-Domain Headers Test</h2>
+            <button onclick="testHeaders()">🔍 Test Standard Headers</button>
+            <button class="cross-domain" onclick="testCrossDomainHeaders()">🔍 Test Cross-Domain Headers</button>
+            <div id="headersResult" class="logs"></div>
+        </div>
+
+        <div class="iframe-container">
+            <h2>🖼️ 5. Production Cross-Domain Embed Test</h2>
+            <div id="embedStatus">
+                <p><span class="status-indicator status-error"></span>Waiting for test...</p>
+            </div>
+            <iframe id="embedFrame" src="" title="Production Cross-Domain Embed Test"></iframe>
+        </div>
+
+        <div class="debug-section">
+            <h2>📝 6. Debug Logs</h2>
+            <button onclick="clearLogs()">🧹 Clear Logs</button>
+            <div id="debugLogs" class="logs">Aguardando testes...\n</div>
+        </div>
+
+        <div class="cross-domain-section">
+            <h2>🆘 7. Cross-Domain Troubleshooting</h2>
+            <div class="info">
+                <p><strong>🎯 CROSS-DOMAIN SPECIFIC CHECKS:</strong></p>
+                <ol>
+                    <li>🌐 Verify this page is served from different domain than embed</li>
+                    <li>🔍 Check for `X-Cross-Domain-Bypass: true` header</li>
+                    <li>📊 Confirm `referer` header shows different domain</li>
+                    <li>🎬 Ensure iframe loads without Clerk redirects</li>
+                    <li>🔧 Test with production and development URLs</li>
+                </ol>
+                
+                <p><strong>🌐 CROSS-DOMAIN SUCCESS INDICATORS:</strong></p>
+                <ul>
+                    <li>✅ `X-Cross-Domain-Bypass: true` in headers</li>
+                    <li>✅ `Access-Control-Allow-Origin: *` header present</li>
+                    <li>✅ No redirects to `clerk.accounts.dev`</li>
+                    <li>✅ Video player loads and works in iframe</li>
+                    <li>✅ Console shows cross-domain detection logs</li>
+                </ul>
+                
+                <p><strong>🚨 CROSS-DOMAIN FAILURE INDICATORS:</strong></p>
+                <ul>
+                    <li>❌ Missing `X-Cross-Domain-Bypass` header</li>
+                    <li>❌ "Redirecionamento em excesso" error</li>
+                    <li>❌ CORS errors in browser console</li>
+                    <li>❌ Blank iframe or infinite loading</li>
+                    <li>❌ Clerk authentication redirects</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            logCount++;
+            const timestamp = new Date().toISOString();
+            const logDiv = document.getElementById('debugLogs');
+            const colorClass = type === 'error' ? 'error' : 
+                              type === 'success' ? 'success' : 
+                              type === 'warning' ? 'warning' : 
+                              type === 'cross-domain' ? 'cross-domain' : 'info';
+            
+            logDiv.innerHTML += `<span class="${colorClass}">[${timestamp}] ${logCount}: ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            // Also log to browser console
+            console.log(`🚨 PRODUCTION DEBUG [${logCount}]:`, message);
+        }
+        
+        function clearLogs() {
+            document.getElementById('debugLogs').innerHTML = 'Logs limpos...\n';
+            logCount = 0;
+        }
+        
+        function clearCache() {
+            log('🧹 Tentando limpar cache para cross-domain testing...', 'info');
+            
+            // Clear various storage
+            if (localStorage) {
+                localStorage.clear();
+                log('✅ localStorage limpo', 'success');
+            }
+            if (sessionStorage) {
+                sessionStorage.clear();
+                log('✅ sessionStorage limpo', 'success');
+            }
+            
+            // Clear service workers
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.unregister();
+                    });
+                    log('✅ Service workers limpos', 'success');
+                });
+            }
+            
+            // Force reload iframe with cache busting
+            const iframe = document.getElementById('embedFrame');
+            const currentSrc = iframe.src;
+            if (currentSrc) {
+                const separator = currentSrc.includes('?') ? '&' : '?';
+                iframe.src = currentSrc + separator + '_cache_bust=' + Date.now() + '&_cross_domain_test=1';
+                log('🔄 Iframe recarregado com cache-busting cross-domain', 'cross-domain');
+            }
+        }
+        
+        function updateIframe() {
+            const embedUrl = document.getElementById('embedUrl').value.trim();
+            const iframe = document.getElementById('embedFrame');
+            
+            if (!embedUrl) {
+                log('❌ Por favor, insira uma URL de embed', 'error');
+                updateEmbedStatus('error', 'No URL provided');
+                return;
+            }
+            
+            log(`🎯 Carregando cross-domain embed: ${embedUrl}`, 'cross-domain');
+            
+            // Add cross-domain test parameters
+            const separator = embedUrl.includes('?') ? '&' : '?';
+            const urlWithParams = embedUrl + separator + '_cross_domain_test=1&_test_=' + Date.now();
+            
+            iframe.src = urlWithParams;
+            updateEmbedStatus('loading', 'Loading cross-domain embed...');
+            
+            // Monitor iframe loading
+            iframe.onload = function() {
+                log('✅ Cross-domain iframe carregado com sucesso', 'success');
+                updateEmbedStatus('success', 'Cross-domain embed loaded successfully!');
+            };
+            
+            iframe.onerror = function() {
+                log('❌ Erro ao carregar cross-domain iframe', 'error');
+                updateEmbedStatus('error', 'Failed to load cross-domain embed');
+            };
+            
+            // Cross-domain detection timeout
+            setTimeout(() => {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!iframeDoc) {
+                        log('🌐 Cross-domain iframe confirmado (não é possível acessar conteúdo)', 'cross-domain');
+                    } else {
+                        log('⚠️ Same-domain iframe detectado', 'warning');
+                    }
+                } catch (e) {
+                    log('🌐 Cross-domain security barrier confirmado: ' + e.message, 'cross-domain');
+                }
+            }, 3000);
+        }
+        
+        function updateEmbedStatus(type, message) {
+            const statusDiv = document.getElementById('embedStatus');
+            const indicatorClass = type === 'success' ? 'status-success' : 
+                                  type === 'error' ? 'status-error' : 
+                                  'status-cross-domain';
+            
+            statusDiv.innerHTML = `<p><span class="status-indicator ${indicatorClass}"></span>${message}</p>`;
+        }
+        
+        async function testHeaders() {
+            const embedUrl = document.getElementById('embedUrl').value.trim();
+            
+            if (!embedUrl) {
+                log('❌ Por favor, insira uma URL de embed para testar headers', 'error');
+                return;
+            }
+            
+            log('🔍 Testando headers padrão...', 'info');
+            
+            try {
+                const response = await fetch(embedUrl, {
+                    method: 'HEAD',
+                    mode: 'cors'
+                });
+                
+                log(`📊 Status: ${response.status} ${response.statusText}`, 'info');
+                
+                // Log important headers
+                const importantHeaders = [
+                    'x-frame-options',
+                    'content-security-policy',
+                    'cache-control',
+                    'x-embed-bypass',
+                    'x-embed-version',
+                    'x-production-debug'
+                ];
+                
+                importantHeaders.forEach(headerName => {
+                    const value = response.headers.get(headerName);
+                    if (value) {
+                        log(`📋 ${headerName}: ${value}`, 'success');
+                    } else {
+                        log(`❌ ${headerName}: não encontrado`, 'warning');
+                    }
+                });
+                
+            } catch (error) {
+                log(`❌ Erro ao testar headers: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCrossDomainHeaders() {
+            const embedUrl = document.getElementById('embedUrl').value.trim();
+            
+            if (!embedUrl) {
+                log('❌ Por favor, insira uma URL de embed para testar headers cross-domain', 'error');
+                return;
+            }
+            
+            log('🌐 Testando headers CROSS-DOMAIN específicos...', 'cross-domain');
+            
+            try {
+                const response = await fetch(embedUrl, {
+                    method: 'HEAD',
+                    mode: 'cors',
+                    headers: {
+                        'X-Cross-Domain-Test': 'true'
+                    }
+                });
+                
+                log(`📊 Cross-Domain Status: ${response.status} ${response.statusText}`, 'cross-domain');
+                
+                // Log cross-domain specific headers
+                const crossDomainHeaders = [
+                    'x-cross-domain-bypass',
+                    'x-cross-domain-ready',
+                    'x-embed-host',
+                    'x-embed-referer',
+                    'access-control-allow-origin',
+                    'access-control-allow-credentials',
+                    'vary'
+                ];
+                
+                let crossDomainReady = true;
+                crossDomainHeaders.forEach(headerName => {
+                    const value = response.headers.get(headerName);
+                    if (value) {
+                        log(`🌐 ${headerName}: ${value}`, 'cross-domain');
+                    } else {
+                        log(`❌ ${headerName}: MISSING (critical for cross-domain)`, 'error');
+                        if (headerName === 'x-cross-domain-bypass') {
+                            crossDomainReady = false;
+                        }
+                    }
+                });
+                
+                if (crossDomainReady) {
+                    log('✅ Cross-domain headers estão configurados corretamente!', 'success');
+                } else {
+                    log('❌ Cross-domain headers estão FALTANDO - embed pode falhar', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Erro ao testar headers cross-domain: ${error.message}`, 'error');
+            }
+        }
+        
+        function testDirectAccess() {
+            const embedUrl = document.getElementById('embedUrl').value.trim();
+            
+            if (!embedUrl) {
+                log('❌ Por favor, insira uma URL de embed', 'error');
+                return;
+            }
+            
+            log('🔗 Abrindo acesso direto cross-domain em nova aba...', 'cross-domain');
+            window.open(embedUrl + '?_direct_test=1', '_blank');
+        }
+        
+        function analyzeCrossDomain() {
+            log('🌐 Analisando contexto cross-domain...', 'cross-domain');
+            
+            const currentHost = window.location.host;
+            const currentProtocol = window.location.protocol;
+            const inIframe = window.self !== window.top;
+            
+            let parentDomain = 'N/A';
+            let isCrossDomain = false;
+            
+            if (inIframe) {
+                try {
+                    parentDomain = window.parent.location.host;
+                    isCrossDomain = parentDomain !== currentHost;
+                } catch (e) {
+                    parentDomain = 'Cross-domain (access blocked)';
+                    isCrossDomain = true;
+                }
+            }
+            
+            const crossDomainInfo = `
+🌐 CROSS-DOMAIN ANALYSIS:
+Current Host: ${currentHost}
+Current Protocol: ${currentProtocol}
+In Iframe: ${inIframe ? 'Yes' : 'No'}
+Parent Domain: ${parentDomain}
+Is Cross-Domain: ${isCrossDomain ? 'YES' : 'No'}
+Perfect for Testing: ${isCrossDomain ? 'YES ✅' : 'No ⚠️'}
+
+🔍 For TRUE cross-domain testing:
+- Serve this page from different domain
+- Or test embed in external website
+- Look for blocked parent access error
+            `;
+            
+            document.getElementById('crossDomainInfo').textContent = crossDomainInfo;
+            
+            if (isCrossDomain) {
+                log('🎯 PERFEITO! Contexto cross-domain detectado - ideal para testes', 'success');
+            } else {
+                log('⚠️ Same-domain detectado - para verdadeiro teste cross-domain, use domínio diferente', 'warning');
+            }
+        }
+        
+        // Environment detection
+        function detectEnvironment() {
+            const envInfo = {
+                userAgent: navigator.userAgent,
+                protocol: window.location.protocol,
+                host: window.location.host,
+                isIframe: window !== window.top,
+                cookiesEnabled: navigator.cookieEnabled,
+                language: navigator.language,
+                referrer: document.referrer || 'none',
+                timestamp: new Date().toISOString()
+            };
+            
+            document.getElementById('environmentInfo').innerHTML = 
+                Object.entries(envInfo)
+                    .map(([key, value]) => `<span class="info">${key}: ${value}</span>`)
+                    .join('\n');
+            
+            log('🌍 Environment detectado', 'info');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            detectEnvironment();
+            analyzeCrossDomain();
+            log('🚀 PRODUCTION DEBUG carregado - FOCUS: Cross-Domain', 'success');
+            
+            // Listen for messages from iframe
+            window.addEventListener('message', function(event) {
+                log(`📨 Cross-domain message: ${JSON.stringify(event.data)}`, 'cross-domain');
+            });
+        });
+    </script>
+</body>
+</html> 
