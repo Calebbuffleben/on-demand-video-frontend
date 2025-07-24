@@ -18,11 +18,66 @@ const isPublicRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
+  const host = req.headers.get('host') || '';
+  const referer = req.headers.get('referer') || '';
+  const origin = req.headers.get('origin') || '';
   const userAgent = req.headers.get('user-agent') || '';
-  const isInIframe = req.headers.get('sec-fetch-dest') === 'iframe' || 
-                     req.headers.get('sec-fetch-mode') === 'navigate';
   
-  // BYPASS IMMEDIATELY for API embed routes
+  // 🎯 CROSS-DOMAIN DETECTION
+  const isCrossDomain = referer && !referer.includes(host);
+  const isIframeRequest = req.headers.get('sec-fetch-dest') === 'iframe' || 
+                         req.headers.get('sec-fetch-mode') === 'navigate';
+  const isEmbedRequest = isEmbedRoute(pathname);
+  
+  // 🚨 ULTRA DEBUG for cross-domain issues
+  console.log('🌐 CROSS-DOMAIN DEBUG:', {
+    pathname,
+    host,
+    referer: referer.substring(0, 100),
+    origin,
+    isCrossDomain,
+    isIframeRequest,
+    isEmbedRequest,
+    secFetchSite: req.headers.get('sec-fetch-site'),
+    secFetchMode: req.headers.get('sec-fetch-mode'),
+    secFetchDest: req.headers.get('sec-fetch-dest'),
+  });
+  
+  // 🎯 IMMEDIATE BYPASS for embed routes OR cross-domain iframe requests
+  if (isEmbedRequest || (isCrossDomain && isIframeRequest)) {
+    console.log('🚀 CROSS-DOMAIN EMBED BYPASS:', {
+      reason: isEmbedRequest ? 'embed-route' : 'cross-domain-iframe',
+      pathname,
+      referer: referer.substring(0, 50),
+      host
+    });
+    
+    const response = NextResponse.next();
+    
+    // 🌐 CROSS-DOMAIN HEADERS - Ultra permissive
+    response.headers.set('X-Frame-Options', 'ALLOWALL');
+    response.headers.set('Content-Security-Policy', 'frame-ancestors *; default-src * data: blob:; script-src * \'unsafe-inline\' \'unsafe-eval\'; style-src * \'unsafe-inline\';');
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
+    response.headers.set('Access-Control-Allow-Headers', '*');
+    response.headers.set('Access-Control-Allow-Credentials', 'false'); // Important for cross-domain
+    
+    // 🔄 ANTI-CACHE headers to prevent domain-specific caching issues
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('Vary', 'Origin, Referer');
+    
+    // 🏷️ DEBUG headers
+    response.headers.set('X-Cross-Domain-Bypass', 'true');
+    response.headers.set('X-Embed-Host', host);
+    response.headers.set('X-Embed-Referer', referer.substring(0, 100));
+    response.headers.set('X-Embed-Version', '4.0-CROSS-DOMAIN');
+    
+    return response;
+  }
+
+  // BYPASS for API embed routes
   if (pathname.startsWith('/api/embed/')) {
     console.log('🎯 API EMBED BYPASS for:', pathname);
     const response = NextResponse.next();
@@ -30,52 +85,6 @@ export default clerkMiddleware(async (auth, req) => {
     response.headers.set('Content-Security-Policy', 'frame-ancestors *;');
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('X-API-Embed-Bypass', 'true');
-    return response;
-  }
-  
-  // AGGRESSIVE DEBUG LOGGING for non-API routes
-  console.log('🔥 MIDDLEWARE DEBUG:', {
-    pathname,
-    isEmbedRoute: isEmbedRoute(pathname),
-    isInIframe,
-    userAgent: userAgent.substring(0, 50) + '...',
-    isAPI: pathname.startsWith('/api/'),
-  });
-  
-  // FORCE BYPASS for ANY embed route - MOST AGGRESSIVE APPROACH
-  if (isEmbedRoute(pathname)) {
-    console.log('🚀 FORCING EMBED BYPASS for:', pathname);
-    
-    const response = NextResponse.next();
-    
-    // ULTRA AGGRESSIVE HEADERS for iframe compatibility and cache busting
-    response.headers.delete('X-Frame-Options'); // Remove any existing
-    response.headers.set('X-Frame-Options', 'ALLOWALL');
-    response.headers.set('Content-Security-Policy', 'frame-ancestors *; default-src *; script-src * \'unsafe-inline\' \'unsafe-eval\'; style-src * \'unsafe-inline\';');
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('Referrer-Policy', 'no-referrer-when-downgrade');
-    
-    // ULTRA AGGRESSIVE ANTI-CACHE headers
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate, no-transform, private, max-age=0');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
-    response.headers.set('Surrogate-Control', 'no-store');
-    response.headers.set('Vary', '*');
-    response.headers.set('Last-Modified', new Date().toUTCString());
-    response.headers.set('ETag', `"${Date.now()}"`);
-    
-    // FORCE REVALIDATION
-    response.headers.set('X-Accel-Expires', '0');
-    response.headers.set('X-Served-By', 'embed-middleware');
-    response.headers.set('X-Cache-Status', 'BYPASS');
-    response.headers.set('X-Timestamp', Date.now().toString());
-    
-    // Custom header to indicate this is an embed bypass
-    response.headers.set('X-Embed-Bypass', 'true');
-    response.headers.set('X-Embed-Version', '2.0');
-    
-    console.log('✅ EMBED BYPASS APPLIED with headers:', Object.fromEntries(response.headers.entries()));
-    
     return response;
   }
 
@@ -88,14 +97,15 @@ export default clerkMiddleware(async (auth, req) => {
   // For all other routes, require authentication
   console.log('🔒 PROTECTED ROUTE, applying auth:', pathname);
   await auth.protect();
+  
   return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    // Include API routes but they will be bypassed above if they are embed routes
-    "/((?!.+\\.[\\w]+$|_next|favicon.ico).*)",
-    "/",
-    "/(api|trpc)(.*)",
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
   ],
 };
