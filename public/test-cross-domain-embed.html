@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 CROSS-DOMAIN EMBED TEST</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #1a1a2e;
+            color: #eee;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #16213e;
+            border: 2px solid #0f3460;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .embed-container {
+            background: #0f3460;
+            border: 2px solid #e94560;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 2px solid #e94560;
+            border-radius: 8px;
+            background: #000;
+        }
+        .logs {
+            background: #000;
+            color: #00ff41;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: scroll;
+            white-space: pre-wrap;
+            border: 1px solid #333;
+        }
+        .success { color: #00ff41; font-weight: bold; }
+        .error { color: #ff3838; font-weight: bold; }
+        .warning { color: #ffd700; font-weight: bold; }
+        .info { color: #00bfff; }
+        button {
+            background: linear-gradient(45deg, #e94560, #0f3460);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: monospace;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        .url-input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            background: #16213e;
+            color: #eee;
+            border: 2px solid #0f3460;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .url-input:focus {
+            border-color: #e94560;
+            outline: none;
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+        }
+        .domain-info {
+            background: #e94560;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #00ff41; }
+        .status-error { background: #ff3838; }
+        .status-warning { background: #ffd700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 CROSS-DOMAIN EMBED TEST</h1>
+        <p class="info">Esta página simula um domínio diferente testando o embed. Abra esta página através de um servidor local diferente para testar cross-domain.</p>
+        
+        <div class="domain-info">
+            🌍 Current Domain: <span id="currentDomain"></span><br>
+            🎯 Test Purpose: Simular embed em domínio externo
+        </div>
+        
+        <div class="test-section">
+            <h2>🎯 1. Cross-Domain Configuration</h2>
+            <label>Embed URL (domínio de produção):</label>
+            <input type="text" id="embedUrl" class="url-input" 
+                   placeholder="https://your-production-domain.com/embed/VIDEO_ID">
+            <br>
+            <label>Fallback URL (desenvolvimento):</label>
+            <input type="text" id="devUrl" class="url-input" 
+                   value="http://localhost:3000/embed/05379784-3b0d-411e-9d04-73d48ea1aa28">
+            <br>
+            <button onclick="loadEmbed()">🚀 Load Cross-Domain Embed</button>
+            <button onclick="loadDev()">🔧 Load Dev Embed</button>
+            <button onclick="clearCache()">🧹 Clear Cache</button>
+            <button onclick="testHeaders()">🔍 Test Headers</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 2. Domain Analysis</h2>
+            <div id="domainAnalysis" class="logs"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🌐 3. Cross-Domain Status</h2>
+            <div id="crossDomainStatus">
+                <p><span class="status-indicator status-warning"></span><strong>Testing in progress...</strong></p>
+            </div>
+        </div>
+
+        <div class="embed-container">
+            <h2>🖼️ 4. Cross-Domain Iframe Test</h2>
+            <p><strong>Expecting:</strong> Video loads without "Redirecionamento em excesso" error</p>
+            <iframe id="embedFrame" src="" title="Cross-Domain Embed Test"></iframe>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 5. Test Logs</h2>
+            <button onclick="clearLogs()">🧹 Clear Logs</button>
+            <div id="testLogs" class="logs">🌐 Cross-domain embed test initialized...\n</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🆘 6. Expected Results</h2>
+            <div class="info">
+                <h3>✅ SUCCESS Indicators:</h3>
+                <ul>
+                    <li>🎯 Iframe loads without redirect errors</li>
+                    <li>🌐 Headers show "X-Cross-Domain-Bypass: true"</li>
+                    <li>🎬 Video player appears and functions</li>
+                    <li>📊 Console shows cross-domain detection logs</li>
+                </ul>
+                
+                <h3>❌ FAILURE Indicators:</h3>
+                <ul>
+                    <li>🚨 "Redirecionamento em excesso" error</li>
+                    <li>🔐 Redirect to clerk.accounts.dev</li>
+                    <li>⚪ Blank iframe or loading forever</li>
+                    <li>🚫 CORS or security errors in console</li>
+                </ul>
+                
+                <h3>🛠️ Troubleshooting:</h3>
+                <ul>
+                    <li>🔑 Check if Clerk domain restrictions are applied</li>
+                    <li>🌐 Verify CORS headers in network tab</li>
+                    <li>🏗️ Ensure production build includes all middleware changes</li>
+                    <li>📱 Test from different server/domain to confirm cross-domain</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            logCount++;
+            const timestamp = new Date().toISOString();
+            const logDiv = document.getElementById('testLogs');
+            const colorClass = type === 'error' ? 'error' : 
+                              type === 'success' ? 'success' : 
+                              type === 'warning' ? 'warning' : 'info';
+            
+            logDiv.innerHTML += `<span class="${colorClass}">[${timestamp}] ${logCount}: ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            console.log(`🌐 CROSS-DOMAIN TEST [${logCount}]:`, message);
+        }
+        
+        function clearLogs() {
+            document.getElementById('testLogs').innerHTML = '🌐 Logs cleared...\n';
+            logCount = 0;
+        }
+        
+        function clearCache() {
+            log('🧹 Clearing all caches...', 'info');
+            
+            // Clear storage
+            if (localStorage) {
+                localStorage.clear();
+                log('✅ localStorage cleared', 'success');
+            }
+            if (sessionStorage) {
+                sessionStorage.clear();
+                log('✅ sessionStorage cleared', 'success');
+            }
+            
+            // Clear service workers
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.unregister();
+                    });
+                    log('✅ Service workers cleared', 'success');
+                });
+            }
+            
+            // Force reload iframe with new cache-busting
+            const iframe = document.getElementById('embedFrame');
+            if (iframe.src) {
+                const url = new URL(iframe.src);
+                url.searchParams.set('_cb', Date.now());
+                url.searchParams.set('_cross_domain_test', '1');
+                iframe.src = url.toString();
+                log('🔄 Iframe reloaded with cache-busting', 'info');
+            }
+        }
+        
+        function loadEmbed() {
+            const embedUrl = document.getElementById('embedUrl').value.trim();
+            
+            if (!embedUrl) {
+                log('❌ Please enter a production embed URL', 'error');
+                return;
+            }
+            
+            log(`🎯 Loading cross-domain embed: ${embedUrl}`, 'info');
+            loadIframe(embedUrl, 'production');
+        }
+        
+        function loadDev() {
+            const devUrl = document.getElementById('devUrl').value.trim();
+            log(`🔧 Loading development embed: ${devUrl}`, 'info');
+            loadIframe(devUrl, 'development');
+        }
+        
+        function loadIframe(url, type) {
+            const iframe = document.getElementById('embedFrame');
+            
+            // Add cross-domain test parameters
+            const testUrl = new URL(url);
+            testUrl.searchParams.set('_cross_domain_test', '1');
+            testUrl.searchParams.set('_test_type', type);
+            testUrl.searchParams.set('_timestamp', Date.now());
+            
+            iframe.src = testUrl.toString();
+            
+            // Monitor iframe events
+            iframe.onload = function() {
+                log(`✅ ${type} iframe loaded successfully`, 'success');
+                updateCrossDomainStatus(true);
+            };
+            
+            iframe.onerror = function() {
+                log(`❌ ${type} iframe failed to load`, 'error');
+                updateCrossDomainStatus(false);
+            };
+            
+            // Timeout check
+            setTimeout(() => {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!iframeDoc) {
+                        log('🌐 Cross-domain iframe confirmed (cannot access content)', 'success');
+                    } else {
+                        log('⚠️ Same-domain iframe (can access content)', 'warning');
+                    }
+                } catch (e) {
+                    log('🌐 Cross-domain security barrier confirmed', 'success');
+                }
+            }, 3000);
+        }
+        
+        async function testHeaders() {
+            const embedUrl = document.getElementById('embedUrl').value.trim() || 
+                            document.getElementById('devUrl').value.trim();
+            
+            if (!embedUrl) {
+                log('❌ Please enter an embed URL to test headers', 'error');
+                return;
+            }
+            
+            log('🔍 Testing cross-domain headers...', 'info');
+            
+            try {
+                const response = await fetch(embedUrl, {
+                    method: 'HEAD',
+                    mode: 'cors'
+                });
+                
+                log(`📊 Status: ${response.status} ${response.statusText}`, 'info');
+                
+                // Check cross-domain specific headers
+                const crossDomainHeaders = [
+                    'x-frame-options',
+                    'content-security-policy',
+                    'access-control-allow-origin',
+                    'x-cross-domain-bypass',
+                    'x-embed-version',
+                    'x-cross-domain-ready'
+                ];
+                
+                let crossDomainReady = true;
+                crossDomainHeaders.forEach(headerName => {
+                    const value = response.headers.get(headerName);
+                    if (value) {
+                        log(`📋 ${headerName}: ${value}`, 'success');
+                    } else {
+                        log(`❌ ${headerName}: missing`, 'warning');
+                        if (headerName === 'x-cross-domain-bypass') {
+                            crossDomainReady = false;
+                        }
+                    }
+                });
+                
+                updateCrossDomainStatus(crossDomainReady);
+                
+            } catch (error) {
+                log(`❌ Headers test failed: ${error.message}`, 'error');
+                updateCrossDomainStatus(false);
+            }
+        }
+        
+        function updateCrossDomainStatus(isReady) {
+            const statusDiv = document.getElementById('crossDomainStatus');
+            
+            if (isReady) {
+                statusDiv.innerHTML = `
+                    <p><span class="status-indicator status-success"></span><strong>✅ Cross-Domain Ready!</strong></p>
+                    <p>Headers are configured for cross-domain embedding.</p>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <p><span class="status-indicator status-error"></span><strong>❌ Cross-Domain Issues Detected</strong></p>
+                    <p>Headers may not be properly configured for cross-domain embedding.</p>
+                `;
+            }
+        }
+        
+        function analyzeDomains() {
+            const currentHost = window.location.host;
+            const currentProtocol = window.location.protocol;
+            const isLocalhost = currentHost.includes('localhost') || currentHost.includes('127.0.0.1');
+            const inIframe = window.self !== window.top;
+            
+            let parentDomain = 'N/A';
+            let crossDomain = false;
+            
+            if (inIframe) {
+                try {
+                    parentDomain = window.parent.location.host;
+                    crossDomain = parentDomain !== currentHost;
+                } catch (e) {
+                    parentDomain = 'Cross-domain (blocked)';
+                    crossDomain = true;
+                }
+            }
+            
+            const analysis = `
+Current Domain: ${currentProtocol}//${currentHost}
+Is Localhost: ${isLocalhost ? 'Yes' : 'No'}
+In Iframe: ${inIframe ? 'Yes' : 'No'}
+Parent Domain: ${parentDomain}
+Cross-Domain: ${crossDomain ? 'Yes' : 'No'}
+User Agent: ${navigator.userAgent.substring(0, 100)}...
+Cookies Enabled: ${navigator.cookieEnabled ? 'Yes' : 'No'}
+Language: ${navigator.language}
+Timestamp: ${new Date().toISOString()}
+            `;
+            
+            document.getElementById('domainAnalysis').textContent = analysis;
+            document.getElementById('currentDomain').textContent = `${currentProtocol}//${currentHost}`;
+            
+            log('🌍 Domain analysis completed', 'info');
+            
+            return { currentHost, crossDomain, inIframe };
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const domainInfo = analyzeDomains();
+            log('🌐 Cross-domain test page loaded', 'success');
+            
+            if (domainInfo.crossDomain) {
+                log('🎯 Cross-domain context detected - perfect for testing!', 'success');
+            } else {
+                log('⚠️ Same-domain context - open this page from a different server for true cross-domain testing', 'warning');
+            }
+            
+            // Auto-populate with a default video ID if empty
+            const embedUrlInput = document.getElementById('embedUrl');
+            if (!embedUrlInput.value) {
+                // You can set a default production URL here
+                // embedUrlInput.value = 'https://your-production-domain.com/embed/05379784-3b0d-411e-9d04-73d48ea1aa28';
+            }
+        });
+    </script>
+</body>
+</html> 
