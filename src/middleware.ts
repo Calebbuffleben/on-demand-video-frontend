@@ -21,7 +21,7 @@ export default clerkMiddleware(async (auth, req) => {
   const host = req.headers.get('host') || '';
   const referer = req.headers.get('referer') || '';
   const origin = req.headers.get('origin') || '';
-  const userAgent = req.headers.get('user-agent') || '';
+
   
   // 🎯 CROSS-DOMAIN DETECTION
   const isCrossDomain = referer && !referer.includes(host);
