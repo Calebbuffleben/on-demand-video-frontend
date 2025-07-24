@@ -8,9 +8,37 @@ import { ClerkProvider } from "@clerk/nextjs";
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   
-  // Don't load Clerk for embed routes
+  // Completely isolate embed routes from Clerk
   if (router.pathname.includes('/embed/') || router.asPath.includes('/embed/')) {
-    return <Component {...pageProps} />;
+    return (
+      <>
+        <style jsx global>{`
+          /* Reset any global styles that might interfere with embed */
+          html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+          }
+          /* Completely disable any Clerk-related styles and elements */
+          [data-clerk], [class*="clerk"], [id*="clerk"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+          }
+          /* Prevent any Clerk scripts from loading */
+          script[src*="clerk"] {
+            display: none !important;
+          }
+          /* Hide any Clerk iframes */
+          iframe[src*="clerk"] {
+            display: none !important;
+          }
+        `}</style>
+        <Component {...pageProps} />
+      </>
+    );
   }
   
   return (

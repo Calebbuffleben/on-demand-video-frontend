@@ -32,6 +32,38 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: "frame-ancestors *;",
           },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type',
+          },
+          {
+            key: 'X-Clerk-Bypass',
+            value: 'true',
+          },
+          {
+            key: 'X-Embed-Route',
+            value: 'true',
+          },
         ],
       },
       {
@@ -46,9 +78,54 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: "frame-ancestors *;",
           },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type',
+          },
+          {
+            key: 'X-Clerk-Bypass',
+            value: 'true',
+          },
+          {
+            key: 'X-Embed-Route',
+            value: 'true',
+          },
         ],
       },
     ];
+  },
+
+  // Configure webpack to exclude Clerk from embed routes
+  webpack: (config, { isServer, dev }) => {
+    // Add a plugin to exclude Clerk from embed routes
+    if (!isServer) {
+      config.plugins.push(
+        new (require('webpack').DefinePlugin)({
+          'process.env.NEXT_PUBLIC_EMBED_ROUTE': JSON.stringify('true'),
+        })
+      );
+    }
+    return config;
   },
 };
 

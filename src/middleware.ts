@@ -16,9 +16,35 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Skip all processing for embed routes
+  // Completely bypass Clerk for embed routes
   if (req.nextUrl.pathname.includes('/embed/')) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    
+    // Add headers to allow iframe embedding from any domain
+    response.headers.set('X-Frame-Options', 'ALLOWALL');
+    response.headers.set('Content-Security-Policy', "frame-ancestors *;");
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    
+    // Remove ALL Clerk-related cookies for embed routes
+    response.cookies.delete('__session');
+    response.cookies.delete('__client_uat');
+    response.cookies.delete('__clerk_db_jwt');
+    response.cookies.delete('__clerk_session');
+    response.cookies.delete('__clerk_session_jwt');
+    response.cookies.delete('__clerk_session_jwt_payload');
+    response.cookies.delete('__clerk_session_jwt_signature');
+    response.cookies.delete('__clerk_session_jwt_header');
+    response.cookies.delete('__clerk_session_jwt_payload_signature');
+    response.cookies.delete('__clerk_session_jwt_payload_header');
+    response.cookies.delete('__clerk_session_jwt_payload_signature_header');
+    
+    // Add headers to prevent Clerk from interfering
+    response.headers.set('X-Clerk-Bypass', 'true');
+    response.headers.set('X-Embed-Route', 'true');
+    
+    return response;
   }
 
   // Allow other public routes

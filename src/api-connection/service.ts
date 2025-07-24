@@ -1,5 +1,14 @@
 import axios from "axios";
 
+// Create separate API instance for embed routes (no credentials)
+const embedApi = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    withCredentials: false // No credentials for embed routes
+});
+
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
     headers: {
@@ -179,4 +188,5 @@ api.interceptors.response.use(
     }
 );
 
+export { embedApi };
 export default api;

@@ -21,9 +21,23 @@ Document.getInitialProps = async (ctx: DocumentContext) => {
   
   if (isEmbedRoute) {
     // For embed routes, return minimal HTML without any Clerk initialization
+    let html = initialProps.html || '';
+    
+    // Remove any Clerk-related scripts
+    html = html.replace(/<script[^>]*clerk[^>]*><\/script>/gi, '');
+    html = html.replace(/<script[^>]*quick-chicken-4\.clerk\.accounts\.dev[^>]*><\/script>/gi, '');
+    html = html.replace(/<script[^>]*__clerk[^>]*><\/script>/gi, '');
+    
+    // Remove any Clerk-related meta tags
+    html = html.replace(/<meta[^>]*clerk[^>]*>/gi, '');
+    
+    // Remove any Clerk-related links
+    html = html.replace(/<link[^>]*clerk[^>]*>/gi, '');
+    
     return {
       ...initialProps,
       styles: null, // Remove any global styles that might include Clerk
+      html: html,
     };
   }
   

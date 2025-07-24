@@ -5,20 +5,27 @@ import Head from 'next/head';
 import MuxVideoPlayer from '../../components/Video/MuxVideoPlayer';
 import { VideoData } from '../../api-connection/videos';
 
-// Direct API call without using the global service that might have Clerk interceptors
+// Direct fetch without any Clerk dependencies
 const fetchVideoForEmbed = async (videoId: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/videos/embed/${videoId}`, {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+  const response = await fetch(`${backendUrl}/videos/embed/${videoId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'omit', // No credentials for embed
   });
   
   if (!response.ok) {
-    throw new Error('Failed to fetch video');
+    throw new Error(`Failed to fetch video: ${response.status}`);
   }
   
-  return response.json();
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error('Failed to fetch video data');
+  }
+  
+  return data;
 };
 
 export default function VideoEmbedPage() {
@@ -45,7 +52,8 @@ export default function VideoEmbedPage() {
       } else {
         throw new Error('Nenhum dado de vídeo disponível');
       }
-    } catch {
+    } catch (error) {
+      console.error('Error fetching video:', error);
       setError('Falha ao carregar vídeo');
     } finally {
       setLoading(false);
@@ -58,8 +66,23 @@ export default function VideoEmbedPage() {
         <title>{`${videoData?.meta?.name || 'Reprodutor de Vídeo'}`}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex" />
+        <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />
+        <meta httpEquiv="Content-Security-Policy" content="frame-ancestors *;" />
         <style>{`
-          body { margin: 0; padding: 0; overflow: hidden; background-color: #000; }
+          body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            background-color: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          }
+          * {
+            box-sizing: border-box;
+          }
+          /* Hide any Clerk elements that might appear */
+          [data-clerk], [class*="clerk"], [id*="clerk"] {
+            display: none !important;
+          }
         `}</style>
       </Head>
 
