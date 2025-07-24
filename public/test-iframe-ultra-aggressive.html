@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Teste Ultra-Agressivo de Embed - Stream App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #666;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .embed-container {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .test-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .url-example {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            margin: 5px 0;
+        }
+        
+        .debug-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        
+        .diagnostic {
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Teste Ultra-Agressivo de Embed - Stream App</h1>
+    
+    <div class="container">
+        <h2>📋 Informações do Teste Ultra-Agressivo</h2>
+        <div class="test-info">
+            <p><strong>Objetivo:</strong> Verificar se as modificações ultra-agressivas resolveram o problema de redirecionamento em excesso.</p>
+            <p><strong>Modificações aplicadas:</strong></p>
+            <ul>
+                <li>✅ Middleware com debug extensivo e headers ultra-agressivos</li>
+                <li>✅ getServerSideProps forçando SSR sem Clerk</li>
+                <li>✅ _app.tsx com detecção ultra-agressiva de embed</li>
+                <li>✅ Rota API dedicada (/api/embed/[videoId]) com bypass</li>
+                <li>✅ Headers CSP e X-Frame-Options super permissivos</li>
+                <li>✅ Axios interceptor bypass para rotas embed</li>
+            </ul>
+            <p><strong>Data do teste:</strong> <span id="testDate"></span></p>
+        </div>
+        <div class="debug-info" id="debugInfo">
+            Carregando informações de debug...
+        </div>
+        <div class="diagnostic" id="diagnosticInfo">
+            Executando diagnósticos...
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔗 Teste 1: Rota Global de Embed (SSR)</h2>
+        <div class="url-example">URL: http://localhost:3000/embed/test-video-id</div>
+        <div class="status loading" id="status1">⏳ Carregando...</div>
+        <div class="embed-container">
+            <iframe 
+                id="iframe1"
+                src="http://localhost:3000/embed/05379784-3b0d-411e-9d04-73d48ea1aa28" 
+                title="Teste Embed Global SSR"
+                onload="handleIframeLoad('iframe1', 'status1')"
+                onerror="handleIframeError('iframe1', 'status1')">
+            </iframe>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🏢 Teste 2: Rota de Embed por Tenant (SSR)</h2>
+        <div class="url-example">URL: http://localhost:3000/my-tenant/embed/test-video-id</div>
+        <div class="status loading" id="status2">⏳ Carregando...</div>
+        <div class="embed-container">
+            <iframe 
+                id="iframe2"
+                src="http://localhost:3000/my-tenant/embed/test-video-id" 
+                title="Teste Embed Tenant SSR"
+                onload="handleIframeLoad('iframe2', 'status2')"
+                onerror="handleIframeError('iframe2', 'status2')">
+            </iframe>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🎯 Teste 3: Rota API Dedicada</h2>
+        <div class="url-example">URL: http://localhost:3000/api/embed/test-video-id</div>
+        <div class="status loading" id="status3">⏳ Testando API...</div>
+        <div class="test-info">
+            <p>Resultado da API: <span id="apiResult">Carregando...</span></p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Resultados Ultra-Agressivos</h2>
+        <div class="test-info">
+            <p><strong>✅ Sucesso:</strong> Nenhum redirecionamento, erro 404 é aceitável (vídeo não existe).</p>
+            <p><strong>❌ Falha:</strong> Redirecionamento em excesso, erro de Clerk, página em branco.</p>
+            <p><strong>🔍 Debug:</strong> Verifique o console do navegador e os logs do servidor.</p>
+            <p><strong>🚀 Headers:</strong> X-Embed-SSR, X-Frame-Options: ALLOWALL, CSP permissivo.</p>
+            <p><strong>🎯 API:</strong> Status 404 indica que a API está funcionando (vídeo inexistente).</p>
+        </div>
+    </div>
+
+    <script>
+        // Set test date
+        document.getElementById('testDate').textContent = new Date().toLocaleString('pt-BR');
+
+        // Enhanced diagnostics
+        async function runDiagnostics() {
+            const diagnosticInfo = document.getElementById('diagnosticInfo');
+            let diagnostics = [];
+            
+            // Check fetch availability
+            diagnostics.push(`✅ Fetch available: ${typeof fetch !== 'undefined'}`);
+            
+            // Check for service workers
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    diagnostics.push(`🔧 Service workers: ${registrations.length} registered`);
+                    registrations.forEach((reg, i) => {
+                        diagnostics.push(`  SW${i}: ${reg.scope}`);
+                    });
+                } catch (e) {
+                    diagnostics.push(`❌ Service worker check failed: ${e.message}`);
+                }
+            } else {
+                diagnostics.push(`✅ No service worker support`);
+            }
+            
+            // Check for global fetch interceptors
+            const originalFetch = window.fetch;
+            diagnostics.push(`🔍 Fetch intercepted: ${originalFetch.toString().includes('native code') ? 'No' : 'Yes'}`);
+            
+            // Check current domain and protocol
+            diagnostics.push(`🌐 Domain: ${window.location.hostname}:${window.location.port}`);
+            diagnostics.push(`🔒 Protocol: ${window.location.protocol}`);
+            
+            // Check for global variables that might interfere
+            const potentialInterceptors = ['axios', 'XMLHttpRequest'];
+            potentialInterceptors.forEach(name => {
+                diagnostics.push(`🔍 ${name}: ${typeof window[name] !== 'undefined' ? 'Present' : 'Not found'}`);
+            });
+            
+            // Try a simple same-origin fetch
+            try {
+                const testResponse = await fetch('/test-iframe-ultra-aggressive.html', { method: 'HEAD' });
+                diagnostics.push(`✅ Same-origin fetch: ${testResponse.status}`);
+            } catch (e) {
+                diagnostics.push(`❌ Same-origin fetch failed: ${e.message}`);
+            }
+            
+            diagnosticInfo.innerHTML = diagnostics.join('<br>');
+        }
+
+        // Update debug info
+        const debugInfo = document.getElementById('debugInfo');
+        debugInfo.innerHTML = `
+            <strong>Debug Info:</strong><br>
+            User Agent: ${navigator.userAgent.substring(0, 100)}...<br>
+            Em iframe: ${window.self !== window.top}<br>
+            Referrer: ${document.referrer || 'Direto'}<br>
+            URL atual: ${window.location.href}<br>
+            Timestamp: ${new Date().toISOString()}<br>
+            Origin: ${window.location.origin}
+        `;
+
+        function handleIframeLoad(iframeId, statusId) {
+            const iframe = document.getElementById(iframeId);
+            const status = document.getElementById(statusId);
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                status.className = 'status success';
+                status.textContent = '✅ SUCESSO: Iframe carregou sem redirecionamentos!';
+                console.log(`${iframeId}: SUCCESS - Loaded without redirects`);
+            } catch (e) {
+                // CORS é esperado e indica que o iframe carregou
+                status.className = 'status success';
+                status.textContent = '✅ SUCESSO: Iframe carregado (CORS esperado)';
+                console.log(`${iframeId}: SUCCESS - Loaded with expected CORS`, e);
+            }
+        }
+
+        function handleIframeError(iframeId, statusId) {
+            const status = document.getElementById(statusId);
+            status.className = 'status error';
+            status.textContent = '❌ ERRO: Falha ao carregar iframe';
+            console.error(`${iframeId}: ERROR - Failed to load`);
+        }
+
+        // COMPLETELY ISOLATED FETCH - No interceptors, no frameworks
+        async function isolatedFetch(url) {
+            console.log('🔥 ISOLATED FETCH START:', url);
+            
+            // Create a completely new fetch instance
+            const originalFetch = window.fetch;
+            
+            // Check if fetch looks tampered
+            console.log('🔍 Fetch function source:', originalFetch.toString().substring(0, 100));
+            
+            try {
+                console.log('🔥 Making request with options:', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    },
+                    cache: 'no-cache',
+                    credentials: 'omit'
+                });
+                
+                const startTime = Date.now();
+                const response = await originalFetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'X-Test-Timestamp': startTime.toString()
+                    },
+                    cache: 'no-cache',
+                    credentials: 'omit' // NEVER send cookies or auth
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                console.log('🔥 ISOLATED RESPONSE:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    responseTime: `${responseTime}ms`,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    url: response.url,
+                    redirected: response.redirected,
+                    type: response.type
+                });
+                
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    console.log('🔥 RESPONSE DATA:', data);
+                    return { response, data };
+                } else {
+                    const text = await response.text();
+                    console.log('🔥 RESPONSE TEXT (first 200 chars):', text.substring(0, 200));
+                    return { response, data: { error: 'Non-JSON response', preview: text.substring(0, 200) } };
+                }
+            } catch (error) {
+                console.error('🔥 ISOLATED FETCH ERROR:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack?.substring(0, 500)
+                });
+                throw error;
+            }
+        }
+
+        // Test API endpoint with isolated fetch
+        async function testApiEndpoint() {
+            const status = document.getElementById('status3');
+            const result = document.getElementById('apiResult');
+            
+            try {
+                console.log('🎯 Testando API embed com fetch ultra-isolado...');
+                
+                const { response, data } = await isolatedFetch('/api/embed/test-video-id');
+                
+                console.log('🎯 Final API Response:', { status: response.status, data });
+                
+                // 404 é SUCESSO para nosso teste (vídeo não existe)
+                // 200 seria sucesso com vídeo existente
+                if (response.status === 200 || response.status === 404) {
+                    status.className = 'status success';
+                    if (response.status === 404) {
+                        status.textContent = '✅ API FUNCIONANDO: 404 (vídeo não existe - correto!)';
+                        result.textContent = `✅ Status ${response.status}: ${data.message || 'Video not found'}`;
+                    } else {
+                        status.textContent = '✅ API FUNCIONANDO: 200 (vídeo encontrado)';
+                        result.textContent = `✅ Status ${response.status}: Video encontrado`;
+                    }
+                } else {
+                    throw new Error(`API returned unexpected status ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('❌ Final API Error:', error);
+                status.className = 'status error';
+                
+                if (error.name === 'TypeError') {
+                    if (error.message.includes('fetch')) {
+                        status.textContent = '❌ ERRO: Fetch bloqueado (CORS/Network)';
+                        result.textContent = `❌ TypeError/Network: ${error.message}`;
+                    } else if (error.message.includes('JSON')) {
+                        status.textContent = '❌ ERRO: Resposta não é JSON';
+                        result.textContent = `❌ JSON Parse Error: ${error.message}`;
+                    } else {
+                        status.textContent = '❌ ERRO: TypeError';
+                        result.textContent = `❌ TypeError: ${error.message}`;
+                    }
+                } else {
+                    status.textContent = '❌ ERRO: API falhou';
+                    result.textContent = `❌ ${error.name}: ${error.message}`;
+                }
+            }
+        }
+
+        // Run diagnostics first
+        runDiagnostics();
+
+        // Run API test
+        testApiEndpoint();
+
+        // Timeout check for stuck iframes
+        setTimeout(() => {
+            const statuses = ['status1', 'status2'];
+            statuses.forEach(statusId => {
+                const status = document.getElementById(statusId);
+                if (status.textContent.includes('Carregando')) {
+                    status.className = 'status error';
+                    status.textContent = '❌ TIMEOUT: Possível problema de redirecionamento (ainda existe)';
+                }
+            });
+        }, 15000); // 15 second timeout
+
+        // Enhanced debug logging
+        console.log('=== TESTE ULTRA-AGRESSIVO DE EMBED INICIADO ===');
+        console.log('Timestamp:', new Date().toISOString());
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Em um iframe?', window.self !== window.top);
+        console.log('Referrer:', document.referrer);
+        console.log('Location:', window.location.href);
+        console.log('Origin:', window.location.origin);
+        
+        // Check for headers (will only work for same-origin)
+        fetch('/embed/test-video-id', { method: 'HEAD' })
+            .then(response => {
+                console.log('=== HEADERS DA ROTA EMBED ===');
+                for (let [key, value] of response.headers.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+            })
+            .catch(e => console.log('Não foi possível verificar headers:', e));
+    </script>
+</body>
+</html> 

@@ -21,8 +21,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Apply to new embed routes
-        source: '/embed/:videoId',
+        // Apply to global embed routes
+        source: '/embed/:videoId*',
         headers: [
           {
             key: 'X-Frame-Options',
@@ -31,12 +31,24 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Security-Policy',
             value: "frame-ancestors *;",
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
           },
         ],
       },
       {
-        // Apply to legacy embed routes for backward compatibility
-        source: '/:orgId/embed/:videoId',
+        // Apply to tenant-specific embed routes
+        source: '/:tenantId/embed/:videoId*',
         headers: [
           {
             key: 'X-Frame-Options',
@@ -45,6 +57,18 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Security-Policy',
             value: "frame-ancestors *;",
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
           },
         ],
       },
