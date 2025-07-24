@@ -48,21 +48,31 @@ export default clerkMiddleware(async (auth, req) => {
     
     const response = NextResponse.next();
     
-    // SUPER AGGRESSIVE HEADERS for iframe compatibility
+    // ULTRA AGGRESSIVE HEADERS for iframe compatibility and cache busting
     response.headers.delete('X-Frame-Options'); // Remove any existing
     response.headers.set('X-Frame-Options', 'ALLOWALL');
     response.headers.set('Content-Security-Policy', 'frame-ancestors *; default-src *; script-src * \'unsafe-inline\' \'unsafe-eval\'; style-src * \'unsafe-inline\';');
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'no-referrer-when-downgrade');
     
-    // ANTI-CLERK headers
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate');
+    // ULTRA AGGRESSIVE ANTI-CACHE headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate, no-transform, private, max-age=0');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
     response.headers.set('Surrogate-Control', 'no-store');
+    response.headers.set('Vary', '*');
+    response.headers.set('Last-Modified', new Date().toUTCString());
+    response.headers.set('ETag', `"${Date.now()}"`);
+    
+    // FORCE REVALIDATION
+    response.headers.set('X-Accel-Expires', '0');
+    response.headers.set('X-Served-By', 'embed-middleware');
+    response.headers.set('X-Cache-Status', 'BYPASS');
+    response.headers.set('X-Timestamp', Date.now().toString());
     
     // Custom header to indicate this is an embed bypass
     response.headers.set('X-Embed-Bypass', 'true');
+    response.headers.set('X-Embed-Version', '2.0');
     
     console.log('✅ EMBED BYPASS APPLIED with headers:', Object.fromEntries(response.headers.entries()));
     

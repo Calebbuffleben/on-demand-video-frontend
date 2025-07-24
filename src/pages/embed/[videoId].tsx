@@ -69,7 +69,7 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
   return (
     <>
       <Head>
-        <title>{`${videoData?.meta?.name || 'Video Player'}`}</title>
+        <title>{videoData?.meta?.name || 'Video Player'}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex" />
         <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />

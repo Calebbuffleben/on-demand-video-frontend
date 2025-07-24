@@ -76,7 +76,6 @@ export default function MuxVideoPlayer({
   soundControlText,
 }: MuxVideoPlayerProps) {
   const playerRef = useRef<MuxPlayerRef>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(muted);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -85,22 +84,15 @@ export default function MuxVideoPlayer({
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInIframe, setIsInIframe] = useState(false);
-  const [hlsSupported, setHlsSupported] = useState(false);
 
-  // Detect iframe context (ULTRA SAFE MODE for embeds)
+  // Detect iframe context for safer analytics-enabled mode
   useEffect(() => {
     const inIframe = window.self !== window.top;
     const isEmbedPath = window.location.pathname.includes('/embed/');
     setIsInIframe(inIframe || isEmbedPath);
     
-    // Check native HLS support
-    const video = document.createElement('video');
-    const hlsNativeSupport = video.canPlayType('application/vnd.apple.mpegurl') !== '';
-    setHlsSupported(hlsNativeSupport);
-    
     if (inIframe || isEmbedPath) {
-      console.log('🛡️ IFRAME/EMBED DETECTED - Using safe player mode');
-      console.log('🎵 HLS Native Support:', hlsNativeSupport);
+      console.log('🎯 IFRAME/EMBED DETECTED - Using safe MuxPlayer with analytics');
     }
   }, []);
 
@@ -114,66 +106,6 @@ export default function MuxVideoPlayer({
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
 
-  // Setup HLS.js for non-Safari browsers in iframe
-  useEffect(() => {
-    if (isInIframe && videoRef.current && src.hls && !hlsSupported) {
-      const loadHLS = async () => {
-        try {
-          // Dynamically import hls.js
-          const Hls = (await import('hls.js')).default;
-          
-          if (Hls.isSupported()) {
-            const hls = new Hls({
-              enableWorker: false, // Disable worker for iframe safety
-              maxBufferLength: 30,
-              maxMaxBufferLength: 600,
-            });
-            
-            hls.loadSource(src.hls);
-            hls.attachMedia(videoRef.current!);
-            
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-              console.log('🎵 HLS manifest loaded successfully');
-              setHasError(false);
-            });
-            
-            hls.on(Hls.Events.ERROR, (event, data) => {
-              console.error('🎵 HLS error:', data);
-              if (data.fatal) {
-                setHasError(true);
-                setErrorMessage('Failed to load video stream');
-              }
-            });
-            
-            // Cleanup
-            return () => {
-              hls.destroy();
-            };
-          } else {
-            console.warn('🎵 HLS.js not supported, falling back to native');
-            setHasError(true);
-            setErrorMessage('Video format not supported in this browser');
-          }
-        } catch (error) {
-          console.error('🎵 Failed to load HLS.js:', error);
-          // Fallback to direct HLS if available
-          if (videoRef.current && hlsSupported) {
-            videoRef.current.src = src.hls;
-          } else {
-            setHasError(true);
-            setErrorMessage('Video streaming not supported');
-          }
-        }
-      };
-      
-      loadHLS();
-    } else if (isInIframe && videoRef.current && src.hls && hlsSupported) {
-      // Safari and other browsers with native HLS support
-      videoRef.current.src = src.hls;
-      console.log('🎵 Using native HLS support');
-    }
-  }, [isInIframe, src.hls, hlsSupported]);
-
   // Apply custom styles after component mounts
   useEffect(() => {
     console.log('Applying Mux Player customizations:', {
@@ -185,7 +117,7 @@ export default function MuxVideoPlayer({
       isInIframe
     });
     
-    if (playerRef.current && !isInIframe) {
+    if (playerRef.current) {
       const player = playerRef.current;
       
       // Apply control visibility - show controls if useOriginalProgressBar is true OR showControls is true
@@ -263,29 +195,14 @@ export default function MuxVideoPlayer({
     );
   }
 
-  // Handle time updates for HTML5 video
-  const handleTimeUpdateHTML5 = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const target = e.target as HTMLVideoElement;
-    const newTime = target.currentTime;
-    setCurrentTime(newTime);
-    setDuration(target.duration);
-    // Simple CTA visibility check
-    if (showCta && ctaText && ctaButtonText && ctaLink && typeof ctaStartTime === 'number' && typeof ctaEndTime === 'number') {
-      const shouldShow = newTime >= ctaStartTime && newTime <= ctaEndTime;
-      setIsCtaVisible(shouldShow);
-    } else {
-      setIsCtaVisible(false);
-    }
-  };
-
   // Handle time updates for Mux Player
   const handleTimeUpdate = (e: Event) => {
     const target = e.target as HTMLVideoElement;
     const newTime = target.currentTime;
     setCurrentTime(newTime);
     setDuration(target.duration);
-    // Simple CTA visibility check
-    if (showCta && ctaText && ctaButtonText && ctaLink && typeof ctaStartTime === 'number' && typeof ctaEndTime === 'number') {
+    // Simple CTA visibility check - disabled in iframe for safety
+    if (!isInIframe && showCta && ctaText && ctaButtonText && ctaLink && typeof ctaStartTime === 'number' && typeof ctaEndTime === 'number') {
       const shouldShow = newTime >= ctaStartTime && newTime <= ctaEndTime;
       setIsCtaVisible(shouldShow);
     } else {
@@ -321,88 +238,38 @@ export default function MuxVideoPlayer({
   // Calculate the visual progress percentage
   const visualProgress = calculateProgress(currentTime, duration, progressEasing);
 
-  // SAFE MODE: For iframe/embed context, use enhanced HTML5 video with HLS support
-  if (isInIframe) {
-    return (
-      <div className={`relative w-full h-full ${className}`} style={{ width: '100%', height: '100%' }}>
-        {/* Title overlay */}
-        {title && (
-          <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-4 z-10 w-full">
-            <h3 className="text-white text-sm font-medium truncate">{title}</h3>
-          </div>
-        )}
-        
-        {/* Error overlay */}
-        {hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20 w-full h-full">
-            <div className="bg-white p-4 rounded-lg shadow-lg text-center max-w-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <p className="text-red-600 font-medium text-sm">{errorMessage}</p>
-              <button
-                className="mt-3 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition"
-                onClick={() => {
-                  setHasError(false);
-                  if (videoRef.current) {
-                    videoRef.current.load();
-                  }
-                }}
-              >
-                Tentar Novamente
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {/* ENHANCED HTML5 VIDEO with HLS.js support */}
-        <video
-          ref={videoRef}
-          controls={showControls}
-          autoPlay={autoPlay}
-          muted={isMuted}
-          loop={loop}
-          poster={poster}
-          onTimeUpdate={handleTimeUpdateHTML5}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onError={(e) => {
-            console.error('🛡️ SAFE VIDEO ERROR:', e);
-            setHasError(true);
-            setErrorMessage('Error loading video stream');
-          }}
-          onLoadedData={() => {
-            console.log('🛡️ SAFE VIDEO: Data loaded successfully');
-            setHasError(false);
-          }}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            backgroundColor: '#000'
-          }}
-          className="absolute inset-0"
-          crossOrigin="anonymous"
-          playsInline
-        >
-          {/* Fallback sources for browsers that support them */}
-          {hlsSupported && <source src={src.hls} type="application/vnd.apple.mpegurl" />}
-          {src.dash && <source src={src.dash} type="application/dash+xml" />}
-          <p className="text-white text-center p-4">
-            Your browser does not support the video tag. 
-            <a href={src.hls} className="text-blue-400 underline ml-1" target="_blank" rel="noopener noreferrer">
-              Open video in new tab
-            </a>
-          </p>
-        </video>
-        
-        {/* Debug info for safe mode */}
-        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs p-2 z-40 rounded">
-          🛡️ SAFE: {hlsSupported ? 'Native HLS' : 'HLS.js'}
-        </div>
-      </div>
-    );
-  }
+  // Generate safe metadata for iframe context
+  const generateSafeMetadata = () => {
+    const baseMetadata = {
+      video_id: playbackId,
+      video_title: title || 'Untitled Video',
+      player_name: 'Mux Player',
+      env_key: process.env.NEXT_PUBLIC_MUX_ENV_KEY,
+    };
+
+    if (isInIframe) {
+      // Add iframe-specific metadata for analytics
+      return {
+        ...baseMetadata,
+        embed_context: 'iframe',
+        embed_url: typeof window !== 'undefined' ? window.location.href : '',
+        referrer: typeof document !== 'undefined' ? document.referrer : '',
+        viewer_user_id: 'embed_anonymous',
+        page_type: 'embed',
+        // Disable potentially problematic features
+        disable_tracking: false,        // Keep analytics enabled
+        disable_cookies: true,          // Disable cookies for privacy
+      };
+    }
+
+    return {
+      ...baseMetadata,
+      viewer_user_id: 'anonymous',
+      page_type: 'normal',
+    };
+  };
+
+  const safeMetadata = generateSafeMetadata();
 
   return (
     <div className={`relative w-full h-full ${className}`} style={{ width: '100%', height: '100%' }}>
@@ -431,7 +298,7 @@ export default function MuxVideoPlayer({
           </div>
         </div>
       )}
-      {/* Mux Player */}
+      {/* Mux Player - ALWAYS ENABLED WITH SAFE CONFIG */}
       <div className="absolute inset-0 w-full h-full">
         {/* Custom CSS for Mux Player */}
         <style jsx>{`
@@ -473,15 +340,9 @@ export default function MuxVideoPlayer({
           streamType="on-demand"
           playbackId={playbackId}
           metadataVideoTitle={title}
-          metadataViewerUserId="anonymous"
+          metadataViewerUserId={safeMetadata.viewer_user_id}
           envKey={process.env.NEXT_PUBLIC_MUX_ENV_KEY}
-          metadata={{
-            video_id: playbackId,
-            video_title: title || 'Untitled Video',
-            player_name: 'Mux Player',
-            viewer_user_id: 'anonymous',
-            env_key: process.env.NEXT_PUBLIC_MUX_ENV_KEY,
-          }}
+          metadata={safeMetadata}
           autoPlay={autoPlay}
           muted={isMuted}
           loop={loop}
@@ -489,6 +350,19 @@ export default function MuxVideoPlayer({
           onTimeUpdate={handleTimeUpdate}
           onPlay={handlePlay}
           onPause={handlePause}
+          // IFRAME SAFETY CONFIGURATIONS
+          {...(isInIframe && {
+            // Disable features that might cause redirects in iframe
+            disableTracking: false,        // Keep analytics enabled
+            disableCookies: true,          // Disable cookies for privacy
+            targetBlankLinks: false,       // Disable target="_blank" links
+            primaryColor: progressBarColor, // Set brand color
+            accent: progressBarColor,      // Set accent color
+            // Additional iframe safety props
+            debug: false,                  // Disable debug mode
+            startTime: 0,                  // Always start from beginning
+            preload: 'metadata',           // Conservative preload
+          })}
           style={{
             width: '100%',
             height: '100%',
@@ -573,8 +447,8 @@ export default function MuxVideoPlayer({
             />
           </div>
         )}
-        {/* CTA Overlay */}
-        {isCtaVisible && ctaText && ctaButtonText && ctaLink && (
+        {/* CTA Overlay - DISABLED IN IFRAME for safety */}
+        {!isInIframe && isCtaVisible && ctaText && ctaButtonText && ctaLink && (
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 rounded-lg shadow-lg px-6 py-4 flex flex-col items-center z-30 max-w-full w-[90%] md:w-auto">
             <div className="text-lg font-semibold text-gray-900 mb-2 text-center break-words">
               {ctaText}
@@ -595,6 +469,8 @@ export default function MuxVideoPlayer({
           <div className="absolute top-0 right-0 bg-black/70 text-white text-xs p-2 z-40">
             <div>Playback ID: {playbackId}</div>
             <div>Title: {title || 'Untitled'}</div>
+            <div>Mode: {isInIframe ? '🛡️ Safe Iframe' : '🎥 Normal'}</div>
+            <div>Analytics: {isInIframe ? '✅ Enabled (Safe)' : '✅ Enabled'}</div>
             <div>Time: {currentTime.toFixed(1)}s / {duration.toFixed(1)}s</div>
             <div>Actual Progress: {duration > 0 ? ((currentTime / duration) * 100).toFixed(1) : '0'}%</div>
             <div>Visual Progress: {(visualProgress * 100).toFixed(1)}%</div>
