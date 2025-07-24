@@ -61,7 +61,7 @@ export function isInIframe(): boolean {
   
   try {
     return window.self !== window.top;
-  } catch (e) {
+  } catch {
     // If we can't access window.top due to cross-origin restrictions,
     // we're likely in an iframe
     return true;
