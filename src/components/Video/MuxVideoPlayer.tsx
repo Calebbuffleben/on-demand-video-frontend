@@ -83,6 +83,18 @@ export default function MuxVideoPlayer({
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isInIframe, setIsInIframe] = useState(false);
+
+  // Detect iframe context for safer analytics-enabled mode
+  useEffect(() => {
+    const inIframe = window.self !== window.top;
+    const isEmbedPath = window.location.pathname.includes('/embed/');
+    setIsInIframe(inIframe || isEmbedPath);
+    
+    if (inIframe || isEmbedPath) {
+      console.log('🎯 IFRAME/EMBED DETECTED - Using safe MuxPlayer with analytics');
+    }
+  }, []);
 
   // Reset error state when src changes
   useEffect(() => {
@@ -101,7 +113,8 @@ export default function MuxVideoPlayer({
       useOriginalProgressBar,
       playButtonColor,
       playButtonSize,
-      playButtonBgColor
+      playButtonBgColor,
+      isInIframe
     });
     
     if (playerRef.current) {
@@ -144,7 +157,7 @@ export default function MuxVideoPlayer({
         }
       }, 100); // Small delay to ensure Mux Player has rendered
     }
-  }, [showControls, useOriginalProgressBar, playButtonColor, playButtonSize, playButtonBgColor]);
+  }, [showControls, useOriginalProgressBar, playButtonColor, playButtonSize, playButtonBgColor, isInIframe]);
 
   // Extract the playback ID from the HLS URL
   const getPlaybackId = (url: string) => {
@@ -182,14 +195,14 @@ export default function MuxVideoPlayer({
     );
   }
 
-  // Handle time updates
+  // Handle time updates for Mux Player
   const handleTimeUpdate = (e: Event) => {
     const target = e.target as HTMLVideoElement;
     const newTime = target.currentTime;
     setCurrentTime(newTime);
     setDuration(target.duration);
-    // Simple CTA visibility check
-    if (showCta && ctaText && ctaButtonText && ctaLink && typeof ctaStartTime === 'number' && typeof ctaEndTime === 'number') {
+    // Simple CTA visibility check - disabled in iframe for safety
+    if (!isInIframe && showCta && ctaText && ctaButtonText && ctaLink && typeof ctaStartTime === 'number' && typeof ctaEndTime === 'number') {
       const shouldShow = newTime >= ctaStartTime && newTime <= ctaEndTime;
       setIsCtaVisible(shouldShow);
     } else {
@@ -225,6 +238,39 @@ export default function MuxVideoPlayer({
   // Calculate the visual progress percentage
   const visualProgress = calculateProgress(currentTime, duration, progressEasing);
 
+  // Generate safe metadata for iframe context
+  const generateSafeMetadata = () => {
+    const baseMetadata = {
+      video_id: playbackId,
+      video_title: title || 'Untitled Video',
+      player_name: 'Mux Player',
+      env_key: process.env.NEXT_PUBLIC_MUX_ENV_KEY,
+    };
+
+    if (isInIframe) {
+      // Add iframe-specific metadata for analytics
+      return {
+        ...baseMetadata,
+        embed_context: 'iframe',
+        embed_url: typeof window !== 'undefined' ? window.location.href : '',
+        referrer: typeof document !== 'undefined' ? document.referrer : '',
+        viewer_user_id: 'embed_anonymous',
+        page_type: 'embed',
+        // Disable potentially problematic features
+        disable_tracking: false,        // Keep analytics enabled
+        disable_cookies: true,          // Disable cookies for privacy
+      };
+    }
+
+    return {
+      ...baseMetadata,
+      viewer_user_id: 'anonymous',
+      page_type: 'normal',
+    };
+  };
+
+  const safeMetadata = generateSafeMetadata();
+
   return (
     <div className={`relative w-full h-full ${className}`} style={{ width: '100%', height: '100%' }}>
       {/* Title overlay */}
@@ -252,7 +298,7 @@ export default function MuxVideoPlayer({
           </div>
         </div>
       )}
-      {/* Mux Player */}
+      {/* Mux Player - ALWAYS ENABLED WITH SAFE CONFIG */}
       <div className="absolute inset-0 w-full h-full">
         {/* Custom CSS for Mux Player */}
         <style jsx>{`
@@ -294,15 +340,9 @@ export default function MuxVideoPlayer({
           streamType="on-demand"
           playbackId={playbackId}
           metadataVideoTitle={title}
-          metadataViewerUserId="anonymous"
+          metadataViewerUserId={safeMetadata.viewer_user_id}
           envKey={process.env.NEXT_PUBLIC_MUX_ENV_KEY}
-          metadata={{
-            video_id: playbackId,
-            video_title: title || 'Untitled Video',
-            player_name: 'Mux Player',
-            viewer_user_id: 'anonymous',
-            env_key: process.env.NEXT_PUBLIC_MUX_ENV_KEY,
-          }}
+          metadata={safeMetadata}
           autoPlay={autoPlay}
           muted={isMuted}
           loop={loop}
@@ -310,6 +350,19 @@ export default function MuxVideoPlayer({
           onTimeUpdate={handleTimeUpdate}
           onPlay={handlePlay}
           onPause={handlePause}
+          // IFRAME SAFETY CONFIGURATIONS
+          {...(isInIframe && {
+            // Disable features that might cause redirects in iframe
+            disableTracking: false,        // Keep analytics enabled
+            disableCookies: true,          // Disable cookies for privacy
+            targetBlankLinks: false,       // Disable target="_blank" links
+            primaryColor: progressBarColor, // Set brand color
+            accent: progressBarColor,      // Set accent color
+            // Additional iframe safety props
+            debug: false,                  // Disable debug mode
+            startTime: 0,                  // Always start from beginning
+            preload: 'metadata',           // Conservative preload
+          })}
           style={{
             width: '100%',
             height: '100%',
@@ -325,115 +378,111 @@ export default function MuxVideoPlayer({
         />
         {/* Custom Progress Bar */}
         {!useOriginalProgressBar && !hideProgress && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gray-800/30 h-2 group/progress w-full">
-            <div
-              className="h-full relative group"
-              style={{
-                width: `${visualProgress * 100}%`,
-                backgroundColor: progressBarColor,
-              }}
-            >
-              {/* Progress Bar Handle */}
+          <div className="absolute bottom-0 left-0 right-0 z-40 p-4">
+            <div className="w-full bg-gray-600 bg-opacity-50 rounded-full h-2">
               <div
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-white shadow-lg"
-                style={{ backgroundColor: progressBarColor }}
+                className="h-2 rounded-full transition-all duration-300"
+                style={{
+                  width: `${visualProgress * 100}%`,
+                  backgroundColor: progressBarColor,
+                }}
               />
             </div>
-            {/* Hover effect for the entire progress bar */}
-            <div className="absolute inset-0 h-4 -top-1 cursor-pointer hover:h-6 transition-all duration-200" />
+          </div>
+        )}
+
+        {!isPlaying && !useOriginalProgressBar && (
+          <div 
+            className="absolute inset-0 flex items-center justify-center z-30 cursor-pointer"
+            onClick={() => {
+              if (playerRef.current) {
+                playerRef.current.play();
+              }
+            }}
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            }}
+          >
+            <div
+              className="rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
+              style={{
+                backgroundColor: playButtonBgColor,
+                width: `${playButtonSize}px`,
+                height: `${playButtonSize}px`,
+              }}
+              title={`Custom Play Button (${playButtonSize}px)`}
+            >
+              <svg
+                width={Math.max(playButtonSize * 0.4, 16)}
+                height={Math.max(playButtonSize * 0.4, 16)}
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ marginLeft: '2px' }}
+              >
+                <path
+                  d="M8 5v14l11-7z"
+                  fill={playButtonColor}
+                />
+              </svg>
+            </div>
+          </div>
+        )}
+        {/* Sound Control */}
+        {showSoundControl && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center justify-center">
+            <SoundControl
+              isMuted={isMuted}
+              onToggleMute={() => {
+                setIsMuted(!isMuted);
+                if (playerRef.current) {
+                  playerRef.current.muted = !isMuted;
+                }
+              }}
+              color={soundControlColor}
+              opacity={soundControlOpacity}
+              showControl={showSoundControl}
+              size={soundControlSize}
+              text={soundControlText}
+            />
+          </div>
+        )}
+        {/* CTA Overlay - DISABLED IN IFRAME for safety */}
+        {!isInIframe && isCtaVisible && ctaText && ctaButtonText && ctaLink && (
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 rounded-lg shadow-lg px-6 py-4 flex flex-col items-center z-30 max-w-full w-[90%] md:w-auto">
+            <div className="text-lg font-semibold text-gray-900 mb-2 text-center break-words">
+              {ctaText}
+            </div>
+            <a
+              href={ctaLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-4 py-2 bg-scale-900 text-white rounded hover:bg-scale-800 transition text-center"
+              style={{ wordBreak: 'break-word' }}
+            >
+              {ctaButtonText}
+            </a>
+          </div>
+        )}
+        {/* Technical Info */}
+        {showTechnicalInfo && (
+          <div className="absolute top-0 right-0 bg-black/70 text-white text-xs p-2 z-40">
+            <div>Playback ID: {playbackId}</div>
+            <div>Title: {title || 'Untitled'}</div>
+            <div>Mode: {isInIframe ? '🛡️ Safe Iframe' : '🎥 Normal'}</div>
+            <div>Analytics: {isInIframe ? '✅ Enabled (Safe)' : '✅ Enabled'}</div>
+            <div>Time: {currentTime.toFixed(1)}s / {duration.toFixed(1)}s</div>
+            <div>Actual Progress: {duration > 0 ? ((currentTime / duration) * 100).toFixed(1) : '0'}%</div>
+            <div>Visual Progress: {(visualProgress * 100).toFixed(1)}%</div>
+            <div>Progress Easing: {progressEasing}</div>
+            <div>Play Button Size: {playButtonSize}px</div>
+            <div>Play Button Color: {playButtonColor}</div>
+            <div>Show Controls: {showControls ? 'Yes' : 'No'}</div>
+            <div>Use Original Progress Bar: {useOriginalProgressBar ? 'Yes' : 'No'}</div>
+            <div>Is Playing: {isPlaying ? 'Yes' : 'No'}</div>
           </div>
         )}
       </div>
-      {/* Custom Play Button Overlay */}
-      {!isPlaying && !useOriginalProgressBar && (
-        <div 
-          className="absolute inset-0 flex items-center justify-center z-30 cursor-pointer"
-          onClick={() => {
-            if (playerRef.current) {
-              playerRef.current.play();
-            }
-          }}
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-          }}
-        >
-          <div
-            className="rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 shadow-lg"
-            style={{
-              backgroundColor: playButtonBgColor,
-              width: `${playButtonSize}px`,
-              height: `${playButtonSize}px`,
-            }}
-            title={`Custom Play Button (${playButtonSize}px)`}
-          >
-            <svg
-              width={Math.max(playButtonSize * 0.4, 16)}
-              height={Math.max(playButtonSize * 0.4, 16)}
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ marginLeft: '2px' }}
-            >
-              <path
-                d="M8 5v14l11-7z"
-                fill={playButtonColor}
-              />
-            </svg>
-          </div>
-        </div>
-      )}
-      {/* Sound Control */}
-      {showSoundControl && (
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center justify-center">
-          <SoundControl
-            isMuted={isMuted}
-            onToggleMute={() => {
-              setIsMuted(!isMuted);
-              if (playerRef.current) {
-                playerRef.current.muted = !isMuted;
-              }
-            }}
-            color={soundControlColor}
-            opacity={soundControlOpacity}
-            showControl={showSoundControl}
-            size={soundControlSize}
-            text={soundControlText}
-          />
-        </div>
-      )}
-      {/* CTA Overlay */}
-      {isCtaVisible && ctaText && ctaButtonText && ctaLink && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 rounded-lg shadow-lg px-6 py-4 flex flex-col items-center z-30 max-w-full w-[90%] md:w-auto">
-          <div className="text-lg font-semibold text-gray-900 mb-2 text-center break-words">
-            {ctaText}
-          </div>
-          <a
-            href={ctaLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block px-4 py-2 bg-scale-900 text-white rounded hover:bg-scale-800 transition text-center"
-            style={{ wordBreak: 'break-word' }}
-          >
-            {ctaButtonText}
-          </a>
-        </div>
-      )}
-      {/* Technical Info */}
-      {showTechnicalInfo && (
-        <div className="absolute top-0 right-0 bg-black/70 text-white text-xs p-2 z-40">
-          <div>Playback ID: {playbackId}</div>
-          <div>Title: {title || 'Untitled'}</div>
-          <div>Time: {currentTime.toFixed(1)}s / {duration.toFixed(1)}s</div>
-          <div>Actual Progress: {duration > 0 ? ((currentTime / duration) * 100).toFixed(1) : '0'}%</div>
-          <div>Visual Progress: {(visualProgress * 100).toFixed(1)}%</div>
-          <div>Progress Easing: {progressEasing}</div>
-          <div>Play Button Size: {playButtonSize}px</div>
-          <div>Play Button Color: {playButtonColor}</div>
-          <div>Show Controls: {showControls ? 'Yes' : 'No'}</div>
-          <div>Use Original Progress Bar: {useOriginalProgressBar ? 'Yes' : 'No'}</div>
-          <div>Is Playing: {isPlaying ? 'Yes' : 'No'}</div>
-        </div>
-      )}
     </div>
   );
 } 
