@@ -25,12 +25,11 @@ export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
   
   const embedUrls = {
     iframe: `<iframe 
-  src="${baseUrl}/${organization?.id || tenantId}/embed/${video.uid}" 
+  src="${baseUrl}/embed/${video.uid}" 
   width="640" 
   height="360" 
   frameborder="0" 
-  allow="autoplay; fullscreen" 
-  allowfullscreen>
+  allow="autoplay; fullscreen; picture-in-picture">
 </iframe>`,
     direct: getVideoWatchUrl(video.uid),
     hls: video.playback?.hls || 'HLS stream not available'
