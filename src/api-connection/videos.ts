@@ -124,9 +124,7 @@ export interface SoundControlUpdate {
 
 export interface EmbedVideoResponse {
   success: boolean;
-  data: {
-    video: VideoData;
-  };
+  result: VideoData;
 }
 
 const videoService = {

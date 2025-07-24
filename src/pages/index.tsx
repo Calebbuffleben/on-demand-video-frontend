@@ -97,11 +97,37 @@ export default function Home() {
     <div
       className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex flex-col bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800 relative overflow-x-hidden`}
     >
+      {/* NAVIGATION HEADER */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-scale-400 to-scale-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">S</span>
+            </div>
+            <span className="text-white font-bold text-xl">Scale</span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/pricing"
+              className="text-silver-200 hover:text-white transition-colors font-medium"
+            >
+              Planos
+            </Link>
+            <Link
+              href="/sign-in"
+              className="px-6 py-2 bg-gradient-to-r from-scale-600 to-scale-700 text-white font-semibold rounded-lg hover:from-scale-700 hover:to-scale-800 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              Entrar
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* PARTICLE BACKGROUND */}
       <ParticleBackground />
 
       {/* HERO CINEMATOGRÁFICO COM SVG, GLITCH E MASCOTE */}
-      <header ref={spotlightRef} className="w-full px-6 pt-24 pb-40 flex flex-col items-center justify-center text-center relative z-10 overflow-hidden spotlight-hero">
+      <header ref={spotlightRef} className="w-full px-6 pt-32 pb-40 flex flex-col items-center justify-center text-center relative z-10 overflow-hidden spotlight-hero">
         {/* SVG background waves */}
         <svg className="absolute left-0 top-0 w-full h-full -z-10" viewBox="0 0 1440 600" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0,400 Q360,500 720,400 T1440,400 V600 H0 Z" fill="#fff1" />

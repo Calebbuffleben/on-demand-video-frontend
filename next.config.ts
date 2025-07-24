@@ -21,7 +21,21 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Apply to all embed routes
+        // Apply to new embed routes
+        source: '/embed/:videoId',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'ALLOWALL',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors *;",
+          },
+        ],
+      },
+      {
+        // Apply to legacy embed routes for backward compatibility
         source: '/:orgId/embed/:videoId',
         headers: [
           {

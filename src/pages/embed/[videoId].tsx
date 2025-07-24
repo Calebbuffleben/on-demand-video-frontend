@@ -1,14 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import videoService, { EmbedVideoResponse } from '../../../api-connection/videos';
-import MuxVideoPlayer from '../../../components/Video/MuxVideoPlayer';
+import MuxVideoPlayer from '../../components/Video/MuxVideoPlayer';
+import { VideoData } from '../../api-connection/videos';
+
+// Direct API call without using the global service that might have Clerk interceptors
+const fetchVideoForEmbed = async (videoId: string) => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/videos/embed/${videoId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch video');
+  }
+  
+  return response.json();
+};
 
 export default function VideoEmbedPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [videoData, setVideoData] = useState<EmbedVideoResponse['result'] | null>(null);
-  
+  const [videoData, setVideoData] = useState<VideoData | null>(null);
+
   const router = useRouter();
   const { videoId } = router.query;
 
@@ -22,7 +38,7 @@ export default function VideoEmbedPage() {
     try {
       setLoading(true);
       setError(null);
-      const response: EmbedVideoResponse = await videoService.getVideoForEmbed(videoId);
+      const response = await fetchVideoForEmbed(videoId);
       if (response.success && response.result) {
         setVideoData(response.result);
       } else {
@@ -35,20 +51,14 @@ export default function VideoEmbedPage() {
     }
   };
 
-  // Use minimal styling for embed page
   return (
     <>
       <Head>
-        <title>{videoData?.meta?.name || 'Reprodutor de Vídeo'}</title>
+        <title>{`${videoData?.meta?.name || 'Reprodutor de Vídeo'}`}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex" />
         <style>{`
-          body { 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden;
-            background-color: #000;
-          }
+          body { margin: 0; padding: 0; overflow: hidden; background-color: #000; }
         `}</style>
       </Head>
 
@@ -59,7 +69,7 @@ export default function VideoEmbedPage() {
             <p className="text-sm">Carregando vídeo...</p>
           </div>
         )}
-        
+
         {error && (
           <div className="text-white text-center p-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -68,11 +78,11 @@ export default function VideoEmbedPage() {
             <p className="text-sm">{error}</p>
           </div>
         )}
-        
+
         <div className="w-full h-full flex items-center justify-center p-4">
           <div className="w-full max-w-[100vw] max-h-[100vh] aspect-video">
             {videoData && videoData.playback && videoData.playback.hls && (
-              <MuxVideoPlayer 
+              <MuxVideoPlayer
                 src={videoData.playback}
                 title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
                 autoPlay={videoData.meta?.displayOptions?.autoPlay}
@@ -91,7 +101,6 @@ export default function VideoEmbedPage() {
                 soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
                 soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
                 soundControlText={videoData.meta?.displayOptions?.soundControlText}
-                // poster removido
                 showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
                 showCta={!!videoData.ctaText}
                 ctaText={videoData.ctaText}
