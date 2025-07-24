@@ -11,6 +11,12 @@ const api = axios.create({
 // Add request interceptor to include Clerk token from localStorage
 api.interceptors.request.use(
     async (config) => {
+        // BYPASS COMPLETELY for embed API routes
+        if (config.url?.includes('/embed/') || config.url?.startsWith('/api/embed/')) {
+            console.log('🎯 AXIOS INTERCEPTOR: Bypassing embed route:', config.url);
+            return config;
+        }
+        
         if (typeof window === 'undefined') {
             // We're on the server, so don't attempt to use localStorage
             console.log('API request on server side - skipping auth token');
@@ -74,7 +80,10 @@ api.interceptors.request.use(
 // Add response interceptor to handle authentication errors
 api.interceptors.response.use(
     (response) => {
-        console.log(`API response from ${response.config.url}: Status ${response.status}`);
+        // BYPASS logging for embed routes to reduce noise
+        if (!response.config.url?.includes('/embed/')) {
+            console.log(`API response from ${response.config.url}: Status ${response.status}`);
+        }
         
         // Only attempt to use localStorage on the client
         if (typeof window !== 'undefined') {
@@ -97,6 +106,11 @@ api.interceptors.response.use(
         return response;
     },
     async (error) => {
+        // BYPASS error handling for embed routes
+        if (error.config?.url?.includes('/embed/')) {
+            return Promise.reject(error);
+        }
+        
         console.error('API error:', error?.response?.data || error.message);
         
         // Only attempt to use localStorage and event dispatching on the client

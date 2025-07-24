@@ -1,5 +1,6 @@
 import { Html, Head, Main, NextScript } from "next/document";
 import { DocumentContext } from "next/document";
+import { isEmbedRoute } from "@/lib/utils";
 
 export default function Document() {
   return (
@@ -16,11 +17,12 @@ export default function Document() {
 Document.getInitialProps = async (ctx: DocumentContext) => {
   const initialProps = await ctx.defaultGetInitialProps(ctx);
   
-  // Check if this is an embed route and prevent Clerk from loading
-  const isEmbedRoute = ctx.pathname?.startsWith('/embed/');
+  // Check if this is an embed route using our centralized detection function
+  const isEmbed = ctx.pathname ? isEmbedRoute(ctx.pathname) : false;
   
-  if (isEmbedRoute) {
+  if (isEmbed) {
     // For embed routes, return minimal HTML without any Clerk initialization
+    // This prevents any authentication-related redirects in iframe contexts
     return {
       ...initialProps,
       styles: null, // Remove any global styles that might include Clerk

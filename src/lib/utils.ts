@@ -27,4 +27,43 @@ export function formatDuration(seconds: number): string {
     return `${minutes}m ${remainingSeconds}s`;
   }
   return `${remainingSeconds}s`;
+}
+
+/**
+ * Checks if a given pathname or URL is an embed route
+ * Handles both global embed routes (/embed/[videoId]) and tenant-specific routes ([tenantId]/embed/[videoId])
+ */
+export function isEmbedRoute(pathname: string): boolean {
+  if (!pathname) return false;
+  
+  // Normalize the pathname by removing query params and hash
+  const cleanPath = pathname.split('?')[0].split('#')[0];
+  
+  // Check for global embed routes: /embed/[videoId]
+  if (cleanPath.startsWith('/embed/')) {
+    return true;
+  }
+  
+  // Check for tenant-specific embed routes: /[tenantId]/embed/[videoId]
+  const pathSegments = cleanPath.split('/').filter(Boolean);
+  if (pathSegments.length >= 3 && pathSegments[1] === 'embed') {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Checks if the current request is in an iframe context
+ */
+export function isInIframe(): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    // If we can't access window.top due to cross-origin restrictions,
+    // we're likely in an iframe
+    return true;
+  }
 } 

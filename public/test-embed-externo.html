@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 Site Externo - Teste Embed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .embed-section {
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 */
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            margin: 20px 0;
+        }
+        
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .loading { background: #ffd700; color: #333; }
+        .success { background: #4caf50; color: white; }
+        .error { background: #f44336; color: white; }
+        
+        .info-box {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4ecdc4;
+            margin: 20px 0;
+        }
+        
+        .code {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            border: 1px solid #444;
+            margin: 10px 0;
+        }
+        
+        button {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #45b7b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Site Externo Simulado</h1>
+            <p>Este arquivo simula um site externo tentando embeder o vídeo da Stream App</p>
+        </div>
+        
+        <div class="embed-section">
+            <h2>🎯 Teste de Embed Real</h2>
+            <p>Este teste simula exatamente como seria embeber o vídeo em um site externo:</p>
+            
+            <div class="status loading" id="embedStatus">
+                ⏳ Carregando embed...
+            </div>
+            
+            <div class="video-container" id="videoContainer">
+                <iframe 
+                    id="videoEmbed"
+                    src="http://localhost:3000/embed/05379784-3b0d-411e-9d04-73d48ea1aa28?t=nocache&v=1" 
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowfullscreen
+                    onload="handleEmbedLoad()"
+                    onerror="handleEmbedError()">
+                </iframe>
+            </div>
+            
+            <div class="info-box">
+                <h3>📋 Informações do Teste:</h3>
+                <div id="testInfo">Carregando...</div>
+            </div>
+        </div>
+        
+        <div class="embed-section">
+            <h2>🔧 Ferramentas de Debug</h2>
+            <button onclick="clearAllCache()">🧹 Limpar Cache</button>
+            <button onclick="reloadEmbed()">🔄 Recarregar Embed</button>
+            <button onclick="testDirectAccess()">🎯 Testar Acesso Direto</button>
+            <button onclick="showEmbedCode()">📝 Mostrar Código</button>
+            
+            <div id="debugOutput" class="code" style="display: none;">
+                <!-- Debug output will appear here -->
+            </div>
+        </div>
+        
+        <div class="embed-section" id="embedCodeSection" style="display: none;">
+            <h2>📝 Código do Embed</h2>
+            <div class="code">
+&lt;iframe 
+  src="http://localhost:3000/embed/05379784-3b0d-411e-9d04-73d48ea1aa28" 
+  width="640" 
+  height="360" 
+  frameborder="0" 
+  allow="autoplay; fullscreen; picture-in-picture"
+  allowfullscreen&gt;
+&lt;/iframe&gt;
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🌐 SITE EXTERNO SIMULADO INICIADO');
+        
+        let embedLoadTime = Date.now();
+        let embedTimeout;
+        
+        function updateTestInfo() {
+            const info = document.getElementById('testInfo');
+            info.innerHTML = `
+                <strong>URL do Embed:</strong> ${document.getElementById('videoEmbed').src}<br>
+                <strong>Timestamp:</strong> ${new Date().toISOString()}<br>
+                <strong>User Agent:</strong> ${navigator.userAgent.substring(0, 60)}...<br>
+                <strong>Referrer:</strong> ${document.referrer || 'Direto'}<br>
+                <strong>Origem:</strong> ${window.location.origin}<br>
+                <strong>Iframe Context:</strong> ${window.self !== window.top ? 'Sim' : 'Não'}
+            `;
+        }
+        
+        function handleEmbedLoad() {
+            const loadTime = Date.now() - embedLoadTime;
+            const status = document.getElementById('embedStatus');
+            
+            clearTimeout(embedTimeout);
+            
+            status.className = 'status success';
+            status.innerHTML = `
+                ✅ <strong>EMBED CARREGADO COM SUCESSO!</strong><br>
+                Tempo de carregamento: ${loadTime}ms<br>
+                Status: Funcionando perfeitamente
+            `;
+            
+            console.log('✅ Embed carregado com sucesso em', loadTime, 'ms');
+            updateTestInfo();
+        }
+        
+        function handleEmbedError() {
+            const status = document.getElementById('embedStatus');
+            clearTimeout(embedTimeout);
+            
+            status.className = 'status error';
+            status.innerHTML = `
+                ❌ <strong>ERRO NO EMBED!</strong><br>
+                O iframe falhou ao carregar<br>
+                Possível causa: Redirecionamento do Clerk
+            `;
+            
+            console.error('❌ Erro ao carregar embed');
+            updateTestInfo();
+        }
+        
+        function clearAllCache() {
+            const debugOutput = document.getElementById('debugOutput');
+            debugOutput.style.display = 'block';
+            debugOutput.innerHTML = `
+🧹 Limpando todos os caches...<br>
+1. Cache do navegador<br>
+2. Local Storage<br>
+3. Session Storage<br>
+4. Service Workers<br>
+            `;
+            
+            // Clear all storage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Unregister service workers
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => registration.unregister());
+                });
+            }
+            
+            console.log('🧹 Cache limpo');
+            
+            setTimeout(() => {
+                debugOutput.innerHTML += '<br>✅ Cache limpo! Recarregando...';
+                setTimeout(() => window.location.reload(), 1000);
+            }, 1000);
+        }
+        
+        function reloadEmbed() {
+            const iframe = document.getElementById('videoEmbed');
+            const status = document.getElementById('embedStatus');
+            
+            status.className = 'status loading';
+            status.innerHTML = '🔄 Recarregando embed...';
+            
+            embedLoadTime = Date.now();
+            
+            // Add cache-busting parameter
+            const url = new URL(iframe.src);
+            url.searchParams.set('reload', Date.now());
+            iframe.src = url.toString();
+            
+            console.log('🔄 Recarregando embed com URL:', iframe.src);
+        }
+        
+        function testDirectAccess() {
+            const embedUrl = 'http://localhost:3000/embed/05379784-3b0d-411e-9d04-73d48ea1aa28';
+            const debugOutput = document.getElementById('debugOutput');
+            debugOutput.style.display = 'block';
+            debugOutput.innerHTML = `
+🎯 Testando acesso direto...<br>
+URL: ${embedUrl}<br>
+Abrindo em nova aba...<br>
+            `;
+            
+            window.open(embedUrl, '_blank');
+            console.log('🎯 Testando acesso direto');
+        }
+        
+        function showEmbedCode() {
+            const section = document.getElementById('embedCodeSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Set timeout for embed loading
+        embedTimeout = setTimeout(() => {
+            const status = document.getElementById('embedStatus');
+            if (status.className.includes('loading')) {
+                handleEmbedError();
+            }
+        }, 10000); // 10 second timeout
+        
+        // Initialize
+        updateTestInfo();
+        
+        console.log('🌐 Site externo pronto para testar embed');
+        console.log('📊 Monitorando carregamento do iframe...');
+    </script>
+</body>
+</html> 
