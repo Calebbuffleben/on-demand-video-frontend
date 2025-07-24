@@ -1,8 +1,7 @@
 import "@/styles/globals.css";
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
-import { AuthProvider } from "../contexts/AuthContext";
-import TokenProvider from "../components/Auth/TokenProvider";
+
 import { ClerkProvider } from "@clerk/nextjs";
 import { isEmbedRoute } from "@/lib/utils";
 import { useEffect, useState } from 'react';
@@ -29,7 +28,7 @@ export default function App({ Component, pageProps }: AppProps) {
           const parentHost = window.parent.location.host;
           const currentHost = window.location.host;
           crossDomain = parentHost !== currentHost;
-        } catch (e) {
+        } catch {
           // If we can't access parent location, it's definitely cross-domain
           crossDomain = true;
         }
