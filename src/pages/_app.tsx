@@ -74,7 +74,8 @@ export default function App({ Component, pageProps }: AppProps) {
   const immediateEmbedCheck = isEmbedRoute(router.pathname) || 
                              isEmbedRoute(router.asPath) || 
                              router.pathname.includes('embed') || 
-                             router.asPath.includes('embed');
+                             router.asPath.includes('embed') ||
+                             router.asPath.includes('__clerk_handshake');
   
   // 🎯 BYPASS DECISION: Embed page OR cross-domain iframe
   const shouldBypassClerk = immediateEmbedCheck || isEmbedPage || isCrossDomainIframe;
@@ -109,6 +110,18 @@ export default function App({ Component, pageProps }: AppProps) {
                 console.log('🌐 HOST:', window.location.host);
                 console.log('🌐 IN IFRAME:', window !== window.top);
                 
+                // Remove Clerk handshake parameters from URL
+                if (window.location.search.includes('__clerk_handshake')) {
+                  const url = new URL(window.location);
+                  url.searchParams.delete('__clerk_handshake');
+                  url.searchParams.delete('__clerk_loaded');
+                  url.searchParams.delete('__clerk_synced');
+                  
+                  // Replace URL without Clerk parameters
+                  window.history.replaceState({}, '', url.toString());
+                  console.log('🧹 REMOVED CLERK PARAMETERS FROM URL');
+                }
+                
                 // Try to detect parent domain safely
                 try {
                   if (window !== window.top) {
@@ -116,6 +129,13 @@ export default function App({ Component, pageProps }: AppProps) {
                   }
                 } catch (e) {
                   console.log('🌐 CROSS-DOMAIN IFRAME CONFIRMED (cannot access parent)');
+                }
+                
+                // Block Clerk from loading
+                if (typeof window !== 'undefined') {
+                  window.__CLERK_FRONTEND_API = null;
+                  window.__CLERK_PUBLISHABLE_KEY = null;
+                  console.log('🚫 BLOCKED CLERK FROM LOADING');
                 }
               `
             }}
