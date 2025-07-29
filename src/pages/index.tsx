@@ -79,6 +79,11 @@ export default function Home() {
   const { organization } = useOrganization();
   const router = useRouter();
   
+  // Spotlight effect
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const glitchTitle = useGlitchText("Scale");
+  const [mascotHover, setMascotHover] = useState(false);
+  
   // Redirect logged-in users to appropriate page
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -92,10 +97,22 @@ export default function Home() {
     }
   }, [isLoaded, isSignedIn, organization, router]);
   
-  // Spotlight effect
-  const spotlightRef = useRef<HTMLDivElement>(null);
-  const glitchTitle = useGlitchText("Scale");
-  const [mascotHover, setMascotHover] = useState(false);
+  // Spotlight effect useEffect
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!spotlightRef.current) return;
+      const rect = spotlightRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      spotlightRef.current.style.setProperty("--x", `${x}px`);
+      spotlightRef.current.style.setProperty("--y", `${y}px`);
+    };
+    const el = spotlightRef.current;
+    if (el) el.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      if (el) el.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
   
   // Show loading state while checking authentication
   if (!isLoaded) {
@@ -120,21 +137,6 @@ export default function Home() {
       </div>
     );
   }
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!spotlightRef.current) return;
-      const rect = spotlightRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      spotlightRef.current.style.setProperty("--x", `${x}px`);
-      spotlightRef.current.style.setProperty("--y", `${y}px`);
-    };
-    const el = spotlightRef.current;
-    if (el) el.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      if (el) el.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, []);
 
   return (
     <div
