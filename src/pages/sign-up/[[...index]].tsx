@@ -7,10 +7,16 @@ export default function SignUpPage() {
   const { organization } = useOrganization();
   const router = useRouter();
 
-  // Redirect to tenant dashboard if user is already logged in and has an organization
+  // Redirect to appropriate page based on user state
   useEffect(() => {
-    if (isLoaded && isSignedIn && organization) {
-      router.push(`/${organization.id}/dashboard`);
+    if (isLoaded && isSignedIn) {
+      if (organization) {
+        // User is signed in and has an organization - redirect to dashboard
+        router.push(`/${organization.id}/dashboard`);
+      } else {
+        // User is signed in but has no organization - redirect to organization selector
+        router.push('/organization-selector');
+      }
     }
   }, [isLoaded, isSignedIn, organization, router]);
 
