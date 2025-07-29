@@ -22,7 +22,7 @@ export default clerkMiddleware(async (auth, req) => {
   const host = req.headers.get('host') || '';
   const referer = req.headers.get('referer') || '';
   const origin = req.headers.get('origin') || '';
-
+  const searchParams = req.nextUrl.searchParams;
   
   // 🎯 CROSS-DOMAIN DETECTION
   const isCrossDomain = referer && !referer.includes(host);
@@ -42,15 +42,17 @@ export default clerkMiddleware(async (auth, req) => {
     secFetchSite: req.headers.get('sec-fetch-site'),
     secFetchMode: req.headers.get('sec-fetch-mode'),
     secFetchDest: req.headers.get('sec-fetch-dest'),
+    hasClerkHandshake: searchParams.has('__clerk_handshake'),
   });
   
-  // 🎯 IMMEDIATE BYPASS for embed routes OR cross-domain iframe requests
-  if (isEmbedRequest || (isCrossDomain && isIframeRequest)) {
+  // 🎯 IMMEDIATE BYPASS for embed routes OR cross-domain iframe requests OR clerk handshake
+  if (isEmbedRequest || (isCrossDomain && isIframeRequest) || searchParams.has('__clerk_handshake')) {
     console.log('🚀 CROSS-DOMAIN EMBED BYPASS:', {
-      reason: isEmbedRequest ? 'embed-route' : 'cross-domain-iframe',
+      reason: isEmbedRequest ? 'embed-route' : (isCrossDomain && isIframeRequest) ? 'cross-domain-iframe' : 'clerk-handshake',
       pathname,
       referer: referer.substring(0, 50),
-      host
+      host,
+      hasClerkHandshake: searchParams.has('__clerk_handshake')
     });
     
     const response = NextResponse.next();
@@ -74,6 +76,7 @@ export default clerkMiddleware(async (auth, req) => {
     response.headers.set('X-Embed-Host', host);
     response.headers.set('X-Embed-Referer', referer.substring(0, 100));
     response.headers.set('X-Embed-Version', '4.0-CROSS-DOMAIN');
+    response.headers.set('X-Clerk-Bypass', searchParams.has('__clerk_handshake') ? 'handshake-detected' : 'none');
     
     return response;
   }
