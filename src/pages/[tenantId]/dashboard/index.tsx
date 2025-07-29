@@ -11,6 +11,7 @@ import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import analyticsService from '@/api-connection/analytics';
+import { useClerkToken } from '@/hooks/useClerkToken';
 
 // Type interfaces for analytics data
 interface VideoUpload {
@@ -43,6 +44,9 @@ const DashboardPage = () => {
   const { tenantId } = router.query;
   const redirectAttempted = useRef(false);
   const subscriptionRequested = useRef(false);
+  
+  // Initialize Clerk token management for this page
+  useClerkToken();
   
   // Initialize state without localStorage
   const [dbOrgId, setDbOrgId] = useState<string | null>(null);

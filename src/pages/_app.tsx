@@ -9,6 +9,7 @@ import Head from 'next/head';
 import { Toaster } from 'react-hot-toast';
 import '../styles/clerk.css';
 
+
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [isEmbedPage, setIsEmbedPage] = useState(false);
@@ -131,9 +132,8 @@ export default function App({ Component, pageProps }: AppProps) {
     <ClerkProvider 
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
       afterSignOutUrl="/"
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/dashboard"
     >
+
       <Head>
         <title>Scale - Video Management Platform</title>
         <meta name="description" content="Comprehensive video management for your organization" />

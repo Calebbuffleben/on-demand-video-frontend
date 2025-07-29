@@ -31,7 +31,7 @@ export function formatDuration(seconds: number): string {
 
 /**
  * Checks if a given pathname or URL is an embed route
- * Handles both global embed routes (/embed/[videoId]) and tenant-specific routes ([tenantId]/embed/[videoId])
+ * Handles global embed routes (/embed/[videoId]), videos embed routes (/videos/embed/[uid]), and tenant-specific routes ([tenantId]/embed/[videoId])
  */
 export function isEmbedRoute(pathname: string): boolean {
   if (!pathname) return false;
@@ -41,6 +41,11 @@ export function isEmbedRoute(pathname: string): boolean {
   
   // Check for global embed routes: /embed/[videoId]
   if (cleanPath.startsWith('/embed/')) {
+    return true;
+  }
+  
+  // Check for videos embed routes: /videos/embed/[uid]
+  if (cleanPath.startsWith('/videos/embed/')) {
     return true;
   }
   
