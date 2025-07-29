@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import React, { useRef, useEffect, useState, MouseEvent as ReactMouseEvent } from "react";
+import { useUser, useOrganization } from "@clerk/nextjs";
+import { useRouter } from "next/router";
 
 // Glitch/Typing effect for hero title
 function useGlitchText(text: string, speed = 60) {
@@ -73,10 +75,51 @@ const testimonials: { name: string; avatar: string; text: string }[] = [
 ];
 
 export default function Home() {
+  const { isLoaded, isSignedIn } = useUser();
+  const { organization } = useOrganization();
+  const router = useRouter();
+  
+  // Redirect logged-in users to appropriate page
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      if (organization) {
+        // User has an organization - redirect to dashboard
+        router.push(`/${organization.id}/dashboard`);
+      } else {
+        // User doesn't have an organization - redirect to organization selector
+        router.push('/organization-selector');
+      }
+    }
+  }, [isLoaded, isSignedIn, organization, router]);
+  
   // Spotlight effect
   const spotlightRef = useRef<HTMLDivElement>(null);
   const glitchTitle = useGlitchText("Scale");
   const [mascotHover, setMascotHover] = useState(false);
+  
+  // Show loading state while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-scale-400 mx-auto"></div>
+          <p className="mt-4 text-white">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Don't render the landing page if user is signed in
+  if (isSignedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-scale-400 mx-auto"></div>
+          <p className="mt-4 text-white">Redirecionando...</p>
+        </div>
+      </div>
+    );
+  }
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!spotlightRef.current) return;
