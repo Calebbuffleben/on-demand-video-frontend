@@ -3,10 +3,14 @@
 import { useRouter } from 'next/router';
 import { useEffect, useCallback } from 'react';
 import api from '../../api-connection/service';
+import { useClerkToken } from '@/hooks/useClerkToken';
 
 const SubscriptionSuccessPage = () => {
   const router = useRouter();
   const { session_id } = router.query;
+  
+  // Initialize Clerk token management for this page
+  useClerkToken();
 
   const updateSubscription = useCallback(async () => {
     if (session_id) {

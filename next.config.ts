@@ -57,6 +57,28 @@ const nextConfig: NextConfig = {
           { key: 'X-Cross-Domain-Ready', value: 'true' },
         ],
       },
+      // 🌐 CROSS-DOMAIN EMBED ROUTES - Videos embed
+      {
+        source: '/videos/embed/:uid*',
+        headers: [
+          { key: 'X-Frame-Options', value: 'ALLOWALL' },
+          { key: 'Content-Security-Policy', value: "frame-ancestors *; default-src * data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';" },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS, HEAD' },
+          { key: 'Access-Control-Allow-Headers', value: '*' },
+          { key: 'Access-Control-Allow-Credentials', value: 'false' },
+          // ULTRA AGGRESSIVE ANTI-CACHE HEADERS
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate, proxy-revalidate, no-transform, private, max-age=0' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
+          { key: 'Surrogate-Control', value: 'no-store' },
+          { key: 'Vary', value: 'Origin, Referer, Host' },
+          { key: 'X-Accel-Expires', value: '0' },
+          { key: 'X-Cache-Status', value: 'BYPASS' },
+          { key: 'X-Embed-Config', value: 'videos-embed' },
+          { key: 'X-Cross-Domain-Ready', value: 'true' },
+        ],
+      },
       // FORCE NO CACHE for any test files
       {
         source: '/test-:path*',

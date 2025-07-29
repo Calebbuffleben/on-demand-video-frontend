@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/public/(.*)',
   '/api/embed/(.*)', // API embed routes
   '/embed/(.*)', // Global embed routes
+  '/videos/embed/(.*)', // Videos embed routes - NEW
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -85,6 +86,23 @@ export default clerkMiddleware(async (auth, req) => {
     response.headers.set('Content-Security-Policy', 'frame-ancestors *;');
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('X-API-Embed-Bypass', 'true');
+    return response;
+  }
+
+  // BYPASS for videos embed routes
+  if (pathname.startsWith('/videos/embed/')) {
+    console.log('🎯 VIDEOS EMBED BYPASS for:', pathname);
+    const response = NextResponse.next();
+    response.headers.set('X-Frame-Options', 'ALLOWALL');
+    response.headers.set('Content-Security-Policy', 'frame-ancestors *; default-src * data: blob:; script-src * \'unsafe-inline\' \'unsafe-eval\'; style-src * \'unsafe-inline\';');
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
+    response.headers.set('Access-Control-Allow-Headers', '*');
+    response.headers.set('Access-Control-Allow-Credentials', 'false');
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('X-Videos-Embed-Bypass', 'true');
     return response;
   }
 

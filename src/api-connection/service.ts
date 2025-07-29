@@ -12,7 +12,11 @@ const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         // BYPASS COMPLETELY for embed API routes
-        if (config.url?.includes('/embed/') || config.url?.startsWith('/api/embed/')) {
+        if (config.url?.includes('/embed/') || 
+            config.url?.startsWith('/api/embed/') ||
+            config.url?.includes('/videos/embed/') ||
+            config.url?.includes('/embed-codes') ||
+            config.url?.includes('/embed-codes/')) {
             console.log('🎯 AXIOS INTERCEPTOR: Bypassing embed route:', config.url);
             return config;
         }
@@ -81,7 +85,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => {
         // BYPASS logging for embed routes to reduce noise
-        if (!response.config.url?.includes('/embed/')) {
+        if (!response.config.url?.includes('/embed/') && 
+            !response.config.url?.includes('/videos/embed/') &&
+            !response.config.url?.includes('/embed-codes')) {
             console.log(`API response from ${response.config.url}: Status ${response.status}`);
         }
         
@@ -107,7 +113,9 @@ api.interceptors.response.use(
     },
     async (error) => {
         // BYPASS error handling for embed routes
-        if (error.config?.url?.includes('/embed/')) {
+        if (error.config?.url?.includes('/embed/') ||
+            error.config?.url?.includes('/videos/embed/') ||
+            error.config?.url?.includes('/embed-codes')) {
             return Promise.reject(error);
         }
         

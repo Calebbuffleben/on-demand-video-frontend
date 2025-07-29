@@ -11,10 +11,15 @@ import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import Image from 'next/image';
+import { useClerkToken } from '@/hooks/useClerkToken';
 
 export default function AnalyticsPage() {
   const router = useRouter();
   const tenantId = router.query.tenantId as string;
+  
+  // Initialize Clerk token management for this page
+  useClerkToken();
+  
   const [data, setData] = useState<{
     platformStats: {
       totalVideos: number;
