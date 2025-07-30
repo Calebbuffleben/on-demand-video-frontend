@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { isEmbedRoute } from "@/lib/utils";
 
 // Public routes that don't require authentication
@@ -23,7 +23,7 @@ function isPublicRoute(pathname: string): boolean {
   });
 }
 
-export default function middleware(req: any) {
+export default function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const host = req.headers.get('host') || '';
   const referer = req.headers.get('referer') || '';
