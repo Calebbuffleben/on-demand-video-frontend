@@ -1,4 +1,4 @@
-import { OrganizationSwitcher, useUser, useOrganizationList } from "@clerk/nextjs";
+import { useUser, useOrganizationList } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
@@ -52,7 +52,7 @@ export default function OrganizationSelector() {
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 mb-6">
           {user?.organizationMemberships && user.organizationMemberships.length > 0 ? (
             <div className="space-y-3">
-              {user.organizationMemberships.map((membership: any) => (
+              {user.organizationMemberships.map((membership: { organization: { id: string; name: string }; role: string }) => (
                 <button
                   key={membership.organization.id}
                   onClick={() => {

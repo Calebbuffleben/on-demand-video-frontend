@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from "next/server";
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { isEmbedRoute } from "@/lib/utils";
 
 // Public routes that don't require authentication
