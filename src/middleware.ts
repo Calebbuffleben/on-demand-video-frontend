@@ -1,4 +1,5 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { isEmbedRoute } from "@/lib/utils";
 
 // Public routes that don't require authentication
@@ -23,7 +24,8 @@ function isPublicRoute(pathname: string): boolean {
   });
 }
 
-export default function middleware(req: NextRequest) {
+// Create the clerk middleware for authentication
+const clerkMiddlewareHandler = clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
   const host = req.headers.get('host') || '';
   const referer = req.headers.get('referer') || '';
@@ -116,10 +118,14 @@ export default function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // For all other routes, require authentication - but we'll let Clerk handle this
-  console.log('🔒 PROTECTED ROUTE:', pathname);
+  // For all other routes, require authentication
+  console.log('🔒 PROTECTED ROUTE, applying auth:', pathname);
+  await auth.protect();
+  
   return NextResponse.next();
-}
+});
+
+export default clerkMiddlewareHandler;
 
 export const config = {
   matcher: [
