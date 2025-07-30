@@ -200,6 +200,8 @@ export default function App({ Component, pageProps }: AppProps) {
       afterSignOutUrl="/"
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
+      afterSignInUrl="/organization-selector"
+      afterSignUpUrl="/organization-selector"
     >
 
       <Head>

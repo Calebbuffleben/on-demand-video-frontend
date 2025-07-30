@@ -97,7 +97,7 @@
             • URL do embed: <code>https://on-demand-video-frontend-production.up.railway.app/embed/84e8bed3-d73d-4095-89f4-f5d6f4d42a0d</code><br>
             • Se funcionar aqui, o problema pode estar na configuração do domínio de destino
         </div>
-
+        
         <div class="test-section">
             <h2>🎬 Teste 1: Embed Direto (Mesmo Domínio)</h2>
             <div class="iframe-container">
@@ -110,7 +110,7 @@
             </div>
             <div id="status1" class="status loading">Carregando...</div>
         </div>
-
+        
         <div class="test-section">
             <h2>🌐 Teste 2: Embed com Parâmetros de Debug</h2>
             <div class="iframe-container">
@@ -188,7 +188,7 @@
             statusElement.textContent = statusText[status];
             statusElement.className = `status ${status}`;
         }
-
+        
         // Monitor de eventos para detectar problemas
         window.addEventListener('message', function(event) {
             console.log('📨 Mensagem recebida do iframe:', event);
@@ -197,8 +197,8 @@
         // Detectar se estamos em iframe
         if (window.self !== window.top) {
             console.log('🌐 Detectado: Esta página está em um iframe');
-        }
-
+            }
+            
         // Log de informações do navegador
         console.log('🌐 User Agent:', navigator.userAgent);
         console.log('🌐 Origin:', window.location.origin);
@@ -218,7 +218,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'User-Agent': 'Cross-Domain-Test/1.0'
-                    }
+                }
                 });
 
                 if (response.ok) {
@@ -232,7 +232,7 @@
                     `;
                     resultDiv.className = 'status success';
                     console.log('✅ Backend CORS test successful:', data);
-                } else {
+                    } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {

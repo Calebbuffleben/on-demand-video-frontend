@@ -12,7 +12,6 @@ import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import analyticsService from '@/api-connection/analytics';
 import { useClerkToken } from '@/hooks/useClerkToken';
-import { withOrgAuth } from '@/lib/withAuth';
 
 // Type interfaces for analytics data
 interface VideoUpload {
@@ -382,6 +381,3 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-
-// Aplicar proteção de autenticação com organização
-export const getServerSideProps = withOrgAuth();

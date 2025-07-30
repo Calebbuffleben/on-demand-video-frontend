@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { isEmbedRoute } from "@/lib/utils";
 
 // Public routes that don't require authentication
@@ -23,6 +24,27 @@ function isPublicRoute(pathname: string): boolean {
   });
 }
 
+// Helper function to extract organization ID from URL
+function extractOrgId(pathname: string): string | null {
+  const segments = pathname.split('/');
+  const orgSegment = segments[1]; // First segment after /
+  
+  console.log('🔍 Extracting org ID from pathname:', pathname, 'orgSegment:', orgSegment);
+  
+  // Check if it's a valid organization ID (Clerk org IDs are typically long strings)
+  if (orgSegment && orgSegment.length > 10) {
+    return orgSegment;
+  }
+  
+  return null;
+}
+
+// Helper function to check if route requires organization context
+function isOrgRoute(pathname: string): boolean {
+  const orgId = extractOrgId(pathname);
+  return !!orgId;
+}
+
 export default function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const host = req.headers.get('host') || '';
@@ -34,17 +56,6 @@ export default function middleware(req: NextRequest) {
   const isIframeRequest = req.headers.get('sec-fetch-dest') === 'iframe' || 
                          req.headers.get('sec-fetch-mode') === 'navigate';
   const isEmbedRequest = isEmbedRoute(pathname);
-  
-  // 🚨 ULTRA DEBUG for cross-domain issues
-  console.log('🌐 CROSS-DOMAIN DEBUG:', {
-    pathname,
-    host,
-    referer: referer.substring(0, 100),
-    isCrossDomain,
-    isIframeRequest,
-    isEmbedRequest,
-    hasClerkHandshake: searchParams.has('__clerk_handshake'),
-  });
   
   // 🎯 IMMEDIATE BYPASS for embed routes OR cross-domain iframe requests OR clerk handshake
   if (isEmbedRequest || (isCrossDomain && isIframeRequest) || searchParams.has('__clerk_handshake')) {
@@ -64,9 +75,9 @@ export default function middleware(req: NextRequest) {
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
     response.headers.set('Access-Control-Allow-Headers', '*');
-    response.headers.set('Access-Control-Allow-Credentials', 'false'); // Important for cross-domain
+    response.headers.set('Access-Control-Allow-Credentials', 'false');
     
-    // 🔄 ANTI-CACHE headers to prevent domain-specific caching issues
+    // 🔄 ANTI-CACHE headers
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
@@ -109,13 +120,32 @@ export default function middleware(req: NextRequest) {
     response.headers.set('X-Videos-Embed-Bypass', 'true');
     return response;
   }
-
-  // Allow other public routes
+  
+  // Allow public routes
   if (isPublicRoute(pathname)) {
     console.log('📋 PUBLIC ROUTE:', pathname);
     return NextResponse.next();
   }
-
+  
+  // Check if route requires organization context
+  if (isOrgRoute(pathname)) {
+    const orgId = extractOrgId(pathname);
+    
+    if (orgId) {
+      // Add organization context to headers
+      const requestHeaders = new Headers(req.headers);
+      requestHeaders.set('x-organization-id', orgId.replace('org_', ''));
+      
+      console.log('✅ ORGANIZATION CONTEXT SET:', orgId);
+      
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
+    }
+  }
+  
   // For all other routes, let the page handle authentication
   console.log('🔒 PROTECTED ROUTE:', pathname);
   return NextResponse.next();

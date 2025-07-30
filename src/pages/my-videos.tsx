@@ -40,7 +40,7 @@ export default function MyVideosRedirectPage() {
       </div>
     </div>
   );
-}
+} 
 
 // Aplicar proteção de autenticação
 export const getServerSideProps = withAuth(); 
