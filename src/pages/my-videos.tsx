@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useOrganization } from '@clerk/nextjs';
 import Link from 'next/link';
+import { withAuth } from '@/lib/withAuth';
 
 export default function MyVideosRedirectPage() {
   const router = useRouter();
@@ -39,4 +40,7 @@ export default function MyVideosRedirectPage() {
       </div>
     </div>
   );
-} 
+}
+
+// Aplicar proteção de autenticação
+export const getServerSideProps = withAuth(); 
