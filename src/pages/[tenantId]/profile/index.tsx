@@ -4,8 +4,9 @@ import { useUser } from '@clerk/nextjs';
 import UserProfileCard from '@/components/Profile/UserProfileCard';
 import UserSettingsCard from '@/components/Profile/UserSettingsCard';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
+import { withOrgAuth } from '@/lib/withClientAuth';
 
-export default function TenantProfilePage() {
+function TenantProfilePage() {
   const { isLoaded, isSignedIn } = useUser();
   const router = useRouter();
   const { tenantId } = router.query;
@@ -65,4 +66,6 @@ export default function TenantProfilePage() {
       </main>
     </div>
   );
-} 
+}
+
+export default withOrgAuth(TenantProfilePage); 

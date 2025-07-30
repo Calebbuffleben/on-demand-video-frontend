@@ -7,8 +7,9 @@ import VideoUploader from '../../components/Video/VideoUploader';
 import MuxVideoPlayer from '../../components/Video/MuxVideoPlayer';
 import Button from '../../components/Button';
 import videoService from '../../api-connection/videos';
+import { withOrgAuth } from '@/lib/withClientAuth';
 
-export default function UploadVideoPage() {
+function UploadVideoPage() {
   const router = useRouter();
   const { tenantId } = router.query;
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -167,4 +168,6 @@ export default function UploadVideoPage() {
       </DashboardLayout>
     </>
   );
-} 
+}
+
+export default withOrgAuth(UploadVideoPage); 

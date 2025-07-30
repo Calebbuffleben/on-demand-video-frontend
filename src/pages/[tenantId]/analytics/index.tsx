@@ -12,8 +12,9 @@ import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import Image from 'next/image';
 import { useClerkToken } from '@/hooks/useClerkToken';
+import { withOrgAuth } from '@/lib/withClientAuth';
 
-export default function AnalyticsPage() {
+function AnalyticsPage() {
   const router = useRouter();
   const tenantId = router.query.tenantId as string;
   
@@ -298,4 +299,6 @@ function formatDate(date: Date): string {
     month: 'short',
     day: 'numeric',
   }).format(date);
-} 
+}
+
+export default withOrgAuth(AnalyticsPage); 

@@ -1,8 +1,9 @@
 import { useUser, useOrganizationList } from "@clerk/nextjs";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { withAuth } from "@/lib/withClientAuth";
 
-export default function OrganizationSelector() {
+function OrganizationSelector() {
   const { isLoaded, isSignedIn, user } = useUser();
   const { userMemberships, isLoaded: isOrgListLoaded } = useOrganizationList();
   const router = useRouter();
@@ -116,4 +117,6 @@ export default function OrganizationSelector() {
       </div>
     </div>
   );
-} 
+}
+
+export default withAuth(OrganizationSelector); 

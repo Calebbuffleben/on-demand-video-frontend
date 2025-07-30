@@ -9,8 +9,9 @@ import VideoCard from '../../../components/Video/VideoCard';
 import EmptyVideoState from '../../../components/Video/EmptyVideoState';
 import videoService, { VideoData } from '../../../api-connection/videos';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { withOrgAuth } from '@/lib/withClientAuth';
 
-export default function TenantVideosPage() {
+function TenantVideosPage() {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -177,4 +178,6 @@ export default function TenantVideosPage() {
       </DashboardLayout>
     </>
   );
-} 
+}
+
+export default withOrgAuth(TenantVideosPage); 
