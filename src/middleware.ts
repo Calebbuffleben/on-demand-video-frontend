@@ -1,9 +1,8 @@
-/*import { NextResponse } from "next/server";
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 import { isEmbedRoute } from "@/lib/utils";
 
 // Public routes that don't require authentication
-const isPublicRoute = createRouteMatcher([
+const publicRoutes = [
   '/',
   '/sign-in(.*)',
   '/sign-up(.*)',
@@ -14,14 +13,20 @@ const isPublicRoute = createRouteMatcher([
   '/api/public/(.*)',
   '/api/embed/(.*)', // API embed routes
   '/embed/(.*)', // Global embed routes
-  '/videos/embed/(.*)', // Videos embed routes - NEW
-]);
+  '/videos/embed/(.*)', // Videos embed routes
+];
 
-export default clerkMiddleware(async (auth, req) => {
+function isPublicRoute(pathname: string): boolean {
+  return publicRoutes.some(route => {
+    const regex = new RegExp(`^${route.replace(/\*/g, '.*')}$`);
+    return regex.test(pathname);
+  });
+}
+
+export default function middleware(req: any) {
   const pathname = req.nextUrl.pathname;
   const host = req.headers.get('host') || '';
   const referer = req.headers.get('referer') || '';
-  const origin = req.headers.get('origin') || '';
   const searchParams = req.nextUrl.searchParams;
   
   // 🎯 CROSS-DOMAIN DETECTION
@@ -35,13 +40,9 @@ export default clerkMiddleware(async (auth, req) => {
     pathname,
     host,
     referer: referer.substring(0, 100),
-    origin,
     isCrossDomain,
     isIframeRequest,
     isEmbedRequest,
-    secFetchSite: req.headers.get('sec-fetch-site'),
-    secFetchMode: req.headers.get('sec-fetch-mode'),
-    secFetchDest: req.headers.get('sec-fetch-dest'),
     hasClerkHandshake: searchParams.has('__clerk_handshake'),
   });
   
@@ -110,17 +111,15 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Allow other public routes
-  if (isPublicRoute(req)) {
+  if (isPublicRoute(pathname)) {
     console.log('📋 PUBLIC ROUTE:', pathname);
     return NextResponse.next();
   }
 
-  // For all other routes, require authentication
-  console.log('🔒 PROTECTED ROUTE, applying auth:', pathname);
-  await auth.protect();
-  
+  // For all other routes, require authentication - but we'll let Clerk handle this
+  console.log('🔒 PROTECTED ROUTE:', pathname);
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
@@ -129,4 +128,4 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-};*/
+};
