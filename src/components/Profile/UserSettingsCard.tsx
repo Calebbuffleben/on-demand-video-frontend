@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useClerk } from '@clerk/nextjs';
-import { useRouter } from 'next/router';
 
 type UserSettingsCardProps = {
   className?: string;
@@ -10,7 +9,6 @@ type UserSettingsCardProps = {
 
 export default function UserSettingsCard({ className = '' }: UserSettingsCardProps) {
   const { signOut } = useClerk();
-  const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
