@@ -37,9 +37,14 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
   };
 
   const handleSignOut = async () => {
-    await signOut(() => {
-      router.push('/sign-in');
-    });
+    try {
+      await signOut();
+      // Clerk will handle the redirect via afterSignOutUrl="/"
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Fallback redirect
+      window.location.href = '/';
+    }
   };
 
   // Build the proper profile URL with tenant context if available

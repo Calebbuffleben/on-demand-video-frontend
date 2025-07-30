@@ -24,10 +24,14 @@ export default function UserSettingsCard({ className = '' }: UserSettingsCardPro
     // Reset state
     setConfirmingSignOut(false);
     
-    // Sign out and redirect to sign-in page
-    await signOut(() => {
-      router.push('/sign-in');
-    });
+    // Sign out - Clerk will handle the redirect via afterSignOutUrl="/"
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Fallback redirect
+      window.location.href = '/';
+    }
   };
 
   // Cancel sign out confirmation

@@ -74,11 +74,10 @@ export default function App({ Component, pageProps }: AppProps) {
   const immediateEmbedCheck = isEmbedRoute(router.pathname) || 
                              isEmbedRoute(router.asPath) || 
                              router.pathname.includes('embed') || 
-                             router.asPath.includes('embed') ||
-                             router.asPath.includes('__clerk_handshake');
+                             router.asPath.includes('embed');
   
-  // 🎯 BYPASS DECISION: Embed page OR cross-domain iframe
-  const shouldBypassClerk = immediateEmbedCheck || isEmbedPage || isCrossDomainIframe;
+  // 🎯 BYPASS DECISION: ONLY for cross-domain iframe requests
+  const shouldBypassClerk = isCrossDomainIframe;
   
   // 🔥 PRODUCTION LOGGING
   console.log('🚀 _APP.TSX BYPASS DECISION:', {
@@ -90,10 +89,9 @@ export default function App({ Component, pageProps }: AppProps) {
     environment: process.env.NODE_ENV,
   });
 
-  // 🚨 BYPASS CLERK for embed pages OR cross-domain iframes
+  // 🚨 BYPASS CLERK ONLY for cross-domain iframe requests
   if (shouldBypassClerk) {
-    console.log('🚀 BYPASSING CLERK - REASON:', {
-      embed: immediateEmbedCheck || isEmbedPage,
+    console.log('🚀 BYPASSING CLERK - CROSS-DOMAIN IFRAME:', {
       crossDomain: isCrossDomainIframe,
       path: router.pathname
     });
@@ -110,7 +108,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 console.log('🌐 HOST:', window.location.host);
                 console.log('🌐 IN IFRAME:', window !== window.top);
                 
-                // ULTRA-AGGRESSIVE CLERK BLOCKING
+                // BLOCK CLERK FOR CROSS-DOMAIN ONLY
                 (function() {
                   // Block Clerk environment variables
                   window.__CLERK_FRONTEND_API = null;
@@ -134,55 +132,8 @@ export default function App({ Component, pageProps }: AppProps) {
                     return element;
                   };
                   
-                  // Block Clerk redirects
-                  const originalLocation = window.location;
-                  Object.defineProperty(window, 'location', {
-                    get: function() {
-                      return originalLocation;
-                    },
-                    set: function(value) {
-                      if (typeof value === 'string' && (value.includes('clerk') || value.includes('quick-chicken'))) {
-                        console.log('🚫 BLOCKED CLERK REDIRECT:', value);
-                        return;
-                      }
-                      originalLocation.href = value;
-                    }
-                  });
-                  
-                  // Block Clerk handshake parameters
-                  if (window.location.search.includes('__clerk_handshake')) {
-                    const url = new URL(window.location);
-                    url.searchParams.delete('__clerk_handshake');
-                    url.searchParams.delete('__clerk_loaded');
-                    url.searchParams.delete('__clerk_synced');
-                    url.searchParams.delete('__clerk_db_jwt');
-                    
-                    // Replace URL without Clerk parameters
-                    window.history.replaceState({}, '', url.toString());
-                    console.log('🧹 REMOVED CLERK PARAMETERS FROM URL');
-                  }
-                  
-                  // Block any Clerk-related navigation
-                  window.addEventListener('beforeunload', function(e) {
-                    if (window.location.href.includes('clerk') || window.location.href.includes('quick-chicken')) {
-                      e.preventDefault();
-                      e.returnValue = '';
-                      console.log('🚫 BLOCKED CLERK NAVIGATION');
-                      return '';
-                    }
-                  });
-                  
-                  console.log('🚫 ULTRA-AGGRESSIVE CLERK BLOCKING ACTIVATED');
+                  console.log('🚫 CLERK BLOCKING ACTIVATED FOR CROSS-DOMAIN');
                 })();
-                
-                // Try to detect parent domain safely
-                try {
-                  if (window !== window.top) {
-                    console.log('🌐 PARENT DOMAIN:', window.parent.location.host);
-                  }
-                } catch (e) {
-                  console.log('🌐 CROSS-DOMAIN IFRAME CONFIRMED (cannot access parent)');
-                }
               `
             }}
           />
