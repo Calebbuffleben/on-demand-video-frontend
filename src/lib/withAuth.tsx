@@ -1,5 +1,4 @@
 import { GetServerSideProps } from 'next';
-import { auth } from '@clerk/nextjs/server';
 
 // HOC para proteção de autenticação no lado do servidor
 export function withAuth<T extends Record<string, unknown>>(
@@ -7,12 +6,13 @@ export function withAuth<T extends Record<string, unknown>>(
 ): GetServerSideProps<T> {
   return async (context) => {
     try {
-      const { userId } = await auth();
+      const token = context.req.headers.cookie || '';
+      const hasAuthCookie = token.includes('token=');
       
-      console.log('🔐 AUTH CHECK:', { userId, pathname: context.resolvedUrl });
+      console.log('🔐 AUTH CHECK:', { hasAuthCookie, pathname: context.resolvedUrl });
       
       // Se não estiver autenticado, redireciona para sign-in
-      if (!userId) {
+      if (!hasAuthCookie) {
         console.log('🚫 NOT AUTHENTICATED, redirecting to /sign-in');
         return {
           redirect: {
@@ -51,12 +51,13 @@ export function withOrgAuth<T extends Record<string, unknown>>(
 ): GetServerSideProps<T> {
   return async (context) => {
     try {
-      const { userId, orgId } = await auth();
+      const cookie = context.req.headers.cookie || '';
+      const hasCookie = cookie.includes('token=');
       
-      console.log('🔐 ORG AUTH CHECK:', { userId, orgId, pathname: context.resolvedUrl });
+      console.log('🔐 ORG AUTH CHECK:', { hasCookie, pathname: context.resolvedUrl });
       
       // Se não estiver autenticado, redireciona para sign-in
-      if (!userId) {
+      if (!hasCookie) {
         console.log('🚫 NOT AUTHENTICATED, redirecting to /sign-in');
         return {
           redirect: {
@@ -66,8 +67,8 @@ export function withOrgAuth<T extends Record<string, unknown>>(
         };
       }
 
-      // Se não tem organização, redireciona para organization-selector
-      if (!orgId) {
+      // Org gating handled client-side; allow and let page redirect if needed
+      if (false) {
         console.log('🚫 NO ORGANIZATION, redirecting to /organization-selector');
         return {
           redirect: {

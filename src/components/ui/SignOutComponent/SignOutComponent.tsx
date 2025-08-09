@@ -1,14 +1,13 @@
 'use client'
-
-import { useClerk } from '@clerk/nextjs'
+import { useAppAuth } from '@/contexts/AppAuthContext'
 
 const SignOutComponent = () => {
-  const { signOut } = useClerk()
+  const { logout } = useAppAuth()
 
   return (
     // Clicking this button signs out a user
     // and redirects them to the home page "/".
-    <button onClick={() => signOut({ redirectUrl: '/' })}>Sign out</button>
+    <button onClick={() => logout()}>Sign out</button>
   )
 }
 

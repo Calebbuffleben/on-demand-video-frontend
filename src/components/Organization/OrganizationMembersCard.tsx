@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useOrganization } from '@clerk/nextjs';
+import api from '@/api-connection/service';
+import { useOrganization } from '@/hooks/useOrganization';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -40,29 +41,15 @@ export default function OrganizationMembersCard({
       setError(null);
       
       try {
-        // Get organization members
-        const membershipsResult = await organization.getMemberships();
-        
-        // Convert data to our format
-        const formattedMembers: Member[] = [];
-        for (const membership of membershipsResult.data) {
-          const publicUserData = membership.publicUserData;
-          formattedMembers.push({
-            id: membership.id,
-            role: membership.role,
-            userId: publicUserData?.userId || membership.id, // fallback to membership id if userId is undefined
-            firstName: publicUserData?.firstName || undefined,
-            lastName: publicUserData?.lastName || undefined,
-            imageUrl: publicUserData?.imageUrl || undefined,
-            email: publicUserData?.identifier, // usually the email
-            createdAt: new Date(membership.createdAt)
-          });
+        const orgId = organization.id;
+        const res = await api.get(`/subscriptions/members/${orgId}`);
+        if (res.data && Array.isArray(res.data)) {
+          setMembers(res.data as Member[]);
+        } else if (res.data?.members && Array.isArray(res.data.members)) {
+          setMembers(res.data.members as Member[]);
+        } else {
+          setMembers([]);
         }
-        
-        // Sort by most recent first
-        formattedMembers.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        
-        setMembers(formattedMembers);
       } catch (err) {
         console.error('Error fetching organization members:', err);
         setError('Failed to load members');

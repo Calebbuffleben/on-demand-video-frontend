@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  distDir: 'build',
+  // Use default distDir ('.next') to avoid runtime path issues with manifests
   images: {
     domains: [
       'img.clerk.com',

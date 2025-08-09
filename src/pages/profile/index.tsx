@@ -1,23 +1,23 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useUser } from '@clerk/nextjs';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import UserProfileCard from '@/components/Profile/UserProfileCard';
 import UserSettingsCard from '@/components/Profile/UserSettingsCard';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 
 export default function ProfilePage() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isAuthenticated, loading } = useAppAuth();
   const router = useRouter();
 
   // Redirect to sign-in if the user is not signed in
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!loading && !isAuthenticated) {
       router.push('/sign-in');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [loading, isAuthenticated, router]);
 
   // Show loading state while user data is loading
-  if (!isLoaded) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>

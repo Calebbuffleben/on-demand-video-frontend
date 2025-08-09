@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useClerk, useUser } from '@clerk/nextjs';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 import Link from 'next/link';
 
 type DashboardMenuProps = {
@@ -11,8 +10,7 @@ type DashboardMenuProps = {
 };
 
 export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
-  const { signOut } = useClerk();
-  const { user, isLoaded } = useUser();
+  const { user, logout, loading } = useAppAuth();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,8 +36,7 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
-      // Clerk will handle the redirect via afterSignOutUrl="/"
+      await logout();
     } catch (error) {
       console.error('Sign out error:', error);
       // Fallback redirect
@@ -71,7 +68,7 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
     return '/my-videos';
   };
 
-  if (!isLoaded) {
+  if (loading) {
     return (
       <div className={`relative ${className}`}>
         <div className="h-10 w-10 bg-silver-200 rounded-full animate-pulse"></div>
@@ -89,21 +86,11 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
         aria-haspopup="true"
       >
         <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm relative">
-          {user?.imageUrl ? (
-            <Image
-              src={user.imageUrl}
-              alt={user.fullName || 'User'}
-              width={40}
-              height={40}
-              className="object-cover"
-            />
-          ) : (
-            <div className="h-full w-full flex items-center justify-center bg-silver-100 text-silver-600">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          )}
+          <div className="h-full w-full flex items-center justify-center bg-silver-100 text-silver-600">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
           <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-400 border-2 border-white"></div>
         </div>
       </button>
@@ -115,10 +102,10 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
           <div className="px-4 py-3 border-b border-silver-100">
             <div>
               <p className="text-sm font-semibold text-scale-900">
-                {user?.fullName || user?.username || 'User'}
+               {user?.firstName || user?.email || 'User'}
               </p>
               <p className="text-xs text-silver-500 truncate mt-1">
-                {user?.primaryEmailAddress?.emailAddress || ''}
+                 {user?.email || ''}
               </p>
             </div>
           </div>

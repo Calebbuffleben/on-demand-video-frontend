@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AuthGuard from '@/components/Auth/AuthGuard';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../components/Dashboard/DashboardLayout';
@@ -94,6 +95,7 @@ export default function UploadVideoPage() {
       <Head>
         <title>Enviar Vídeo</title>
       </Head>
+      <AuthGuard>
       <DashboardLayout sidebar={<DashboardSidebar />}>
         <div className="px-6 py-4">
           <div className="flex items-center mb-4">
@@ -140,6 +142,7 @@ export default function UploadVideoPage() {
           </div>
         </div>
       </DashboardLayout>
+      </AuthGuard>
     </>
   );
 } 

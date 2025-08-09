@@ -9,6 +9,7 @@ import DashboardMenu from '../../../../components/Dashboard/DashboardMenu';
 import MuxVideoPlayer from '../../../../components/Video/MuxVideoPlayer';
 import VideoEmbedCodes from '../../../../components/Video/VideoEmbedCodes';
 import videoService, { VideoData } from '../../../../api-connection/videos';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 export default function VideoWatchPage() {
   const router = useRouter();
@@ -79,6 +80,7 @@ export default function VideoWatchPage() {
         <title>{videoData?.meta?.name || 'Reprodutor de Vídeo'} - Scale</title>
       </Head>
       
+      <AuthGuard requireAuth requireOrg>
       <DashboardLayout sidebar={<DashboardSidebar />}>
         <div className="p-4 md:p-6">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
@@ -335,6 +337,7 @@ export default function VideoWatchPage() {
           </div>
         </div>
       </DashboardLayout>
+      </AuthGuard>
     </>
   );
 } 

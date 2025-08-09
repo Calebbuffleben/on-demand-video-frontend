@@ -6,6 +6,7 @@ import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
 import videoService, { VideoData } from '@/api-connection/videos';
 import { useOrganization } from '@/hooks/useOrganization';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 export default function VideoDetailPage() {
   const [video, setVideo] = useState<VideoData | null>(null);
@@ -119,6 +120,7 @@ export default function VideoDetailPage() {
   };
 
   return (
+    <AuthGuard requireAuth requireOrg>
     <div className="min-h-screen bg-silver-50">
       <Head>
         <title>{video?.meta?.name || 'Detalhes do Vídeo'}</title>
@@ -406,5 +408,6 @@ export default function VideoDetailPage() {
         )}
       </main>
     </div>
+    </AuthGuard>
   );
 } 

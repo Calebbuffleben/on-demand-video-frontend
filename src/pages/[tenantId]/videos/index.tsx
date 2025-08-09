@@ -9,7 +9,7 @@ import VideoCard from '../../../components/Video/VideoCard';
 import EmptyVideoState from '../../../components/Video/EmptyVideoState';
 import videoService, { VideoData } from '../../../api-connection/videos';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-import { withOrgAuth } from '@/lib/withClientAuth';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 function TenantVideosPage() {
   const [videos, setVideos] = useState<VideoData[]>([]);
@@ -65,7 +65,7 @@ function TenantVideosPage() {
       <Head>
         <title>Meus Vídeos</title>
       </Head>
-      
+      <AuthGuard>
       <DashboardLayout sidebar={<DashboardSidebar />}>
         <div className="py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
@@ -176,8 +176,9 @@ function TenantVideosPage() {
           </div>
         </div>
       </DashboardLayout>
+      </AuthGuard>
     </>
   );
 }
 
-export default withOrgAuth(TenantVideosPage); 
+export default TenantVideosPage;

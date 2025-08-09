@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useClerk } from '@clerk/nextjs';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 
 type UserSettingsCardProps = {
   className?: string;
 };
 
 export default function UserSettingsCard({ className = '' }: UserSettingsCardProps) {
-  const { signOut } = useClerk();
+  const { logout } = useAppAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -24,7 +24,7 @@ export default function UserSettingsCard({ className = '' }: UserSettingsCardPro
     
     // Sign out - Clerk will handle the redirect via afterSignOutUrl="/"
     try {
-      await signOut();
+      await logout();
     } catch (error) {
       console.error('Sign out error:', error);
       // Fallback redirect
@@ -50,15 +50,9 @@ export default function UserSettingsCard({ className = '' }: UserSettingsCardPro
     // In a real implementation, you would save this preference to a user settings API
   };
   
-  // Open Clerk user profile management
+  // Placeholder for profile management
   const openUserProfile = () => {
-    // You might implement this differently depending on how you want to handle profile management
-    // This is a common approach with Clerk
-    if (typeof window !== 'undefined') {
-      // Access Clerk through the global namespace safely
-      const clerkWindow = window as unknown as { Clerk?: { openUserProfile: () => void } };
-      clerkWindow.Clerk?.openUserProfile();
-    }
+    // Implement profile management modal in future phases
   };
   
   return (

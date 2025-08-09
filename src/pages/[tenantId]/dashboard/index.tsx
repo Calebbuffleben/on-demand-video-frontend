@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useOrganization } from "@clerk/nextjs";
+import { useOrganization } from '@/hooks/useOrganization';
 import { useRouter } from "next/router";
 import Link from 'next/link';
 import Head from 'next/head';
@@ -11,8 +11,8 @@ import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import analyticsService from '@/api-connection/analytics';
-import { useClerkToken } from '@/hooks/useClerkToken';
-import { withOrgAuth } from '@/lib/withClientAuth';
+// import { useClerkToken } from '@/hooks/useClerkToken';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 // Type interfaces for analytics data
 interface VideoUpload {
@@ -46,8 +46,7 @@ const DashboardPage = () => {
   const redirectAttempted = useRef(false);
   const subscriptionRequested = useRef(false);
   
-  // Initialize Clerk token management for this page
-  useClerkToken();
+  // Token management no longer required with cookie httpOnly
   
   // Initialize state without localStorage
   const [dbOrgId, setDbOrgId] = useState<string | null>(null);
@@ -204,6 +203,7 @@ const DashboardPage = () => {
       <Head>
         <title>Painel de Controle</title>
       </Head>
+      <AuthGuard requireAuth requireOrg>
       <DashboardLayout sidebar={<DashboardSidebar />}>
         <div className="p-4 md:p-6 bg-silver-50">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
@@ -377,8 +377,9 @@ const DashboardPage = () => {
           </div>
         </div>
       </DashboardLayout>
+      </AuthGuard>
     </ClientOnly>
   );
 };
 
-export default withOrgAuth(DashboardPage);
+export default DashboardPage;
