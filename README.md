@@ -1,6 +1,6 @@
 # Scale
 
-A multi-tenant video management system built with Next.js, Clerk, and Prisma.
+A multi-tenant video management system built with Next.js and Prisma. Authentication now uses a custom email/senha flow with JWT em cookie httpOnly.
 
 ## Features
 
@@ -22,10 +22,10 @@ A multi-tenant video management system built with Next.js, Clerk, and Prisma.
 - Embed code generation for easy sharing
 
 ### Authentication & Authorization
-- Secure user authentication via Clerk
-- Organization membership management
-- Role-based access control
-- Protected API routes
+- Autenticação própria (email/senha) com JWT em cookie httpOnly
+- Organização criada automaticamente no cadastro
+- Proteção de rotas no cliente via `AuthGuard`
+- Rotas de API protegidas por cookie
 
 ### User Profile & Settings
 - Customizable user profiles with avatar support
@@ -49,7 +49,7 @@ A multi-tenant video management system built with Next.js, Clerk, and Prisma.
 ## Tech Stack
 
 - **Frontend**: Next.js 15.1.4
-- **Authentication**: Clerk
+- **Authentication**: Custom JWT (cookies httpOnly)
 - **Database**: PostgreSQL
 - **ORM**: Prisma 6.3.1
 - **Styling**: Tailwind CSS 3.4.1
@@ -148,8 +148,6 @@ npm install
 3. Set up environment variables:
 ```env
 DATABASE_URL="postgresql://..."
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_..."
-CLERK_SECRET_KEY="sk_..."
 
 # API Backend URL
 NEXT_PUBLIC_API_URL=http://localhost:4000/api
@@ -480,9 +478,9 @@ The middleware applies to:
 ### Security Considerations
 
 1. **Authentication**
-   - All non-public routes require authentication
-   - Uses Clerk's secure authentication system
-   - Proper session management
+   - Todas as rotas não públicas requerem autenticação
+   - Autenticação própria com JWT em cookie httpOnly
+   - Gestão de sessão via expiração do JWT (ou refresh token, se habilitado)
 
 2. **Authorization**
    - Role-based access control
@@ -503,23 +501,20 @@ The middleware applies to:
 
 ### Registration and Authentication Flow
 
-1. **User Registration**
-   - New users sign up at `/sign-up`
-   - Clerk handles the registration process
-   - Required information:
-     - Email address
-     - Password
-     - Name
-   - Email verification is required
-   - After verification, users are redirected to the organization creation/selection page
+1. **Cadastro de Usuário**
+   - Usuários se cadastram em `/sign-up`
+   - Backend cria usuário e organização automaticamente
+   - Informações obrigatórias:
+     - E-mail
+     - Senha
+     - Nome
+   - (Opcional) Verificação de e-mail
+   - Após cadastro/login, redireciona para `/<orgId>/dashboard`
 
-2. **User Authentication**
-   - Existing users sign in at `/sign-in`
-   - Clerk manages authentication
-   - Support for:
-     - Email/password
-     - Social logins (Google, GitHub)
-     - Multi-factor authentication (optional)
+2. **Autenticação de Usuário**
+   - Usuários fazem login em `/sign-in`
+   - JWT é definido em cookie httpOnly pelo backend
+   - Suporte atual: email/senha
    - Upon successful login, users are redirected to:
      - Their organization if they belong to one
      - Organization selector if they belong to multiple organizations
@@ -631,91 +626,19 @@ The middleware applies to:
 
 ### Implementation Examples
 
-#### User Registration Component
+#### User Registration Component (custom)
 ```typescript
-import { SignUp } from "@clerk/nextjs";
-
-const SignUpPage = () => (
-  <div className="auth-container">
-    <h1>Create an Account</h1>
-    <SignUp 
-      path="/sign-up"
-      routing="path"
-      signInUrl="/sign-in"
-      redirectUrl="/organization-selector"
-    />
-  </div>
-);
-
-export default SignUpPage;
+// Exemplo conceitual (Next.js): chamar POST /auth/register e redirecionar para /organization-selector.
 ```
 
-#### Organization Creation Component
+#### Organization Creation
 ```typescript
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
-import { useClerk } from "@clerk/nextjs";
-
-const CreateOrganizationPage = () => {
-  const { register, handleSubmit } = useForm();
-  const router = useRouter();
-  const { createOrganization } = useClerk();
-  
-  const onSubmit = async (data) => {
-    try {
-      const organization = await createOrganization({ name: data.name });
-      router.push(`/${organization.id}/dashboard`);
-    } catch (error) {
-      console.error("Failed to create organization", error);
-    }
-  };
-  
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <h1>Create Organization</h1>
-      <input {...register("name", { required: true })} placeholder="Organization Name" />
-      <button type="submit">Create</button>
-    </form>
-  );
-};
-
-export default CreateOrganizationPage;
+// Não aplicável: a organização é criada automaticamente no cadastro do usuário.
 ```
 
-#### Organization Selector Component
+#### Organization Selector
 ```typescript
-import { useOrganizationList } from "@clerk/nextjs";
-import { useRouter } from "next/router";
-
-const OrganizationSelector = () => {
-  const { organizationList, isLoaded } = useOrganizationList();
-  const router = useRouter();
-  
-  if (!isLoaded) return <div>Loading...</div>;
-  
-  const switchOrganization = (orgId) => {
-    router.push(`/${orgId}/dashboard`);
-  };
-  
-  return (
-    <div>
-      <h1>Your Organizations</h1>
-      <ul>
-        {organizationList.map((org) => (
-          <li key={org.organization.id}>
-            <button onClick={() => switchOrganization(org.organization.id)}>
-              {org.organization.name}
-            </button>
-            <span>Role: {org.role}</span>
-          </li>
-        ))}
-      </ul>
-      <a href="/create-organization">Create New Organization</a>
-    </div>
-  );
-};
-
-export default OrganizationSelector;
+// Exemplo conceitual: consultar /auth/me e redirecionar para /<orgId>/dashboard.
 ```
 
 # Stripe Integration
@@ -740,11 +663,11 @@ For more information on integrating Stripe subscriptions, refer to the [Stripe D
 
 # Frontend Authentication & API Service
 
-This document outlines the setup for handling authentication using Clerk and interacting with the backend API in this Next.js frontend application.
+This document outlines the setup for handling authentication using a custom JWT (cookies httpOnly) and interacting with the backend API in this Next.js frontend application.
 
 ## Overview
 
-The frontend integrates with a NestJS backend that uses Clerk for authentication. The core components responsible for managing API calls and authentication tokens are:
+The frontend integrates with a NestJS backend that uses custom JWT auth via cookies. The core components responsible for managing API calls and authentication are:
 
 1.  **API Service (`src/api-connection/service.ts`):** An Axios instance configured with interceptors to automatically handle authentication tokens and basic error responses.
 2.  **API Hook (`src/hooks/useApi.ts`):** A React custom hook designed to simplify making authenticated API requests from components, providing loading and error states.
@@ -771,12 +694,9 @@ This custom React hook (`useApi`) provides a convenient way to make authenticate
 
 ### Key Features:
 
-*   **Clerk Integration:** Uses Clerk's `useClerk()` hook to access the current user `session`.
-*   **Token Management (`ensureAuthToken`):**
-    *   Before each API request (`get`, `post`, etc.) is made, this internal function is called.
-    *   It uses `session.getToken()` to retrieve the latest valid JWT from Clerk (Clerk handles refreshing expired tokens automatically).
-    *   It stores the retrieved token in `localStorage` (key: `'token'`) so the API service's request interceptor can access it.
-    *   If getting the token fails, it dispatches the `auth:unauthorized` event.
+*   **AppAuthProvider:** Mantém estado autenticado via `/auth/me` e organiza redirecionamentos.
+*   **AuthGuard:** Protege rotas client-side, exige `requireAuth`/`requireOrg`.
+*   **Token Management:** Com cookie httpOnly, não é necessário gerenciar token manualmente; o backend lê o cookie. `Authorization` só como fallback.
 *   **Request Methods:** Provides standard HTTP request methods (`get`, `post`, `put`, `delete`). Each method handles:
     *   Setting loading and error states.
     *   Calling `ensureAuthToken`.
@@ -831,8 +751,8 @@ export default UserProfileComponent;
 
 1.  A component calls one of the methods from the `useApi` hook (e.g., `get('/data')`).
 2.  The specific hook method (`get`, `post`, etc.) sets loading state, resets error state, and calls `ensureAuthToken`.
-3.  `ensureAuthToken` gets the latest token from Clerk via `session.getToken()` and stores it in `localStorage`.
-4.  The hook method then uses the `api` instance from `service.ts` to make the actual HTTP request (e.g., `api.get('/data')`).
+3.  `ensureAuthToken` não é mais necessário com cookies httpOnly; o backend lê o cookie automaticamente.
+4.  O hook usa o `api` de `service.ts` para fazer a requisição (e.g., `api.get('/data')`).
 5.  The request interceptor in `service.ts` reads the token from `localStorage` and adds the `Authorization: Bearer <token>` header.
 6.  The request is sent to the backend.
 7.  If the backend responds with `401 Unauthorized`, the response interceptor in `service.ts` catches it and dispatches the `auth:unauthorized` event.
@@ -842,24 +762,19 @@ export default UserProfileComponent;
 
 The application should listen for the `auth:unauthorized` event dispatched by the API service's response interceptor. This is typically done in a layout component or a dedicated context provider.
 
-**Example Listener (e.g., in `_app.tsx` or a layout component):**
+**Listener (ex.: em `_app.tsx` ou layout):**
 
 ```tsx
 import { useEffect } from 'react';
-import { useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/router';
 
 function AppLayout({ children }) {
-  const { signOut } = useClerk();
   const router = useRouter();
 
   useEffect(() => {
     const handleUnauthorized = () => {
-      console.warn('Unauthorized request detected. Signing out and redirecting to login.');
-      // Optionally sign out the Clerk session
-      signOut(() => router.push('/sign-in')); 
-      // Or just redirect
-      // router.push('/sign-in');
+      console.warn('Unauthorized request detected. Redirecting to login.');
+      router.push('/sign-in');
     };
 
     window.addEventListener('auth:unauthorized', handleUnauthorized);
@@ -876,28 +791,7 @@ function AppLayout({ children }) {
 
 ## Authentication
 
-The application uses Clerk for secure user authentication and session management. The `useClerkToken` hook is used to store the Clerk JWT in localStorage for use in authenticated API requests.
-
-### Using the useClerkToken Hook
-
-The `useClerkToken` hook automatically retrieves the Clerk JWT and stores it in localStorage whenever the user session changes. It also sets up a polling interval to periodically check for token updates.
-
-To use the hook, simply import it in your component:
-
-```typescript
-import { useClerkToken } from '@/hooks/useClerkToken';
-
-function MyComponent() {
-  useClerkToken();
-  // ...
-}
-```
-
-The hook will handle token management behind the scenes, making the token available to the API service for authenticated requests.
-
-### Configuring Clerk JWT Templates
-
-By default, the `useClerkToken` hook retrieves the standard Clerk JWT with no additional claims. If your application requires specific claims or permissions in the token, you can configure a custom JWT template in your Clerk dashboard.
+A aplicação usa autenticação própria com JWT em cookie httpOnly. O `AppAuthProvider` mantém estado (usuário/org) e o `AuthGuard` protege rotas client-side. O `service.ts` usa cookies; o header Authorization é apenas fallback.
 
 To use a custom template, update the `getToken` call in the hook:
 
@@ -968,9 +862,9 @@ The application includes profile pages in both tenant and non-tenant contexts:
 
 Access your profile without organization context:
 - URL: `/profile`
-- Shows your Clerk user information
-- Edit personal details
-- Manage account settings
+- Exibe informações básicas do usuário autenticado
+- Editar dados pessoais
+- Gerenciar configurações da conta
 
 ### Tenant-specific Profile
 

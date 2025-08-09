@@ -7,7 +7,7 @@ import VideoUploader from '../../components/Video/VideoUploader';
 import MuxVideoPlayer from '../../components/Video/MuxVideoPlayer';
 import Button from '../../components/Button';
 import videoService from '../../api-connection/videos';
-import { withOrgAuth } from '@/lib/withClientAuth';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 function UploadVideoPage() {
   const router = useRouter();
@@ -97,6 +97,7 @@ function UploadVideoPage() {
       <Head>
         <title>Enviar Vídeo</title>
       </Head>
+      <AuthGuard requireAuth requireOrg>
       <DashboardLayout sidebar={<DashboardSidebar />}>
         <div className="px-6 py-4">
           <div className="flex items-center mb-4">
@@ -166,8 +167,9 @@ function UploadVideoPage() {
           </div>
         </div>
       </DashboardLayout>
+      </AuthGuard>
     </>
   );
 }
 
-export default withOrgAuth(UploadVideoPage); 
+export default UploadVideoPage;

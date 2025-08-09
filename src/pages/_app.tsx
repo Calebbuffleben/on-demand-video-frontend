@@ -2,7 +2,8 @@ import "@/styles/globals.css";
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 
-import { ClerkProvider } from "@clerk/nextjs";
+// import { ClerkProvider } from "@clerk/nextjs";
+import { AppAuthProvider } from '@/contexts/AppAuthContext';
 import { isEmbedRoute } from "@/lib/utils";
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
@@ -143,26 +144,20 @@ export default function App({ Component, pageProps }: AppProps) {
     );
   }
 
-  // 🔥 NORMAL CLERK LOADING for same-domain requests
-  console.log('🔐 LOADING CLERK - SAME DOMAIN:', router.pathname);
+  // 🔥 NORMAL APP LOADING using custom auth provider
+  console.log('🔐 LOADING APP AUTH PROVIDER - SAME DOMAIN:', router.pathname);
   return (
-    <ClerkProvider 
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-      afterSignOutUrl="/"
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-      afterSignInUrl="/organization-selector"
-      afterSignUpUrl="/organization-selector"
-    >
-
+    <>
       <Head>
         <title>Scale - Video Management Platform</title>
         <meta name="description" content="Comprehensive video management for your organization" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Component {...pageProps} />
-      <Toaster position="top-right" />
-    </ClerkProvider>
+      <AppAuthProvider>
+        <Component {...pageProps} />
+        <Toaster position="top-right" />
+      </AppAuthProvider>
+    </>
   );
 }

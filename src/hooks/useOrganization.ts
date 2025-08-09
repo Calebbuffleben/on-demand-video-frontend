@@ -1,8 +1,8 @@
-import { useOrganization as useClerkOrganization } from "@clerk/nextjs";
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import { useRouter } from "next/router";
 
 export function useOrganization() {
-  const { organization, isLoaded } = useClerkOrganization();
+  const { organization, loading } = useAppAuth();
   const router = useRouter();
 
   const switchOrganization = async (organizationId: string) => {
@@ -11,7 +11,7 @@ export function useOrganization() {
 
   return {
     organization,
-    isLoaded,
+    isLoaded: !loading,
     switchOrganization,
     organizationId: organization?.id
   };

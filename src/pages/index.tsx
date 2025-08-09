@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import React, { useRef, useEffect, useState, MouseEvent as ReactMouseEvent } from "react";
-import { useUser, useOrganization } from "@clerk/nextjs";
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import { useRouter } from "next/router";
 
 // Glitch/Typing effect for hero title
@@ -75,8 +75,7 @@ const testimonials: { name: string; avatar: string; text: string }[] = [
 ];
 
 export default function Home() {
-  const { isLoaded, isSignedIn } = useUser();
-  const { organization } = useOrganization();
+  const { isAuthenticated, organization, loading } = useAppAuth();
   const router = useRouter();
   
   // Spotlight effect
@@ -86,16 +85,14 @@ export default function Home() {
   
   // Redirect logged-in users to appropriate page
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
+    if (!loading && isAuthenticated) {
       if (organization) {
-        // User has an organization - redirect to dashboard
         router.push(`/${organization.id}/dashboard`);
       } else {
-        // User doesn't have an organization - redirect to organization selector
         router.push('/organization-selector');
       }
     }
-  }, [isLoaded, isSignedIn, organization, router]);
+  }, [loading, isAuthenticated, organization, router]);
   
   // Spotlight effect useEffect
   useEffect(() => {
@@ -115,7 +112,7 @@ export default function Home() {
   }, []);
   
   // Show loading state while checking authentication
-  if (!isLoaded) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800">
         <div className="text-center">
@@ -127,7 +124,7 @@ export default function Home() {
   }
   
   // Don't render the landing page if user is signed in
-  if (isSignedIn) {
+  if (isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800">
         <div className="text-center">

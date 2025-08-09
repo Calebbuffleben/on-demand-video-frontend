@@ -13,6 +13,7 @@ import DashboardLayout from '../../../../../components/Dashboard/DashboardLayout
 import DashboardSidebar from '../../../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import Image from 'next/image';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 interface VideoAnalytics {
   totalViews: number;
@@ -181,6 +182,7 @@ const VideoAnalyticsPage: React.FC = () => {
   }
 
   return (
+    <AuthGuard requireAuth requireOrg>
     <DashboardLayout sidebar={<DashboardSidebar />}>
       <div className="p-4 md:p-6 bg-gray-50">
         <header className="bg-white shadow-sm mb-6 rounded-lg">
@@ -346,6 +348,7 @@ const VideoAnalyticsPage: React.FC = () => {
         </div>
       </div>
     </DashboardLayout>
+    </AuthGuard>
   );
 };
 

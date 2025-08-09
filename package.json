@@ -12,7 +12,6 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.12.5",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
     "@mux/mux-player-react": "^3.4.0",

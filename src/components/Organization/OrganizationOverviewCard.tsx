@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useOrganization, useUser } from '@clerk/nextjs';
-import Image from 'next/image';
+import { useOrganization } from '@/hooks/useOrganization';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import Link from 'next/link';
 
 type OrganizationOverviewProps = {
@@ -11,7 +11,7 @@ type OrganizationOverviewProps = {
 
 export default function OrganizationOverviewCard({ className = '' }: OrganizationOverviewProps) {
   const { organization, isLoaded: orgLoaded } = useOrganization();
-  const { user, isLoaded: userLoaded } = useUser();
+  const { user } = useAppAuth();
   const [memberCount, setMemberCount] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [creationDate, setCreationDate] = useState<string | null>(null);
@@ -24,33 +24,16 @@ export default function OrganizationOverviewCard({ className = '' }: Organizatio
   
   useEffect(() => {
     if (orgLoaded && organization) {
-      // Format creation date
-      const created = new Date(organization.createdAt);
-      setCreationDate(created.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      }));
-      
-      // Get member count if available
-      if (organization.membersCount !== undefined) {
-        setMemberCount(organization.membersCount);
-      }
+      setCreationDate(null);
+      setMemberCount(null);
     }
   }, [orgLoaded, organization]);
   
   useEffect(() => {
-    if (userLoaded && user && orgLoaded && organization) {
-      // Find user's role in this organization
-      const membership = user.organizationMemberships?.find(
-        m => m.organization.id === organization.id
-      );
-      
-      if (membership) {
-        setUserRole(membership.role);
-      }
+    if (user && orgLoaded && organization) {
+      setUserRole(null);
     }
-  }, [userLoaded, user, orgLoaded, organization]);
+  }, [user, orgLoaded, organization]);
   
   if (!orgLoaded) {
     return (
@@ -131,25 +114,13 @@ export default function OrganizationOverviewCard({ className = '' }: Organizatio
   return (
     <div className={`bg-white rounded-lg shadow-sm overflow-hidden ${className}`}>
       {/* Header with background */}
-      <div className={`bg-gradient-to-r ${organization.imageUrl ? 'from-scale-700 to-scale-800' : getRandomGradient()} p-6 text-white`}>
+      <div className={`bg-gradient-to-r ${getRandomGradient()} p-6 text-white`}>
         <div className="flex items-center">
-          {organization.imageUrl ? (
-            <div className="w-16 h-16 bg-white rounded-lg overflow-hidden mr-4 flex-shrink-0 shadow-md border-2 border-white">
-              <Image 
-                src={organization.imageUrl} 
-                alt={organization.name || 'Organization'} 
-                width={64} 
-                height={64}
-                className="object-cover" 
-              />
-            </div>
-          ) : (
-            <div className="w-16 h-16 bg-white rounded-lg mr-4 flex-shrink-0 flex items-center justify-center text-scale-700 font-bold text-2xl shadow-md border-2 border-white">
-              {organization.name?.charAt(0) || '?'}
-            </div>
-          )}
+          <div className="w-16 h-16 bg-white rounded-lg mr-4 flex-shrink-0 flex items-center justify-center text-scale-700 font-bold text-2xl shadow-md border-2 border-white">
+            {organization?.name?.charAt(0) || '?'}
+          </div>
           <div>
-            <h2 className="text-2xl font-bold">{organization.name}</h2>
+            <h2 className="text-2xl font-bold">{organization?.name || 'Organization'}</h2>
             <div className="flex items-center mt-2">
               {userRole && <RoleBadge role={userRole} />}
               <span className="text-xs ml-2 text-silver-100">Since {creationDate}</span>

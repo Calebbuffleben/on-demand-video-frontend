@@ -11,15 +11,13 @@ import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import Image from 'next/image';
-import { useClerkToken } from '@/hooks/useClerkToken';
-import { withOrgAuth } from '@/lib/withClientAuth';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 function AnalyticsPage() {
   const router = useRouter();
   const tenantId = router.query.tenantId as string;
   
-  // Initialize Clerk token management for this page
-  useClerkToken();
+  // No Clerk token management needed with cookie auth
   
   const [data, setData] = useState<{
     platformStats: {
@@ -128,6 +126,7 @@ function AnalyticsPage() {
   }
 
   return (
+    <AuthGuard requireAuth requireOrg>
     <DashboardLayout sidebar={<DashboardSidebar />}>
       <div className="p-4 md:p-6 bg-gray-50">
         <header className="bg-white shadow-sm mb-6 rounded-lg">
@@ -206,6 +205,7 @@ function AnalyticsPage() {
         </div>
       </div>
     </DashboardLayout>
+    </AuthGuard>
   );
 }
 
@@ -301,4 +301,4 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
-export default withOrgAuth(AnalyticsPage); 
+export default AnalyticsPage;

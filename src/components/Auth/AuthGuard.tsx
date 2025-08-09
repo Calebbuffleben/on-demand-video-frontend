@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser, useOrganization } from '@clerk/nextjs';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -19,13 +19,12 @@ export default function AuthGuard({
   redirectTo = '/sign-in',
   fallback 
 }: AuthGuardProps) {
-  const { isLoaded, isSignedIn } = useUser();
-  const { organization, isLoaded: orgLoaded } = useOrganization();
+  const { isAuthenticated, loading, organization } = useAppAuth();
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (loading) return;
 
     // If authentication is not required, proceed
     if (!requireAuth) {
@@ -34,14 +33,14 @@ export default function AuthGuard({
     }
 
     // If user is not signed in, redirect to login
-    if (!isSignedIn) {
+    if (!isAuthenticated) {
       console.log('🔐 AuthGuard: User not authenticated, redirecting to:', redirectTo);
       router.push(redirectTo);
       return;
     }
 
     // If organization is required but not loaded yet, wait
-    if (requireOrg && !orgLoaded) {
+    if (requireOrg && organization === undefined) {
       return;
     }
 
@@ -54,10 +53,10 @@ export default function AuthGuard({
 
     // All checks passed
     setIsChecking(false);
-  }, [isLoaded, isSignedIn, orgLoaded, organization, requireAuth, requireOrg, redirectTo, router]);
+  }, [loading, isAuthenticated, organization, requireAuth, requireOrg, redirectTo, router]);
 
   // Show loading state while checking authentication
-  if (!isLoaded || isChecking) {
+  if (loading || isChecking) {
     return fallback || (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800">
         <div className="text-center">
@@ -69,7 +68,7 @@ export default function AuthGuard({
   }
 
   // If authentication is required but user is not signed in, show nothing (will redirect)
-  if (requireAuth && !isSignedIn) {
+  if (requireAuth && !isAuthenticated) {
     return null;
   }
 

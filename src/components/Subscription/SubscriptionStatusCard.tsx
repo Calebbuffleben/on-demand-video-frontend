@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useOrganization } from '@clerk/nextjs';
+import { useOrganization } from '@/hooks/useOrganization';
 import Link from 'next/link';
 
 type SubscriptionStatusCardProps = {

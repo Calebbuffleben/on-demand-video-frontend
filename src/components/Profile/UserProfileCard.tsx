@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import Image from 'next/image';
 
 export default function UserProfileCard() {
-  const { user, isLoaded } = useUser();
+  const { user, loading } = useAppAuth();
   const [isEditing, setIsEditing] = useState(false);
   
-  if (!isLoaded) {
+  if (loading) {
     return (
       <div className="bg-white rounded-lg shadow p-8 animate-pulse">
         <div className="h-24 w-24 rounded-full bg-gray-200 mx-auto mb-4"></div>
@@ -45,10 +45,10 @@ export default function UserProfileCard() {
         {/* Avatar */}
         <div className="absolute -top-16 left-6">
           <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white bg-white">
-            {user.imageUrl ? (
+            {false ? (
               <Image 
-                src={user.imageUrl} 
-                alt={user.fullName || 'User'} 
+                src={''} 
+                alt={'User'} 
                 width={96} 
                 height={96}
                 className="object-cover"
@@ -83,7 +83,7 @@ export default function UserProfileCard() {
                 </label>
                 <input
                   type="text"
-                  defaultValue={user.fullName || ''}
+                   defaultValue={`${user.firstName ?? ''} ${user.lastName ?? ''}`}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -94,7 +94,7 @@ export default function UserProfileCard() {
                 </label>
                 <input
                   type="text"
-                  defaultValue={user.username || ''}
+                   defaultValue={user.email || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -121,18 +121,18 @@ export default function UserProfileCard() {
             </div>
           ) : (
             <div>
-              <h2 className="text-xl font-bold">{user.fullName || 'No name provided'}</h2>
-              <p className="text-gray-600">@{user.username || 'username'}</p>
+               <h2 className="text-xl font-bold">{`${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || 'No name provided'}</h2>
+               <p className="text-gray-600">{user.email || ''}</p>
               
               <div className="mt-6 space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                  <p className="mt-1">{user.primaryEmailAddress?.emailAddress || 'No email provided'}</p>
+                  <p className="mt-1">{user.email || 'No email provided'}</p>
                 </div>
                 
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Member since</h3>
-                  <p className="mt-1">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}</p>
+                  <p className="mt-1">{'Unknown'}</p>
                 </div>
               </div>
             </div>

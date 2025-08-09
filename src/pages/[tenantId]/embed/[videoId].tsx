@@ -27,7 +27,7 @@ export const getServerSideProps: GetServerSideProps<EmbedPageProps> = async (con
   context.res.setHeader('X-Tenant-Id', tenantId);
   
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
     const response = await fetch(`${backendUrl}/videos/embed/${videoId}`, {
       method: 'GET',
       headers: {

@@ -1,32 +1,27 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useClerk } from '@clerk/nextjs';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 import api from '../api-connection/service'; // Import the corrected service
 
 export function useApi() {
-    const { session } = useClerk();
+    const { refresh } = useAppAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     
     // Function to get the token and store it if necessary
     const ensureAuthToken = useCallback(async () => {
-        if (!session) return null; // Return null if no session
+        // With cookie httpOnly, we generally don't need to manage a token
+        // Keep this to trigger refresh hooks if needed
         try {
-            const token = await session.getToken();
-            if (token && typeof window !== 'undefined') {
-                localStorage.setItem('token', token);
-            }
-            return token;
-        } catch (error) {
-            console.error('Failed to get or set token', error);
-            // Handle token retrieval error, maybe trigger unauthorized event
+            await refresh();
+        } catch {
             if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('auth:unauthorized'));
             }
-            return null;
         }
-    }, [session]);
+        return null;
+    }, [refresh]);
     
     // Specific methods without the internal request function
     const get = useCallback(async <T,>(url: string): Promise<T | null> => {

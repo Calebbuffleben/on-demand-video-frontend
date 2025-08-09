@@ -2,15 +2,11 @@
 
 import { useRouter } from 'next/router';
 import { useEffect, useCallback } from 'react';
-import api from '../../api-connection/service';
-import { useClerkToken } from '@/hooks/useClerkToken';
+import api from '@/api-connection/service';
 
 const SubscriptionSuccessPage = () => {
   const router = useRouter();
   const { session_id } = router.query;
-  
-  // Initialize Clerk token management for this page
-  useClerkToken();
 
   const updateSubscription = useCallback(async () => {
     if (session_id) {
@@ -19,7 +15,6 @@ const SubscriptionSuccessPage = () => {
         router.push('/dashboard');
       } catch (error) {
         console.error('Error updating subscription:', error);
-        // Handle the error appropriately
       }
     }
   }, [session_id, router]);
@@ -31,4 +26,4 @@ const SubscriptionSuccessPage = () => {
   return <div>Processing subscription...</div>;
 };
 
-export default SubscriptionSuccessPage; 
+export default SubscriptionSuccessPage;

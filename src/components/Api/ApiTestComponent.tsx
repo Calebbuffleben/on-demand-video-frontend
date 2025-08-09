@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import useApi from '@/hooks/useApi';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppAuth } from '@/contexts/AppAuthContext';
 
 interface TestResponse {
   message: string;
@@ -34,7 +34,7 @@ interface AuthMeResponse {
 
 export default function ApiTestComponent() {
   const { get, loading, error } = useApi();
-  const { refreshToken, isAuthenticated } = useAuth();
+  const { refresh: refreshToken, isAuthenticated } = useAppAuth();
   const [response, setResponse] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<string[]>([]);
 

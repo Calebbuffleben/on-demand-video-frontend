@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useOrganization } from '@clerk/nextjs';
+import { useOrganization } from '@/hooks/useOrganization';
 import Link from 'next/link';
 import { withAuth } from '@/lib/withAuth';
 

@@ -1,14 +1,14 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
         'Content-Type': 'application/json'
     },
     withCredentials: true
 });
 
-// Add request interceptor to include Clerk token from localStorage
+// Add request interceptor to include Authorization when explicitly needed (mostly cookies are used)
 api.interceptors.request.use(
     async (config) => {
         // BYPASS COMPLETELY for embed API routes
@@ -27,9 +27,8 @@ api.interceptors.request.use(
             return config;
         }
         
-        // Get token from local storage
-        const token = localStorage.getItem('token') || localStorage.getItem('clerkToken');
-        const clerkOrgId = localStorage.getItem('currentOrganizationId');
+        // Get optional token from local storage (fallback). Primary auth is cookie httpOnly.
+        const token = localStorage.getItem('token');
         const dbOrgId = localStorage.getItem('dbOrganizationId');
         
         // Log request details for debugging
@@ -39,11 +38,7 @@ api.interceptors.request.use(
             config.headers['Authorization'] = `Bearer ${token}`;
             
             // Add organization context headers if available
-            if (clerkOrgId) {
-                // Always use Clerk ID for auth context
-                config.headers['X-Organization-Id'] = clerkOrgId;
-                console.log('Including Clerk organization ID:', clerkOrgId);
-            }
+            // Clerk org header removed
             
             // For endpoints that need database ID format
             if (dbOrgId) {
@@ -51,14 +46,14 @@ api.interceptors.request.use(
                 console.log('Including database organization ID:', dbOrgId);
             }
             
-            // For subscriptions endpoints, prioritize using database ID in URL
+            // For subscriptions endpoints, use database ID in URL when not present
             if (config.url && config.url.includes('/api/subscriptions/')) {
                 // If URL ends with 'current' or ID is already embedded, don't modify
                 if (!config.url.endsWith('/current') && 
                     !config.url.match(/\/api\/subscriptions\/[a-zA-Z0-9_-]+$/)) {
                     
-                    // Use database ID if available, otherwise use Clerk ID
-                    const orgIdForUrl = dbOrgId || clerkOrgId;
+                    // Use database ID if available
+                    const orgIdForUrl = dbOrgId;
                     if (orgIdForUrl) {
                         config.url = `/api/subscriptions/${orgIdForUrl}`;
                         console.log('Using organization ID in URL:', orgIdForUrl);
@@ -101,11 +96,7 @@ api.interceptors.response.use(
                     localStorage.setItem('dbOrganizationId', response.data.organization.id);
                 }
                 
-                // If there's a clerkId field, save that too
-                if (response.data.organization.clerkId) {
-                    console.log('Saving Clerk organization ID from response:', response.data.organization.clerkId);
-                    localStorage.setItem('currentOrganizationId', response.data.organization.clerkId);
-                }
+                // ClerkId removed
             }
         }
         
@@ -124,7 +115,6 @@ api.interceptors.response.use(
         // Only attempt to use localStorage and event dispatching on the client
         if (typeof window !== 'undefined') {
             // Get organization context for better error handling
-            const clerkOrgId = localStorage.getItem('currentOrganizationId');
             const dbOrgId = localStorage.getItem('dbOrganizationId');
             
             // Handle specific error conditions
@@ -146,9 +136,9 @@ api.interceptors.response.use(
                 // Mark this request as retried
                 error.config._retry = true;
                 
-                // Try to get a fresh token from Clerk
+                // Try to get a fresh token (custom auth may not use local token; cookie will be renewed via login)
                 try {
-                    console.log('Attempting to get fresh token from Clerk...');
+                    console.log('Attempting token refresh...');
                     
                     // Dispatch event to trigger token refresh
                     window.dispatchEvent(new CustomEvent('auth:unauthorized'));
@@ -183,10 +173,7 @@ api.interceptors.response.use(
                     data: error.config?.data
                 });
                 
-                console.log('Organization IDs:', {
-                    clerkId: clerkOrgId,
-                    dbId: dbOrgId
-                });
+                console.log('Organization IDs:', { dbId: dbOrgId });
                 
                 // If error is organization related, check auth state
                 if (error.response?.data?.message?.includes('organization')) {

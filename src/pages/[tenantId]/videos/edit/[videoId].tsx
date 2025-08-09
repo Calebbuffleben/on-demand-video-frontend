@@ -7,6 +7,7 @@ import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
 import CoverUploader from '@/components/Video/CoverUploader';
 import videoService, { VideoData } from '@/api-connection/videos';
 import ColorPicker from '@/components/ui/ColorPicker';
+import AuthGuard from '@/components/Auth/AuthGuard';
 
 // Edit Video Page allows users to update video details and player options
 export default function EditVideoPage() {
@@ -269,6 +270,7 @@ export default function EditVideoPage() {
   };
 
   return (
+    <AuthGuard requireAuth requireOrg>
     <div className="min-h-screen bg-silver-50">
       <Head>
         {/* Page title for SEO and browser tab */}
@@ -1045,5 +1047,6 @@ export default function EditVideoPage() {
         )}
       </main>
     </div>
+    </AuthGuard>
   );
 } 
