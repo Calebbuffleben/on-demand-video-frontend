@@ -17,7 +17,7 @@ export default function AuthShell({ title, description, children, footer }: Auth
       <Card className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 text-white">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <ScaleLogo size="lg" showText />
+            <ScaleLogo size="lg" showText variant="light" />
           </div>
           <CardTitle className="text-white mt-2">{title}</CardTitle>
           {description && (
