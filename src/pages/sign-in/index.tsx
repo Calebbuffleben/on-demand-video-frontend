@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAppAuth } from '@/contexts/AppAuthContext';
+import AuthShell, { AuthInput } from '@/components/Auth/AuthShell';
+import Button from '@/components/Button';
 
 export default function SignInPage() {
   const { login, loading } = useAppAuth();
@@ -22,43 +24,42 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-sm bg-gray-900 p-6 rounded-lg shadow">
-        <h1 className="text-xl font-semibold text-white mb-4">Entrar</h1>
-        {error && <div className="text-red-400 text-sm mb-3">{error}</div>}
-        <label className="block text-sm text-gray-300 mb-1">Email</label>
-        <input
+    <AuthShell
+      title="Entrar"
+      description="Acesse sua conta para continuar"
+      footer={(
+        <div className="flex w-full justify-between">
+          <span>
+            <span className="text-silver-400">Não tem conta?</span>{' '}
+            <Link className="text-white underline" href="/sign-up">Criar conta</Link>
+          </span>
+          <Link className="text-white underline" href="/forgot-password">Esqueci minha senha</Link>
+        </div>
+      )}
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        {error && <div className="text-red-300 text-sm">{error}</div>}
+        <AuthInput
+          label="Email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
           required
+          placeholder="seu@email.com"
         />
-        <label className="block text-sm text-gray-300 mb-1">Senha</label>
-        <input
+        <AuthInput
+          label="Senha"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
           required
+          placeholder="••••••••"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white rounded"
-        >
+        <Button type="submit" className="w-full" isLoading={loading}>
           {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-        <div className="flex justify-between text-gray-400 text-sm mt-4">
-          <span>
-            Não tem conta? <Link className="text-blue-400 hover:underline" href="/sign-up">Criar conta</Link>
-          </span>
-          <span>
-            <Link className="text-blue-400 hover:underline" href="/forgot-password">Esqueci minha senha</Link>
-          </span>
-        </div>
+        </Button>
       </form>
-    </div>
+    </AuthShell>
   );
 }
 

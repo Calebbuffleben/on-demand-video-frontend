@@ -3,6 +3,8 @@
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useAppAuth } from '@/contexts/AppAuthContext';
+import AuthShell, { AuthInput } from '@/components/Auth/AuthShell';
+import Button from '@/components/Button';
 
 export default function SignUpPage() {
   const { register, loading } = useAppAuth();
@@ -48,76 +50,77 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-sm bg-gray-900 p-6 rounded-lg shadow">
-        <h1 className="text-xl font-semibold text-white mb-4">Criar conta</h1>
+    <AuthShell
+      title="Criar conta"
+      description="Preencha seus dados para começar"
+      footer={(
+        <p>
+          <span className="text-silver-400">Já tem conta?</span>{' '}
+          <Link className="text-white underline" href="/sign-in">Entrar</Link>
+        </p>
+      )}
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
         {error && (
-          <div className="text-red-400 text-sm mb-3 whitespace-pre-line">{error}</div>
+          <div className="text-red-300 text-sm whitespace-pre-line">{error}</div>
         )}
-        <label className="block text-sm text-gray-300 mb-1">Nome</label>
-        <input
+        <AuthInput
+          label="Nome"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           onBlur={() => setFirstNameTouched(true)}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
           required
+          placeholder="Seu nome"
         />
         {(firstNameTouched || submitted) && !firstNameValid && (
-          <div className="text-xs text-red-400 mb-2">O nome deve ter pelo menos 2 caracteres.</div>
+          <div className="text-xs text-red-300">O nome deve ter pelo menos 2 caracteres.</div>
         )}
-        <label className="block text-sm text-gray-300 mb-1">Sobrenome</label>
-        <input
+        <AuthInput
+          label="Sobrenome"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           onBlur={() => setLastNameTouched(true)}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
           required
+          placeholder="Seu sobrenome"
         />
         {(lastNameTouched || submitted) && !lastNameValid && (
-          <div className="text-xs text-red-400 mb-2">O sobrenome deve ter pelo menos 2 caracteres.</div>
+          <div className="text-xs text-red-300">O sobrenome deve ter pelo menos 2 caracteres.</div>
         )}
-        <label className="block text-sm text-gray-300 mb-1">Email</label>
-        <input
+        <AuthInput
+          label="Email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onBlur={() => setEmailTouched(true)}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
           required
+          placeholder="voce@empresa.com"
         />
         {(emailTouched || submitted) && !emailValid && (
-          <div className="text-xs text-red-400 mb-2">Informe um email válido.</div>
+          <div className="text-xs text-red-300">Informe um email válido.</div>
         )}
-        <label className="block text-sm text-gray-300 mb-1">Senha</label>
-        <input
+        <AuthInput
+          label="Senha"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onBlur={() => setPasswordTouched(true)}
-          className="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
           required
+          placeholder="Mínimo 8 caracteres, com maiúscula, minúscula, número e símbolo"
         />
         {(passwordTouched || submitted) && (
-        <div className="text-xs -mt-3 mb-4 space-y-1">
-          <div className={pwLen ? 'text-green-400' : 'text-gray-400'}>• Pelo menos 8 caracteres</div>
-          <div className={pwUpper ? 'text-green-400' : 'text-gray-400'}>• Pelo menos 1 letra maiúscula</div>
-          <div className={pwLower ? 'text-green-400' : 'text-gray-400'}>• Pelo menos 1 letra minúscula</div>
-          <div className={pwDigit ? 'text-green-400' : 'text-gray-400'}>• Pelo menos 1 número</div>
-          <div className={pwSpecial ? 'text-green-400' : 'text-gray-400'}>• Pelo menos 1 caractere especial</div>
-        </div>
+          <div className="text-xs text-silver-300 space-y-1">
+            <div className={pwLen ? 'text-green-300' : 'text-silver-400'}>• Pelo menos 8 caracteres</div>
+            <div className={pwUpper ? 'text-green-300' : 'text-silver-400'}>• Pelo menos 1 letra maiúscula</div>
+            <div className={pwLower ? 'text-green-300' : 'text-silver-400'}>• Pelo menos 1 letra minúscula</div>
+            <div className={pwDigit ? 'text-green-300' : 'text-silver-400'}>• Pelo menos 1 número</div>
+            <div className={pwSpecial ? 'text-green-300' : 'text-silver-400'}>• Pelo menos 1 caractere especial</div>
+          </div>
         )}
-        <button
-          type="submit"
-          disabled={loading || !formValid}
-          className="w-full py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white rounded"
-        >
+        <Button type="submit" className="w-full" disabled={loading || !formValid} isLoading={loading}>
           {loading ? 'Criando...' : 'Criar conta'}
-        </button>
-        <p className="text-gray-400 text-sm mt-4">
-          Já tem conta? <Link className="text-blue-400 hover:underline" href="/sign-in">Entrar</Link>
-        </p>
+        </Button>
       </form>
-    </div>
+    </AuthShell>
   );
 }
 

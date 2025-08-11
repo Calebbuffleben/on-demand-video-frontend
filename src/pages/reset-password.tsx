@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import api from '@/api-connection/service';
+import AuthShell, { AuthInput } from '@/components/Auth/AuthShell';
+import Button from '@/components/Button';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -34,26 +36,34 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800 p-6">
-      <form onSubmit={onSubmit} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 w-full max-w-md text-white">
-        <h1 className="text-2xl font-bold mb-4">Redefinir Senha</h1>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">Nova senha</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded px-3 py-2 bg-white/5 border border-white/20" required />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Confirmar senha</label>
-            <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} className="w-full rounded px-3 py-2 bg-white/5 border border-white/20" required />
-          </div>
-          {error && <p className="text-red-300 text-sm">{error}</p>}
-          {message && <p className="text-green-300 text-sm">{message}</p>}
-          <button type="submit" disabled={!canSubmit || submitting} className="w-full py-3 rounded bg-scale-700 hover:bg-scale-800 disabled:opacity-50">
-            {submitting ? 'Enviando...' : 'Atualizar Senha'}
-          </button>
-        </div>
+    <AuthShell
+      title="Redefinir Senha"
+      description="Crie uma nova senha para acessar sua conta"
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        <AuthInput
+          label="Nova senha"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          placeholder="mínimo de 8 caracteres"
+        />
+        <AuthInput
+          label="Confirmar senha"
+          type="password"
+          value={confirm}
+          onChange={e => setConfirm(e.target.value)}
+          required
+          placeholder="repita a senha"
+        />
+        {error && <p className="text-red-300 text-sm">{error}</p>}
+        {message && <p className="text-green-300 text-sm">{message}</p>}
+        <Button type="submit" className="w-full" disabled={!canSubmit} isLoading={submitting}>
+          {submitting ? 'Enviando...' : 'Atualizar Senha'}
+        </Button>
       </form>
-    </div>
+    </AuthShell>
   );
 }
 
