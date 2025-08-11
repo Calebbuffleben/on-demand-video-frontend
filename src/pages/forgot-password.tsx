@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import api from '@/api-connection/service';
+import AuthShell, { AuthInput } from '@/components/Auth/AuthShell';
+import Button from '@/components/Button';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -25,24 +27,26 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scale-950 via-scale-900 to-scale-800 p-6">
-      <form onSubmit={onSubmit} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 w-full max-w-md text-white">
-        <h1 className="text-2xl font-bold mb-4">Esqueci minha senha</h1>
-        <label className="block text-sm mb-1">E-mail</label>
-        <input
+    <AuthShell
+      title="Esqueci minha senha"
+      description="Informe seu e-mail para enviarmos o link de redefinição"
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
+        <AuthInput
+          label="E-mail"
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
-          className="w-full rounded px-3 py-2 bg-white/5 border border-white/20 mb-4"
+          placeholder="voce@empresa.com"
         />
-        {error && <p className="text-red-300 text-sm mb-2">{error}</p>}
-        {message && <p className="text-green-300 text-sm mb-2">{message}</p>}
-        <button type="submit" disabled={submitting} className="w-full py-3 rounded bg-scale-700 hover:bg-scale-800 disabled:opacity-50">
+        {error && <p className="text-red-300 text-sm">{error}</p>}
+        {message && <p className="text-green-300 text-sm">{message}</p>}
+        <Button type="submit" className="w-full" isLoading={submitting}>
           {submitting ? 'Enviando...' : 'Enviar instruções'}
-        </button>
+        </Button>
       </form>
-    </div>
+    </AuthShell>
   );
 }
 
