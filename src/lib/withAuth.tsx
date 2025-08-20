@@ -6,8 +6,12 @@ export function withAuth<T extends Record<string, unknown>>(
 ): GetServerSideProps<T> {
   return async (context) => {
     try {
-      const token = context.req.headers.cookie || '';
-      const hasAuthCookie = token.includes('token=');
+      const cookieHeader = context.req.headers.cookie || '';
+      const hasAuthCookie = (
+        cookieHeader.includes('scale_token=') ||
+        cookieHeader.includes('scale_refresh=') ||
+        cookieHeader.includes('token=')
+      );
       
       console.log('🔐 AUTH CHECK:', { hasAuthCookie, pathname: context.resolvedUrl });
       
@@ -52,7 +56,11 @@ export function withOrgAuth<T extends Record<string, unknown>>(
   return async (context) => {
     try {
       const cookie = context.req.headers.cookie || '';
-      const hasCookie = cookie.includes('token=');
+      const hasCookie = (
+        cookie.includes('scale_token=') ||
+        cookie.includes('scale_refresh=') ||
+        cookie.includes('token=')
+      );
       
       console.log('🔐 ORG AUTH CHECK:', { hasCookie, pathname: context.resolvedUrl });
       

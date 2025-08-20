@@ -32,9 +32,9 @@ export default function AuthGuard({
       return;
     }
 
-    // If user is not signed in, redirect to login
     if (!isAuthenticated) {
       console.log('🔐 AuthGuard: User not authenticated, redirecting to:', redirectTo);
+      setIsChecking(false);
       router.push(redirectTo);
       return;
     }
@@ -47,6 +47,7 @@ export default function AuthGuard({
     // If organization is required but user has no organization, redirect to organization selector
     if (requireOrg && !organization) {
       console.log('🔐 AuthGuard: User has no organization, redirecting to organization selector');
+      setIsChecking(false);
       router.push('/organization-selector');
       return;
     }

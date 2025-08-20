@@ -41,10 +41,24 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async () => {
     try {
       const res = await api.get('/auth/me');
-      const { user, organization } = res.data || {};
+      const payload = (res.data && (res.data.data ?? res.data)) || {};
+      const { user, organization } = payload || {};
       setUser(user ?? null);
       setOrganization(organization ?? null);
-    } catch {
+    } catch (err: any) {
+      // On 401, attempt an explicit refresh and retry once
+      const status = err?.response?.status;
+      if (status === 401) {
+        try {
+          await api.post('/auth/refresh');
+          const retry = await api.get('/auth/me');
+          const retryPayload = (retry.data && (retry.data.data ?? retry.data)) || {};
+          const { user, organization } = retryPayload || {};
+          setUser(user ?? null);
+          setOrganization(organization ?? null);
+          return;
+        } catch {}
+      }
       setUser(null);
       setOrganization(null);
     }
