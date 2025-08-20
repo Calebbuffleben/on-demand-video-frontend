@@ -146,6 +146,26 @@ const defaultMockData = {
 
 const analyticsService = {
   /**
+   * Send player event to backend
+   */
+  sendEvent: async (payload: {
+    videoId: string;
+    eventType: 'play' | 'pause' | 'ended' | 'timeupdate';
+    currentTime?: number;
+    duration?: number;
+    userId?: string;
+    sessionId?: string;
+    clientId?: string;
+    organizationId?: string;
+  }) => {
+    try {
+      await api.post('analytics/events', payload);
+    } catch (e) {
+      // Best-effort; do not throw
+      console.warn('analytics sendEvent failed', e);
+    }
+  },
+  /**
    * Get all dashboard analytics in a single request
    */
   getDashboardAnalytics: async (timeRange?: TimeRange): Promise<AnalyticsResponse> => {

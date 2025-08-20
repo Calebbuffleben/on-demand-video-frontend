@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
-import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
+import CustomVideoPlayer from '@/components/Video/CustomVideoPlayer';
 import videoService, { VideoData } from '@/api-connection/videos';
 import { useOrganization } from '@/hooks/useOrganization';
 import AuthGuard from '@/components/Auth/AuthGuard';
@@ -28,8 +28,19 @@ export default function VideoDetailPage() {
       setError(null);
       
       console.log('Fetching video with ID:', id);
+      // Try status endpoint first for internal videos
+      const statusResponse = await videoService.getVideoStatus(id);
+      console.log('Status API Response:', JSON.stringify(statusResponse, null, 2));
+      
+      if (statusResponse.success && statusResponse.video && statusResponse.video.playback?.hls) {
+        console.log('Using status endpoint data');
+        setVideo(statusResponse.video);
+        return;
+      }
+      
+      // Fallback to regular endpoint
       const response = await videoService.getVideoByUid(id);
-      console.log('API Response:', JSON.stringify(response, null, 2));
+      console.log('Regular API Response:', JSON.stringify(response, null, 2));
       
       if (response.success && response.data) {
         // Handle both array and object responses
@@ -194,8 +205,9 @@ export default function VideoDetailPage() {
                 <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
                   <div className="absolute inset-0">
                     {video.playback?.hls ? (
-                      <MuxVideoPlayer 
+                      <CustomVideoPlayer 
                         src={video.playback}
+                        videoId={video.uid} // Pass video ID for JWT token generation
                         title={video.meta?.displayOptions?.showTitle ? video.meta?.name : undefined}
                         autoPlay={video.meta?.displayOptions?.autoPlay}
                         showControls={video.meta?.displayOptions?.showPlaybackControls}

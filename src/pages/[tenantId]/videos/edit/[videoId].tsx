@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
-import MuxVideoPlayer from '@/components/Video/MuxVideoPlayer';
+import CustomVideoPlayer from '@/components/Video/CustomVideoPlayer';
 import CoverUploader from '@/components/Video/CoverUploader';
 import videoService, { VideoData } from '@/api-connection/videos';
 import ColorPicker from '@/components/ui/ColorPicker';
@@ -52,6 +52,9 @@ export default function EditVideoPage() {
     showBranding: true,
     showTechnicalInfo: false
   });
+  // Live edit mode to tweak options directly over the video preview
+  const [liveEdit, setLiveEdit] = useState(false);
+  const [liveEditMore, setLiveEditMore] = useState(true);
   // Add CTA state
   const [ctaFields, setCtaFields] = useState({
     showCta: false,
@@ -65,10 +68,7 @@ export default function EditVideoPage() {
   const router = useRouter();
   const { videoId, tenantId } = router.query;
 
-  // Log displayOptions whenever it changes
-  useEffect(() => {
-    console.log('[DEBUG] displayOptions state in parent has changed to:', displayOptions);
-  }, [displayOptions]);
+
 
   // Fetch video data when videoId changes
   useEffect(() => {
@@ -341,22 +341,308 @@ export default function EditVideoPage() {
         {!loading && !error && video && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Video Preview Column */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                  {/* Live edit toggle */}
+                  <div className="absolute top-2 left-2 z-30">
+                    <button
+                      type="button"
+                      onClick={() => setLiveEdit(v => !v)}
+                      className={`px-4 py-2 rounded-md text-sm font-medium shadow-lg transition-all ${liveEdit ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-scale-900 hover:bg-gray-50'}`}
+                    >
+                      {liveEdit ? 'Live edit: ON' : 'Live edit: OFF'}
+                    </button>
+                  </div>
+
+                  {/* Inline live editor (fixed panel to avoid clipping by video box) */}
+                  {liveEdit && (
+                    <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 w-[320px] max-w-[90vw] max-h-[85vh] overflow-auto rounded-lg">
+                      <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border border-silver-200 shadow-lg p-3 space-y-2 text-xs rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium text-scale-900 text-sm">Ajustes Rápidos</div>
+                          <button
+                            type="button"
+                            className="text-blue-600 hover:text-blue-700 text-xs"
+                            onClick={() => setLiveEditMore(v => !v)}
+                          >
+                            {liveEditMore ? 'Ver menos' : 'Ver mais'}
+                          </button>
+                        </div>
+                        {/* Básico */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <label className="inline-flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={displayOptions.showPlaybackControls}
+                              onChange={() => handleToggleOption('showPlaybackControls')}
+                            />
+                            <span>Controles</span>
+                          </label>
+                          <label className="inline-flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={displayOptions.showProgressBar}
+                              onChange={() => handleToggleOption('showProgressBar')}
+                            />
+                            <span>Progresso</span>
+                          </label>
+                          <label className="inline-flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={displayOptions.autoPlay}
+                              onChange={() => handleToggleOption('autoPlay')}
+                            />
+                            <span>Autoplay</span>
+                          </label>
+                          <label className="inline-flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={displayOptions.muted}
+                              onChange={() => handleToggleOption('muted')}
+                            />
+                            <span>Sem som</span>
+                          </label>
+                          <label className="inline-flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={displayOptions.loop}
+                              onChange={() => handleToggleOption('loop')}
+                            />
+                            <span>Loop</span>
+                          </label>
+                          <label className="inline-flex items-center gap-2 col-span-2">
+                            <input
+                              type="checkbox"
+                              checked={displayOptions.showSoundControl}
+                              onChange={() => {
+                                const newValue = !displayOptions.showSoundControl;
+                                setDisplayOptions(prev => ({
+                                  ...prev,
+                                  showSoundControl: newValue,
+                                  autoPlay: newValue ? true : prev.autoPlay,
+                                  muted: newValue ? true : prev.muted
+                                }));
+                              }}
+                            />
+                            <span>Mostrar Controle de Som (ativa autoplay+mute)</span>
+                          </label>
+                        </div>
+                        {/* Estilo do Player */}
+                        <div className="pt-2 border-t border-silver-200 space-y-2">
+                          <div className="font-medium text-scale-900">Estilo do Player</div>
+                          {/* Cor da barra de progresso */}
+                          <label className="flex items-center justify-between gap-2">
+                            <span className="text-silver-700">Cor da barra</span>
+                            <input
+                              type="color"
+                              value={displayOptions.progressBarColor}
+                              onChange={(e) => setDisplayOptions(prev => ({ ...prev, progressBarColor: e.target.value }))}
+                              className="w-8 h-6 p-0 border border-silver-300 rounded"
+                            />
+                          </label>
+                          {/* Tamanho do botão play */}
+                          <label className="block">
+                            <span className="text-silver-700">Tamanho do botão Play</span>
+                            <input
+                              type="range"
+                              min={16}
+                              max={96}
+                              step={1}
+                              value={displayOptions.playButtonSize}
+                              onChange={(e) => setDisplayOptions(prev => ({ ...prev, playButtonSize: parseInt(e.target.value) }))}
+                              className="w-full"
+                            />
+                          </label>
+                          {/* Cores do botão play */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <label className="flex items-center justify-between gap-2">
+                              <span className="text-silver-700">Play cor</span>
+                              <input
+                                type="color"
+                                value={displayOptions.playButtonColor}
+                                onChange={(e) => setDisplayOptions(prev => ({ ...prev, playButtonColor: e.target.value }))}
+                                className="w-8 h-6 p-0 border border-silver-300 rounded"
+                              />
+                            </label>
+                            <label className="flex items-center justify-between gap-2">
+                              <span className="text-silver-700">Play fundo</span>
+                              <input
+                                type="color"
+                                value={displayOptions.playButtonBgColor}
+                                onChange={(e) => setDisplayOptions(prev => ({ ...prev, playButtonBgColor: e.target.value }))}
+                                className="w-8 h-6 p-0 border border-silver-300 rounded"
+                              />
+                            </label>
+                          </div>
+                          {/* Controle de Som - estilo */}
+                          <div className="pt-1 border-t border-silver-200 space-y-2">
+                            <div className="font-medium text-scale-900">Controle de Som</div>
+                            <label className="flex items-center justify-between gap-2">
+                              <span className="text-silver-700">Cor</span>
+                              <input
+                                type="color"
+                                value={displayOptions.soundControlColor}
+                                onChange={(e) => setDisplayOptions(prev => ({ ...prev, soundControlColor: e.target.value }))}
+                                className="w-8 h-6 p-0 border border-silver-300 rounded"
+                              />
+                            </label>
+                            <label className="block">
+                              <span className="text-silver-700">Tamanho</span>
+                              <input
+                                type="range"
+                                min={24}
+                                max={96}
+                                step={4}
+                                value={displayOptions.soundControlSize}
+                                onChange={(e) => setDisplayOptions(prev => ({ ...prev, soundControlSize: parseInt(e.target.value) }))}
+                                className="w-full"
+                              />
+                            </label>
+                            <label className="block">
+                              <span className="text-silver-700">Opacidade</span>
+                              <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={5}
+                                value={Math.round((displayOptions.soundControlOpacity ?? 0.8) * 100)}
+                                onChange={(e) => setDisplayOptions(prev => ({ ...prev, soundControlOpacity: parseInt(e.target.value) / 100 }))}
+                                className="w-full"
+                              />
+                            </label>
+                            <label className="block">
+                              <span className="text-silver-700">Texto</span>
+                              <input
+                                type="text"
+                                value={displayOptions.soundControlText}
+                                onChange={(e) => setDisplayOptions(prev => ({ ...prev, soundControlText: e.target.value }))}
+                                className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500"
+                                placeholder="Ativar som"
+                              />
+                            </label>
+                          </div>
+                          {/* Avançado (mostrar apenas com Ver mais) */}
+                          {liveEditMore && (
+                            <div className="pt-2 border-t border-silver-200 space-y-2">
+                              <div className="font-medium text-scale-900">Avançado</div>
+                              <label className="inline-flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={displayOptions.useOriginalProgressBar}
+                                  onChange={() => handleToggleOption('useOriginalProgressBar')}
+                                />
+                                <span>Barra personalizada</span>
+                              </label>
+                              <label className="block">
+                                <span className="text-silver-700">Suavização do progresso</span>
+                                <input
+                                  type="range"
+                                  min={-5}
+                                  max={5}
+                                  step={0.1}
+                                  value={displayOptions.progressEasing}
+                                  onChange={(e) => setDisplayOptions(prev => ({ ...prev, progressEasing: parseFloat(e.target.value) }))}
+                                  className="w-full"
+                                />
+                              </label>
+                              <label className="inline-flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={embedOptions.showTechnicalInfo}
+                                  onChange={() => setEmbedOptions(prev => ({ ...prev, showTechnicalInfo: !prev.showTechnicalInfo }))}
+                                />
+                                <span>Mostrar info técnica</span>
+                              </label>
+                            </div>
+                          )}
+                          {/* CTA (mostrar apenas com Ver mais) */}
+                          {liveEditMore && (
+                            <div className="pt-2 border-t border-silver-200 space-y-2">
+                              <div className="font-medium text-scale-900">CTA</div>
+                              <label className="inline-flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={ctaFields.showCta}
+                                  onChange={(e) => setCtaFields(prev => ({ ...prev, showCta: e.target.checked }))}
+                                />
+                                <span>Mostrar CTA</span>
+                              </label>
+                              {ctaFields.showCta && (
+                                <div className="space-y-2">
+                                  <label className="block">
+                                    <span className="text-silver-700">Texto</span>
+                                    <input
+                                      type="text"
+                                      value={ctaFields.ctaText}
+                                      onChange={(e) => setCtaFields(prev => ({ ...prev, ctaText: e.target.value }))}
+                                      className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500"
+                                    />
+                                  </label>
+                                  <label className="block">
+                                    <span className="text-silver-700">Texto do botão</span>
+                                    <input
+                                      type="text"
+                                      value={ctaFields.ctaButtonText}
+                                      onChange={(e) => setCtaFields(prev => ({ ...prev, ctaButtonText: e.target.value }))}
+                                      className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500"
+                                    />
+                                  </label>
+                                  <label className="block">
+                                    <span className="text-silver-700">Link</span>
+                                    <input
+                                      type="url"
+                                      value={ctaFields.ctaLink}
+                                      onChange={(e) => setCtaFields(prev => ({ ...prev, ctaLink: e.target.value }))}
+                                      className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500"
+                                    />
+                                  </label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <label className="block">
+                                      <span className="text-silver-700">Início (s)</span>
+                                      <input
+                                        type="number"
+                                        value={ctaFields.ctaStartTime ?? ''}
+                                        onChange={(e) => setCtaFields(prev => ({ ...prev, ctaStartTime: e.target.value ? Number(e.target.value) : undefined }))}
+                                        className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500"
+                                      />
+                                    </label>
+                                    <label className="block">
+                                      <span className="text-silver-700">Fim (s)</span>
+                                      <input
+                                        type="number"
+                                        value={ctaFields.ctaEndTime ?? ''}
+                                        onChange={(e) => setCtaFields(prev => ({ ...prev, ctaEndTime: e.target.value ? Number(e.target.value) : undefined }))}
+                                        className="mt-1 block w-full rounded-md border-silver-300 shadow-sm focus:border-scale-500 focus:ring-scale-500"
+                                      />
+                                    </label>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="pt-1 border-t border-silver-200 flex items-center justify-between">
+                          <span className="text-silver-600">Visualização ao vivo</span>
+                          <a href="#edit-form" className="text-blue-600 hover:text-blue-700">Salvar abaixo</a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="absolute inset-0">
                     {video.playback?.hls ? (
-                      <MuxVideoPlayer 
+                      <CustomVideoPlayer 
                         src={video.playback}
-                        title={displayOptions.showTitle ? video.meta?.name : undefined}
+                        videoId={video.uid} // Pass video ID for JWT token generation
                         autoPlay={displayOptions.autoPlay}
-                        showControls={displayOptions.showPlaybackControls}
+                        controls={displayOptions.showPlaybackControls}
                         muted={displayOptions.muted}
                         loop={displayOptions.loop}
                         hideProgress={!displayOptions.showProgressBar}
                         showTechnicalInfo={embedOptions.showTechnicalInfo}
-                        useOriginalProgressBar={displayOptions.useOriginalProgressBar}
                         progressBarColor={displayOptions.progressBarColor}
+                        useOriginalProgressBar={displayOptions.useOriginalProgressBar}
                         progressEasing={displayOptions.progressEasing}
                         playButtonColor={displayOptions.playButtonColor}
                         playButtonSize={displayOptions.playButtonSize}
@@ -404,7 +690,7 @@ export default function EditVideoPage() {
             </div>
             
             {/* Edit Form Column */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-1 lg:sticky lg:top-6 self-start" id="edit-form">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-silver-200">
                   <h2 className="text-lg font-medium text-scale-900">Editar Detalhes do Vídeo</h2>
@@ -615,15 +901,29 @@ export default function EditVideoPage() {
                             type="checkbox"
                             id="show-sound-control"
                             checked={displayOptions.showSoundControl}
-                            onChange={() => handleToggleOption('showSoundControl')}
+                            onChange={() => {
+                              const newValue = !displayOptions.showSoundControl;
+                              setDisplayOptions(prev => ({
+                                ...prev,
+                                showSoundControl: newValue,
+                                // Se mostrar controle de som, automaticamente habilita autoplay+muted
+                                autoPlay: newValue ? true : prev.autoPlay,
+                                muted: newValue ? true : prev.muted
+                              }));
+                            }}
                             className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
                           <label htmlFor="show-sound-control" className="ml-3 block text-sm font-medium text-silver-700">
                             Mostrar Controle de Som
                           </label>
+                          <div className="ml-2">
+                            <span className="text-xs text-silver-500">
+                              (Habilita automaticamente reprodução automática sem som)
+                            </span>
+                          </div>
                         </div>
 
-                        {/* Use original Mux progress bar toggle */}
+                        {/* Use custom progress bar toggle */}
                         <div className="flex items-center">
                           <input
                             type="checkbox"
@@ -633,8 +933,9 @@ export default function EditVideoPage() {
                             className="h-4 w-4 text-scale-600 focus:ring-scale-500 border-silver-300 rounded"
                           />
                           <label htmlFor="use-original-progress-bar" className="ml-3 block text-sm font-medium text-silver-700">
-                            Usar barra de progresso original do Mux
+                            Usar barra de progresso personalizada
                           </label>
+
                         </div>
                         {/* Progress bar color picker */}
                         <ColorPicker

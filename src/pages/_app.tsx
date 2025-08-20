@@ -77,8 +77,8 @@ export default function App({ Component, pageProps }: AppProps) {
                              router.pathname.includes('embed') || 
                              router.asPath.includes('embed');
   
-  // 🎯 BYPASS DECISION: ONLY for cross-domain iframe requests
-  const shouldBypassClerk = isCrossDomainIframe;
+  // 🎯 BYPASS DECISION: for cross-domain iframes OR any embed route
+  const shouldBypassAuth = isCrossDomainIframe || immediateEmbedCheck || isEmbedPage;
   
   // 🔥 PRODUCTION LOGGING
   console.log('🚀 _APP.TSX BYPASS DECISION:', {
@@ -86,14 +86,15 @@ export default function App({ Component, pageProps }: AppProps) {
     immediateEmbedCheck,
     isEmbedPage,
     isCrossDomainIframe,
-    shouldBypassClerk,
+    shouldBypassAuth,
     environment: process.env.NODE_ENV,
   });
 
-  // 🚨 BYPASS CLERK ONLY for cross-domain iframe requests
-  if (shouldBypassClerk) {
-    console.log('🚀 BYPASSING CLERK - CROSS-DOMAIN IFRAME:', {
+  // 🚨 BYPASS AUTH/CLERK on embeds or cross-domain iframes
+  if (shouldBypassAuth) {
+    console.log('🚀 BYPASSING AUTH PROVIDER FOR EMBED/CROSS-DOMAIN:', {
       crossDomain: isCrossDomainIframe,
+      isEmbedPage: isEmbedPage || immediateEmbedCheck,
       path: router.pathname
     });
     
@@ -105,18 +106,15 @@ export default function App({ Component, pageProps }: AppProps) {
           <script
             dangerouslySetInnerHTML={{
               __html: `
-                console.log('🌐 CROSS-DOMAIN EMBED LOADED');
+                console.log('🌐 EMBED MODE LOADED');
                 console.log('🌐 HOST:', window.location.host);
                 console.log('🌐 IN IFRAME:', window !== window.top);
                 
-                // BLOCK CLERK FOR CROSS-DOMAIN ONLY
+                // Block Clerk environment variables just in case
                 (function() {
-                  // Block Clerk environment variables
                   window.__CLERK_FRONTEND_API = null;
                   window.__CLERK_PUBLISHABLE_KEY = null;
                   window.__CLERK_SECRET_KEY = null;
-                  
-                  // Block Clerk from loading scripts
                   const originalCreateElement = document.createElement;
                   document.createElement = function(tagName) {
                     const element = originalCreateElement.call(document, tagName);
@@ -132,8 +130,6 @@ export default function App({ Component, pageProps }: AppProps) {
                     }
                     return element;
                   };
-                  
-                  console.log('🚫 CLERK BLOCKING ACTIVATED FOR CROSS-DOMAIN');
                 })();
               `
             }}

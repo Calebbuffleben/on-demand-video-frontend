@@ -156,6 +156,21 @@ const videoService = {
   },
 
   /**
+   * Get video status with detailed playback information
+   * @param uid The video's unique identifier
+   */
+  getVideoStatus: async (uid: string): Promise<{ success: boolean; video?: VideoData }> => {
+    try {
+      const response = await api.get<{ success: boolean; video: VideoData }>(`videos/${uid}/status`);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching video status:', error);
+      return { success: false };
+    }
+  },
+
+  /**
    * Get a one-time upload URL for direct creator uploads
    * @param maxDurationSeconds The maximum duration for the video in seconds
    * @param organizationId The organization ID for the upload
@@ -211,6 +226,96 @@ const videoService = {
         }
       }
       throw error;
+    }
+  },
+
+  /**
+   * Multipart upload (S3-compatible, R2)
+   */
+  initMultipartUpload: async (
+    organizationId: string,
+    name?: string,
+    description?: string,
+    contentType: string = 'video/mp4'
+  ): Promise<{ uid: string; key: string; uploadId: string }> => {
+    const res = await api.post<{ success: true; data: { uid: string; key: string; uploadId: string } }>(
+      'videos/multipart/init',
+      { organizationId, name, description, contentType }
+    );
+    return res.data.data;
+  },
+
+  getMultipartPartUrl: async (
+    params: { key: string; uploadId: string; partNumber: number }
+  ): Promise<string> => {
+    const res = await api.post<{ success: true; data: { url: string } }>('videos/multipart/part-url', params);
+    return res.data.data.url;
+  },
+
+  completeMultipartUpload: async (
+    body: { key: string; uploadId: string; parts: { partNumber: number; eTag: string }[]; videoId: string; organizationId: string }
+  ): Promise<void> => {
+    await api.post('videos/multipart/complete', body);
+  },
+
+  abortMultipartUpload: async (body: { key: string; uploadId: string }): Promise<void> => {
+    await api.post('videos/multipart/abort', body);
+  },
+
+  uploadVideoFileMultipart: async (
+    file: File,
+    organizationId: string,
+    onUploadProgress?: (progress: number) => void
+  ): Promise<{ uid: string }> => {
+    // 1) Init
+    const { uid, key, uploadId } = await videoService.initMultipartUpload(
+      organizationId,
+      file.name,
+      'Enviado via multipart',
+      file.type || 'video/mp4'
+    );
+
+    const chunkSize = 8 * 1024 * 1024; // 8MB
+    const totalSize = file.size;
+    let uploadedBytes = 0;
+    const parts: { partNumber: number; eTag: string }[] = [];
+
+    // 2) Upload parts sequentially (pode ser paralelizado futuramente)
+    let partNumber = 1;
+    try {
+      for (let offset = 0; offset < totalSize; offset += chunkSize, partNumber++) {
+        const chunk = file.slice(offset, Math.min(offset + chunkSize, totalSize));
+        const url = await videoService.getMultipartPartUrl({ key, uploadId, partNumber });
+
+        const response = await axios.put(url, chunk, {
+          withCredentials: false,
+          headers: { 'Content-Type': 'application/octet-stream' },
+          timeout: 60000, // 60 seconds timeout
+          onUploadProgress: (e) => {
+            if (e.total) {
+              const current = uploadedBytes + e.loaded;
+              const progress = Math.min(100, Math.round((current / totalSize) * 100));
+              onUploadProgress?.(progress);
+            }
+          },
+        });
+
+        const etag = (response.headers['etag'] || response.headers['ETag'] || '').toString().replace(/"/g, '');
+        if (!etag) throw new Error('Missing ETag from part upload response');
+        parts.push({ partNumber, eTag: etag });
+        uploadedBytes += chunk.size;
+        onUploadProgress?.(Math.min(100, Math.round((uploadedBytes / totalSize) * 100)));
+      }
+
+      // 3) Complete
+      await videoService.completeMultipartUpload({ key, uploadId, parts, videoId: uid, organizationId });
+      return { uid };
+    } catch (err) {
+      // Abort on failure
+      try {
+        await videoService.abortMultipartUpload({ key, uploadId });
+      } catch {}
+      throw err;
     }
   },
 
