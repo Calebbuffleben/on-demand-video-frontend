@@ -129,7 +129,7 @@ export default function VideoUploader({
       setIsProcessing(false);
       setError('O processamento está demorando mais que o esperado. Tente novamente em alguns minutos.');
     }, POLL_TIMEOUT_MS);
-  }, [checkVideoStatus]);
+  }, [checkVideoStatus, POLL_TIMEOUT_MS]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
