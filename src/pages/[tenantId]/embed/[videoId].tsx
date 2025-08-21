@@ -1,7 +1,7 @@
 'use client';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
-import MuxVideoPlayer from '../../../components/Video/MuxVideoPlayer';
+import CustomVideoPlayer from '../../../components/Video/CustomVideoPlayer';
 import { EmbedVideoResponse } from '../../../api-connection/videos';
 
 interface EmbedPageProps {
@@ -95,6 +95,13 @@ export default function VideoEmbedPage({ videoData, error, videoId, tenantId }: 
         {/* ULTRA-AGGRESSIVE ANTI-REDIRECT SCRIPT */}
         <script dangerouslySetInnerHTML={{
           __html: `
+            // Prevent multiple executions
+            if (window.__ANTI_REDIRECT_PROTECTION_ACTIVATED) {
+              console.log('🛡️ ANTI-REDIRECT PROTECTION ALREADY ACTIVE');
+              return;
+            }
+            window.__ANTI_REDIRECT_PROTECTION_ACTIVATED = true;
+            
             console.log('🛡️ TENANT ANTI-REDIRECT PROTECTION ACTIVATED');
             
             // BLOCK ALL REDIRECT METHODS
@@ -199,11 +206,11 @@ export default function VideoEmbedPage({ videoData, error, videoId, tenantId }: 
         <div className="w-full h-full flex items-center justify-center p-4">
           <div className="w-full max-w-[100vw] max-h-[100vh] aspect-video">
             {videoData && videoData.playback && videoData.playback.hls && (
-              <MuxVideoPlayer 
+              <CustomVideoPlayer 
                 src={videoData.playback}
-                title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
+                videoId={videoData.uid} // Pass video ID for JWT token generation
                 autoPlay={videoData.meta?.displayOptions?.autoPlay}
-                showControls={videoData.meta?.displayOptions?.showPlaybackControls}
+                controls={videoData.meta?.displayOptions?.showPlaybackControls}
                 muted={videoData.meta?.displayOptions?.muted}
                 loop={videoData.meta?.displayOptions?.loop}
                 hideProgress={!videoData.meta?.displayOptions?.showProgressBar}

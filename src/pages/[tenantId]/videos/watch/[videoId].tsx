@@ -6,7 +6,7 @@ import Link from 'next/link';
 import DashboardLayout from '../../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '../../../../components/Dashboard/DashboardMenu';
-import MuxVideoPlayer from '../../../../components/Video/MuxVideoPlayer';
+import CustomVideoPlayer from '../../../../components/Video/CustomVideoPlayer';
 import VideoEmbedCodes from '../../../../components/Video/VideoEmbedCodes';
 import videoService, { VideoData } from '../../../../api-connection/videos';
 import AuthGuard from '@/components/Auth/AuthGuard';
@@ -134,8 +134,9 @@ export default function VideoWatchPage() {
                         </div>
                       </div>
                     ) : videoData?.playback && videoData.playback.hls ? (
-                      <MuxVideoPlayer 
+                      <CustomVideoPlayer 
                         src={videoData.playback}
+                        videoId={videoData.uid} // Pass video ID for JWT token generation
                         title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
                         autoPlay={videoData.meta?.displayOptions?.autoPlay}
                         showControls={videoData.meta?.displayOptions?.showPlaybackControls}

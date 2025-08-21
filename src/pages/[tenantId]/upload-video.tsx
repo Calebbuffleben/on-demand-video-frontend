@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../components/Dashboard/DashboardSidebar';
 import VideoUploader from '../../components/Video/VideoUploader';
-import MuxVideoPlayer from '../../components/Video/MuxVideoPlayer';
+import CustomVideoPlayer from '../../components/Video/CustomVideoPlayer';
 import Button from '../../components/Button';
 import videoService from '../../api-connection/videos';
 import AuthGuard from '@/components/Auth/AuthGuard';
@@ -144,7 +144,7 @@ function UploadVideoPage() {
                     {videoPlaybackSrc ? (
                       <>
                         <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                          <MuxVideoPlayer src={videoPlaybackSrc} />
+                          <CustomVideoPlayer src={videoPlaybackSrc} />
                         </div>
                         <div className="mt-4 flex justify-end">
                           <Button 

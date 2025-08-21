@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import DashboardLayout from '../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
 import VideoUploader from '../components/Video/VideoUploader';
-import MuxVideoPlayer from '../components/Video/MuxVideoPlayer';
+import CustomVideoPlayer from '../components/Video/CustomVideoPlayer';
 import Button from '../components/Button';
 import videoService from '../api-connection/videos';
 
@@ -135,7 +135,7 @@ export default function UploadVideoPage() {
               <div className="mt-8">
                 <h2 className="text-xl font-medium mb-4">Vídeo Pronto!</h2>
                 <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                  <MuxVideoPlayer src={videoPlaybackSrc} />
+                  <CustomVideoPlayer src={videoPlaybackSrc} />
                 </div>
               </div>
             )}

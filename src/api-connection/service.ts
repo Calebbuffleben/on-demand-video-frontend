@@ -121,11 +121,7 @@ api.interceptors.response.use(
             if (error.response?.status === 401) {
                 // Unauthorized - token is invalid or expired
                 console.error('Authentication error: Your session may have expired');
-                
-                // Trigger token refresh by dispatching the unauthorized event
-                // This will be caught by the useClerkToken hook
-                window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-                
+
                 // If this is a retry attempt, don't retry again to avoid infinite loops
                 if (error.config?._retry) {
                     console.error('Token refresh failed, redirecting to login...');
@@ -136,26 +132,8 @@ api.interceptors.response.use(
                 // Mark this request as retried
                 error.config._retry = true;
                 
-                // Try to get a fresh token (custom auth may not use local token; cookie will be renewed via login)
-                try {
-                    console.log('Attempting token refresh...');
-                    
-                    // Dispatch event to trigger token refresh
-                    window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-                    
-                    // Wait a bit for the token to be refreshed
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    
-                    // Get the fresh token
-                    const freshToken = localStorage.getItem('token');
-                    if (freshToken && freshToken !== error.config.headers['Authorization']?.split(' ')[1]) {
-                        console.log('Fresh token obtained, retrying request...');
-                        error.config.headers['Authorization'] = `Bearer ${freshToken}`;
-                        return api(error.config);
-                    }
-                } catch (refreshError) {
-                    console.error('Failed to refresh token:', refreshError);
-                }
+                // Keep minimal: don't auto-refresh here; let context handle it
+                // If desired later, re-enable refresh flow here
             } else if (error.response?.status === 400) {
                 // Organization access issue
                 console.error('Request error:', error.response.data.message);

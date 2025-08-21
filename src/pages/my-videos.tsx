@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useOrganization } from '@/hooks/useOrganization';
 import Link from 'next/link';
-import { withAuth } from '@/lib/withAuth';
 
 export default function MyVideosRedirectPage() {
   const router = useRouter();
@@ -41,6 +40,4 @@ export default function MyVideosRedirectPage() {
     </div>
   );
 } 
-
-// Aplicar proteção de autenticação
-export const getServerSideProps = withAuth(); 
+// SSR auth removed to avoid cross-domain cookie issues; client-side guard/context handles auth.

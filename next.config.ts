@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
       'img.clerk.com',
       'images.clerk.dev',
       'images.unsplash.com',
-      'image.mux.com'
+      'image.mux.com',
+      'localhost'
     ],
   },
   async headers() {

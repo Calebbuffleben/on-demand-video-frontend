@@ -23,7 +23,7 @@ interface VideoEmbedInfo {
 }
 
 export default function VideoUploader({
-  maxDurationSeconds = 3600, // Default 1 hour
+  maxDurationSeconds = 3600, // eslint-disable-line @typescript-eslint/no-unused-vars
   className = '',
   onUploadSuccess,
   onUploadError,
@@ -38,12 +38,22 @@ export default function VideoUploader({
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const pollingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const pollingStartRef = useRef<number | null>(null);
+  const lastVideoUidRef = useRef<string | null>(null);
+
+  // Polling configuration
+  const POLL_INTERVAL_MS = 5000;
+  const POLL_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
   // Cleanup polling on unmount
   useEffect(() => {
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
+      }
+      if (pollingTimeoutRef.current) {
+        clearTimeout(pollingTimeoutRef.current);
       }
     };
   }, []);
@@ -103,9 +113,22 @@ export default function VideoUploader({
     // Check immediately
     checkVideoStatus(uid);
     // Then check every 5 seconds
+    pollingStartRef.current = Date.now();
     pollingIntervalRef.current = setInterval(() => {
       checkVideoStatus(uid);
-    }, 5000);
+    }, POLL_INTERVAL_MS);
+
+    // Set an overall timeout to avoid infinite processing state
+    if (pollingTimeoutRef.current) {
+      clearTimeout(pollingTimeoutRef.current);
+    }
+    pollingTimeoutRef.current = setTimeout(() => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+      setIsProcessing(false);
+      setError('O processamento está demorando mais que o esperado. Tente novamente em alguns minutos.');
+    }, POLL_TIMEOUT_MS);
   }, [checkVideoStatus]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,45 +157,19 @@ export default function VideoUploader({
     setIsProcessing(false);
 
     try {
-      // Step 1: Request a one-time upload URL from our backend
-      console.log('Requesting upload URL with params:', { 
-        maxDurationSeconds, 
+      // Prefer multipart for big files
+      const { uid } = await videoService.uploadVideoFileMultipart(
+        videoFile,
         organizationId,
-        fileName: videoFile.name
-      });
-      const uploadResponse = await videoService.getUploadUrl(maxDurationSeconds, organizationId);
-      console.log('Upload URL response:', uploadResponse);
-
-      const { uploadURL, uid } = uploadResponse;
-
-      if (!uploadURL || !uid) {
-        console.error('Invalid upload response:', {
-          uploadURL: uploadURL,
-          uid: uid,
-          fullResponse: uploadResponse
-        });
-        throw new Error('Falha ao obter URL de envio ou ID do vídeo');
-      }
-
-      console.log('Starting upload with:', {
-        uploadURL,
-        uid,
-        fileName: videoFile.name,
-        fileSize: videoFile.size,
-        fileType: videoFile.type
-      });
-
-      // Step 2: Upload the video file
-      await videoService.uploadVideoFile(uploadURL, videoFile, (progress) => {
-        setUploadProgress(progress);
-        
-        if (onUploadProgress) {
-          onUploadProgress(progress);
+        (progress) => {
+          setUploadProgress(progress);
+          onUploadProgress?.(progress);
         }
-      });
+      );
 
       // Step 3: Start polling for video status
       console.log('Upload complete, starting status polling for:', uid);
+      lastVideoUidRef.current = uid;
       startPolling(uid);
 
       // Set initial processing state
@@ -201,7 +198,7 @@ export default function VideoUploader({
     } finally {
       setUploading(false);
     }
-  }, [videoFile, maxDurationSeconds, onUploadSuccess, onUploadError, onUploadProgress, startPolling, organizationId]);
+  }, [videoFile, onUploadSuccess, onUploadError, onUploadProgress, startPolling, organizationId]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -330,6 +327,24 @@ export default function VideoUploader({
             <p className="text-sm text-gray-500 mb-2">
               {isProcessing ? 'Isso pode levar alguns minutos' : (embedInfo.hls ? 'Vídeo está pronto para incorporação' : 'Vídeo estará disponível em breve')}
             </p>
+
+            {!isProcessing && !embedInfo.hls && (
+              <div className="mt-3">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setError(null);
+                    const uid = lastVideoUidRef.current || embedInfo.uid;
+                    if (uid) {
+                      startPolling(uid);
+                    }
+                  }}
+                  className="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+                >
+                  Verificar status novamente
+                </button>
+              </div>
+            )}
             
             {embedInfo.hls && (
               <div className="mt-4 bg-gray-100 p-4 rounded-md">
