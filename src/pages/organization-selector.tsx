@@ -26,7 +26,7 @@ function OrganizationSelector() {
       }
       try {
         const res = await api.get('/auth/me');
-        const payload = (res.data && (res.data.data ?? res.data)) || {} as any;
+        const payload = (res.data && (res.data.data ?? res.data)) || {} as { organization?: { id?: string } };
         const orgId = payload?.organization?.id;
         if (orgId) {
           router.push(`/${orgId}/dashboard`);

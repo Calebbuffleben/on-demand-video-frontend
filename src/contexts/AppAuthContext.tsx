@@ -45,9 +45,9 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
       const { user, organization } = payload || {};
       setUser(user ?? null);
       setOrganization(organization ?? null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // On 401, attempt an explicit refresh and retry once
-      const status = err?.response?.status;
+      const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 401) {
         try {
           await api.post('/auth/refresh');
