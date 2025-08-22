@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .info { background-color: #d1ecf1; }
+        .output { margin-top: 10px; padding: 10px; background-color: #f8f9fa; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>🌐 CORS Debug Tool</h1>
+
+    <div class="debug-section info">
+        <h2>Test CORS Configuration</h2>
+        <div>
+            <label>Backend API URL:</label>
+            <input type="text" id="apiUrl" value="http://localhost:4000/api">
+        </div>
+        <div>
+            <label>Video ID:</label>
+            <input type="text" id="videoId" value="87467e50-d899-44c9-8b4a-8b3372bb2507">
+        </div>
+        <button onclick="testStreamingCORS()">Test Streaming CORS</button>
+        <button onclick="testOptionsRequest()">Test OPTIONS Request</button>
+        <button onclick="testAuthCORS()">Test Auth CORS</button>
+        <button onclick="clearOutput()">Clear Output</button>
+        <div id="output" class="output"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : '🔍';
+            output.innerHTML += `[${timestamp}] ${emoji} ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value;
+        }
+
+        function getVideoId() {
+            return document.getElementById('videoId').value;
+        }
+
+        async function testStreamingCORS() {
+            const apiUrl = getApiUrl();
+            const videoId = getVideoId();
+            const streamingUrl = `${apiUrl.replace(/\/$/, '')}/videos/stream/${videoId}/master.m3u8`;
+
+            log(`Testing streaming CORS: ${streamingUrl}`);
+            log(`Current origin: ${window.location.origin}`);
+
+            try {
+                const response = await fetch(streamingUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.apple.mpegurl'
+                    }
+                });
+
+                log(`Response status: ${response.status}`, 'success');
+
+                // Check CORS headers
+                const corsHeaders = {};
+                response.headers.forEach((value, key) => {
+                    if (key.toLowerCase().includes('access-control')) {
+                        corsHeaders[key] = value;
+                    }
+                });
+
+                if (Object.keys(corsHeaders).length > 0) {
+                    log('CORS headers found:', 'success');
+                    Object.entries(corsHeaders).forEach(([key, value]) => {
+                        log(`  ${key}: ${value}`, 'success');
+                    });
+                } else {
+                    log('No CORS headers found', 'error');
+                }
+
+                if (response.ok) {
+                    const content = await response.text();
+                    log(`Content length: ${content.length} characters`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`Error: ${errorText}`, 'error');
+                }
+
+            } catch (error) {
+                log(`Network error: ${error.message}`, 'error');
+
+                if (error.message.includes('CORS')) {
+                    log('This is a CORS error!', 'error');
+                    log('Possible solutions:', 'error');
+                    log('1. Check if backend is running', 'error');
+                    log('2. Check CORS_ORIGIN environment variable', 'error');
+                    log('3. Check if backend NODE_ENV is set to production', 'error');
+                }
+            }
+        }
+
+        async function testOptionsRequest() {
+            const apiUrl = getApiUrl();
+            const videoId = getVideoId();
+            const streamingUrl = `${apiUrl.replace(/\/$/, '')}/videos/stream/${videoId}/master.m3u8`;
+
+            log(`Testing OPTIONS request: ${streamingUrl}`);
+
+            try {
+                const response = await fetch(streamingUrl, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Range'
+                    }
+                });
+
+                log(`OPTIONS Response status: ${response.status}`, 'success');
+
+                // Check all CORS-related headers
+                const corsHeaders = {};
+                response.headers.forEach((value, key) => {
+                    if (key.toLowerCase().includes('access-control') || key.toLowerCase().includes('allow')) {
+                        corsHeaders[key] = value;
+                    }
+                });
+
+                log('CORS/Allow headers:', 'success');
+                Object.entries(corsHeaders).forEach(([key, value]) => {
+                    log(`  ${key}: ${value}`, 'success');
+                });
+
+            } catch (error) {
+                log(`OPTIONS request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAuthCORS() {
+            const apiUrl = getApiUrl();
+            const authUrl = `${apiUrl.replace(/\/$/, '')}/auth/me`;
+
+            log(`Testing auth CORS: ${authUrl}`);
+
+            try {
+                const response = await fetch(authUrl, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                log(`Auth Response status: ${response.status}`, response.ok ? 'success' : 'error');
+
+                // Check CORS headers for auth endpoint
+                const corsHeaders = {};
+                response.headers.forEach((value, key) => {
+                    if (key.toLowerCase().includes('access-control')) {
+                        corsHeaders[key] = value;
+                    }
+                });
+
+                if (Object.keys(corsHeaders).length > 0) {
+                    log('Auth CORS headers:', 'success');
+                    Object.entries(corsHeaders).forEach(([key, value]) => {
+                        log(`  ${key}: ${value}`, 'success');
+                    });
+                }
+
+            } catch (error) {
+                log(`Auth request failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-detect API URL on load
+        window.addEventListener('load', () => {
+            log('CORS Debug Tool Loaded');
+            log(`Current origin: ${window.location.origin}`);
+
+            // Try to detect if we're in production and suggest the correct API URL
+            if (window.location.origin.includes('railway.app')) {
+                log('Detected Railway production environment');
+                log('Make sure NEXT_PUBLIC_API_URL is set to your backend URL');
+            } else if (window.location.origin.includes('localhost:3000')) {
+                log('Detected local development environment');
+                log('API URL should be: http://localhost:4000/api');
+            }
+        });
+    </script>
+</body>
+</html>
