@@ -24,7 +24,7 @@ export const getServerSideProps: GetServerSideProps<EmbedPageProps> = async (con
   
   try {
     // Direct fetch to backend without any Clerk interference
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
     const response = await fetch(`${backendUrl}/videos/embed/${videoId}`, {
       method: 'GET',
       headers: {
