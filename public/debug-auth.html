@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Debug Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .info { background-color: #d1ecf1; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .output { margin-top: 10px; padding: 10px; background-color: #f8f9fa; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Authentication Debug Tool</h1>
+
+    <div class="debug-section info">
+        <h2>Current Authentication State</h2>
+        <button onclick="checkLocalStorage()">Check localStorage</button>
+        <button onclick="checkCookies()">Check Cookies</button>
+        <button onclick="testAuthEndpoint()">Test /auth/me</button>
+        <button onclick="testAnalyticsEndpoint()">Test Analytics Endpoint</button>
+        <button onclick="clearAuthData()">Clear Auth Data</button>
+        <div id="output" class="output"></div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin.replace(':3000', ':4000').replace('frontend', 'backend') + '/api';
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `[${timestamp}] ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function checkLocalStorage() {
+            log('🔍 Checking localStorage...');
+            const token = localStorage.getItem('token');
+            const dbOrgId = localStorage.getItem('dbOrganizationId');
+
+            log(`Token in localStorage: ${token ? '✅ Present' : '❌ Missing'}`);
+            log(`dbOrganizationId: ${dbOrgId ? '✅ Present' : '❌ Missing'}`);
+
+            if (token) {
+                log(`Token preview: ${token.substring(0, 20)}...`);
+                log(`Token length: ${token.length} characters`);
+            }
+        }
+
+        function checkCookies() {
+            log('🍪 Checking cookies...');
+            const cookies = document.cookie.split(';');
+            cookies.forEach(cookie => {
+                const [name, value] = cookie.trim().split('=');
+                if (name.includes('scale_')) {
+                    log(`Cookie found: ${name} = ${value ? '✅ Present' : '❌ Empty'}`);
+                }
+            });
+        }
+
+        async function testAuthEndpoint() {
+            log('🔐 Testing /auth/me endpoint...');
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                log(`Response status: ${response.status}`);
+                log(`Response ok: ${response.ok}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ /auth/me successful');
+                    log(`User: ${data.user?.email || 'N/A'}`);
+                    log(`Organization: ${data.organization?.name || 'N/A'}`);
+                } else {
+                    const errorData = await response.text();
+                    log(`❌ /auth/me failed: ${errorData}`);
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`);
+            }
+        }
+
+        async function testAnalyticsEndpoint() {
+            log('📊 Testing analytics dashboard endpoint...');
+            try {
+                const response = await fetch(`${API_URL}/analytics/dashboard`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                log(`Response status: ${response.status}`);
+                log(`Response ok: ${response.ok}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Analytics endpoint successful');
+                    log(`Data keys: ${Object.keys(data).join(', ')}`);
+                } else {
+                    const errorData = await response.text();
+                    log(`❌ Analytics endpoint failed: ${errorData}`);
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`);
+            }
+        }
+
+        function clearAuthData() {
+            log('🧹 Clearing authentication data...');
+            localStorage.removeItem('token');
+            localStorage.removeItem('dbOrganizationId');
+            log('✅ localStorage cleared');
+        }
+
+        // Auto-check on page load
+        window.addEventListener('load', () => {
+            log('🚀 Debug tool loaded');
+            log(`API URL: ${API_URL}`);
+            checkLocalStorage();
+            checkCookies();
+        });
+    </script>
+</body>
+</html>
