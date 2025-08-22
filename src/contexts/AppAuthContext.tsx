@@ -50,14 +50,25 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 401) {
         try {
-          await api.post('/auth/refresh');
+          console.log('🔄 Attempting token refresh...');
+          const refreshResponse = await api.post('/auth/refresh');
+          const { token: newToken } = refreshResponse.data || {};
+
+          // Save the new token if provided
+          if (newToken && typeof window !== 'undefined') {
+            localStorage.setItem('token', newToken);
+            console.log('🔐 New token saved to localStorage after refresh');
+          }
+
           const retry = await api.get('/auth/me');
           const retryPayload = (retry.data && (retry.data.data ?? retry.data)) || {};
           const { user, organization } = retryPayload || {};
           setUser(user ?? null);
           setOrganization(organization ?? null);
           return;
-        } catch {}
+        } catch (refreshError) {
+          console.error('❌ Token refresh failed:', refreshError);
+        }
       }
       setUser(null);
       setOrganization(null);
@@ -81,9 +92,16 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
         throw { response: { data: { message: 'Você precisa definir uma senha. Enviamos um link de redefinição para seu e-mail.' } } };
       }
 
-      const { user, organization } = res.data || {};
+      const { user, organization, token } = res.data || {};
       setUser(user ?? null);
       setOrganization(organization ?? null);
+
+      // Save token to localStorage for API requests
+      if (token && typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
+        console.log('🔐 Token saved to localStorage after login');
+      }
+
       // Redirect directly to the single-tenant dashboard using the org id
       if (organization?.id) {
         await router.push(`/${organization.id}/dashboard`);
@@ -107,9 +125,16 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const res = await api.post('/auth/register', data);
-      const { user, organization } = res.data || {};
+      const { user, organization, token } = res.data || {};
       setUser(user ?? null);
       setOrganization(organization ?? null);
+
+      // Save token to localStorage for API requests
+      if (token && typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
+        console.log('🔐 Token saved to localStorage after register');
+      }
+
       // After register, route to tenant dashboard (org is created automatically)
       if (organization?.id) {
         await router.push(`/${organization.id}/dashboard`);
@@ -125,6 +150,14 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       await api.post('/auth/logout');
+
+      // Clear localStorage token
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('dbOrganizationId');
+        console.log('🔐 Token removed from localStorage on logout');
+      }
+
       setUser(null);
       setOrganization(null);
       await router.push('/sign-in');
