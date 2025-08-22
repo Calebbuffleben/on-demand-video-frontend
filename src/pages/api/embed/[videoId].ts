@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   
   try {
     // Direct fetch to backend without ANY authentication
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const backendResponse = await fetch(`${backendUrl}/videos/embed/${videoId}`, {
       method: 'GET',
       headers: {
