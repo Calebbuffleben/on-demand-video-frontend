@@ -145,6 +145,19 @@ export default function CustomVideoPlayer({
   // Generate playback token for internal videos
   const generatePlaybackToken = useCallback(async (videoId: string): Promise<string | null> => {
     try {
+      // Detect public embed context (no auth available / cross-domain / embed route)
+      if (typeof window !== 'undefined') {
+        const hasAccessToken = !!localStorage.getItem('token');
+        const isEmbedPath = window.location.pathname.includes('/embed/');
+        const isCrossDomainIframe = (() => {
+          try { return window.self !== window.top; } catch { return true; }
+        })();
+        if (!hasAccessToken || isEmbedPath || isCrossDomainIframe) {
+          // Skip token generation for public embeds
+          return null;
+        }
+      }
+
       const token = await videoService.generatePlaybackToken(videoId, 60);
       return token || null;
     } catch (error) {
