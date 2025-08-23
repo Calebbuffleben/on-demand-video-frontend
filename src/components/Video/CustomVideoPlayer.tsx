@@ -130,10 +130,6 @@ export default function CustomVideoPlayer({
   // Normalize CTA enabled flag: accept either enableCTA or showCta
   const ctaEnabled = Boolean(enableCTA || showCta);
 
-
-
-
-
   // Detect MSE support
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -148,7 +144,9 @@ export default function CustomVideoPlayer({
   // Generate playback token for internal videos
   const generatePlaybackToken = useCallback(async (videoId: string): Promise<string | null> => {
     try {
-      const response = await fetch(`/api/videos/${videoId}/test-playback-token`, {
+      // Use the backend API URL instead of relative path
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/videos/${videoId}/test-playback-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
