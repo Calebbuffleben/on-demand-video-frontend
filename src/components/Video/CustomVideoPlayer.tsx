@@ -149,8 +149,12 @@ export default function CustomVideoPlayer({
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (typeof window !== 'undefined') {
         const accessToken = localStorage.getItem('token');
+        const dbOrgId = localStorage.getItem('dbOrganizationId');
         if (accessToken) {
           headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+        if (dbOrgId) {
+          headers['X-DB-Organization-Id'] = dbOrgId;
         }
       }
 
