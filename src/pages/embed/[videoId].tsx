@@ -195,32 +195,37 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
           </div>
         )}
 
-        <div className="w-full h-full flex items-center justify-center p-4">
-          <div className="w-full max-w-[100vw] max-h-[100vh] aspect-video">
+        <div className="w-full h-full flex items-center justify-center p-0">
+          <div className="w-full max-w-[200vw] max-h-[200vh] aspect-video">
             {videoData && videoData.playback && videoData.playback.hls && (
-              <CustomVideoPlayer
-                src={videoData.playback}
-                videoId={videoData.uid} // Pass video ID for JWT token generation
-                autoPlay={videoData.meta?.displayOptions?.autoPlay}
-                controls={videoData.meta?.displayOptions?.showPlaybackControls}
-                muted={videoData.meta?.displayOptions?.muted}
-                loop={videoData.meta?.displayOptions?.loop}
-                hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
-                showTechnicalInfo={false} // DISABLE para evitar tracking
-                useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
-                progressBarColor={videoData.meta?.displayOptions?.progressBarColor}
-                progressEasing={videoData.meta?.displayOptions?.progressEasing}
-                playButtonColor={videoData.meta?.displayOptions?.playButtonColor}
-                playButtonSize={videoData.meta?.displayOptions?.playButtonSize}
-                playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor}
-                soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
-                soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
-                soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
-                soundControlText={videoData.meta?.displayOptions?.soundControlText}
-                showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
-                showCta={false} // DISABLE CTA para evitar links externos
-                className="w-full h-full"
-              />
+              <CustomVideoPlayer 
+              src={videoData.playback}
+              videoId={videoData.uid} // Pass video ID for JWT token generation
+              autoPlay={videoData.meta?.displayOptions?.autoPlay}
+              controls={videoData.meta?.displayOptions?.showPlaybackControls}
+              muted={videoData.meta?.displayOptions?.muted}
+              loop={videoData.meta?.displayOptions?.loop}
+              hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
+              showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
+              progressBarColor={videoData.meta?.displayOptions?.progressBarColor}
+              useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
+              progressEasing={videoData.meta?.displayOptions?.progressEasing}
+              playButtonColor={videoData.meta?.displayOptions?.playButtonColor}
+              playButtonSize={videoData.meta?.displayOptions?.playButtonSize}
+              playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor}
+              soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
+              soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
+              soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
+              soundControlText={videoData.meta?.displayOptions?.soundControlText}
+              poster={videoData.thumbnail || undefined}
+              showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
+              showCta={!!videoData.ctaText}
+              ctaText={videoData.ctaText}
+              ctaButtonText={videoData.ctaButtonText}
+              ctaLink={videoData.ctaLink}
+              ctaStartTime={videoData.ctaStartTime}
+              ctaEndTime={videoData.ctaEndTime}
+            />
             )}
           </div>
         </div>

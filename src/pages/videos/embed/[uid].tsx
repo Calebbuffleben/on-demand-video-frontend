@@ -196,7 +196,7 @@ export default function VideoEmbedPage({ videoData, error, uid }: EmbedPageProps
           </div>
         )}
 
-        <div className="w-full h-full flex items-center justify-center p-4">
+        <div className="w-full h-full flex items-center justify-center p-0">
           <div className="w-full max-w-[100vw] max-h-[100vh] aspect-video">
             {videoData && videoData.playback && videoData.playback.hls && (
               <CustomVideoPlayer
@@ -207,7 +207,7 @@ export default function VideoEmbedPage({ videoData, error, uid }: EmbedPageProps
                 muted={videoData.meta?.displayOptions?.muted}
                 loop={videoData.meta?.displayOptions?.loop}
                 hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
-                showTechnicalInfo={false} // DISABLE para evitar tracking
+                showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
                 useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
                 progressBarColor={videoData.meta?.displayOptions?.progressBarColor}
                 progressEasing={videoData.meta?.displayOptions?.progressEasing}
@@ -218,8 +218,14 @@ export default function VideoEmbedPage({ videoData, error, uid }: EmbedPageProps
                 soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
                 soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
                 soundControlText={videoData.meta?.displayOptions?.soundControlText}
+                poster={videoData.thumbnail || undefined}
                 showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
-                showCta={false} // DISABLE CTA para evitar links externos
+                showCta={!!videoData.ctaText}
+                ctaText={videoData.ctaText}
+                ctaButtonText={videoData.ctaButtonText}
+                ctaLink={videoData.ctaLink}
+                ctaStartTime={videoData.ctaStartTime}
+                ctaEndTime={videoData.ctaEndTime}
                 className="w-full h-full"
               />
             )}
