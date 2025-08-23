@@ -146,9 +146,18 @@ export default function CustomVideoPlayer({
     try {
       // Use the backend API URL instead of relative path
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/videos/${videoId}/test-playback-token`, {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (typeof window !== 'undefined') {
+        const accessToken = localStorage.getItem('token');
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+      }
+
+      const response = await fetch(`${apiUrl}/videos/${videoId}/playback-token`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers,
+        body: JSON.stringify({ expiryMinutes: 60 }),
       });
 
       if (!response.ok) {
@@ -301,7 +310,6 @@ export default function CustomVideoPlayer({
             enabled: true,
             defaultBandwidthEstimate: 500000,
             switchInterval: 8,
-            bandwidthUpdateInterval: 500,
             useNetworkInformation: false
           }
         };
