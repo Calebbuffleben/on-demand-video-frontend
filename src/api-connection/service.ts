@@ -21,6 +21,18 @@ api.interceptors.request.use(
             return config;
         }
         
+        // Detect public embed context (iframe or embed path) and skip auth/logs
+        if (typeof window !== 'undefined') {
+            const path = window.location?.pathname || '';
+            const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
+            const isEmbedCtx = inIframe || path.includes('/embed/');
+            if (isEmbedCtx) {
+                // Do not attach Authorization/cookies for public embeds
+                config.withCredentials = false;
+                return config;
+            }
+        }
+        
         if (typeof window === 'undefined') {
             // We're on the server, so don't attempt to use localStorage
             console.log('API request on server side - skipping auth token');
@@ -30,29 +42,29 @@ api.interceptors.request.use(
         // Get optional token from local storage (fallback). Primary auth is cookie httpOnly.
         const token = localStorage.getItem('token');
         const dbOrgId = localStorage.getItem('dbOrganizationId');
-
+        
         // Log request details for debugging
         console.log(`API ${config.method?.toUpperCase()} request to: ${config.url}`);
-
+        
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
             console.log('✅ Token found in localStorage, added to Authorization header');
-
+            
             // Add organization context headers if available
             // Clerk org header removed
-
+            
             // For endpoints that need database ID format
             if (dbOrgId) {
                 config.headers['X-DB-Organization-Id'] = dbOrgId;
                 console.log('Including database organization ID:', dbOrgId);
             }
-
+            
             // For subscriptions endpoints, use database ID in URL when not present
             if (config.url && config.url.includes('/api/subscriptions/')) {
                 // If URL ends with 'current' or ID is already embedded, don't modify
-                if (!config.url.endsWith('/current') &&
+                if (!config.url.endsWith('/current') && 
                     !config.url.match(/\/api\/subscriptions\/[a-zA-Z0-9_-]+$/)) {
-
+                    
                     // Use database ID if available
                     const orgIdForUrl = dbOrgId;
                     if (orgIdForUrl) {
@@ -61,17 +73,14 @@ api.interceptors.request.use(
                     }
                 }
             }
-
+            
             // Log token for debugging (truncated for security)
             if (token.length > 20) {
                 console.log('🔐 Using token:', token.substring(0, 15) + '...');
             }
         } else {
-            console.warn('❌ No authentication token found in localStorage');
-            console.log('🔍 localStorage contents:', {
-                token: localStorage.getItem('token') ? 'present' : 'missing',
-                dbOrganizationId: localStorage.getItem('dbOrganizationId') ? 'present' : 'missing'
-            });
+            // Suppress noisy logs in embed/public contexts (handled above)
+            console.warn('No authentication token found');
         }
         
         return config;
@@ -108,6 +117,16 @@ api.interceptors.response.use(
         return response;
     },
     async (error) => {
+        // Detect embed context and avoid auth retry/noisy logs
+        if (typeof window !== 'undefined') {
+            const path = window.location?.pathname || '';
+            const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
+            const isEmbedCtx = inIframe || path.includes('/embed/');
+            if (isEmbedCtx) {
+                return Promise.reject(error);
+            }
+        }
+        
         // BYPASS error handling for embed routes
         if (error.config?.url?.includes('/embed/') ||
             error.config?.url?.includes('/videos/embed/') ||
