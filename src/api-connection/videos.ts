@@ -129,6 +129,24 @@ export interface EmbedVideoResponse {
 
 const videoService = {
   /**
+   * Emitir token de reprodução para um vídeo (endpoint autenticado)
+   */
+  generatePlaybackToken: async (videoId: string, expiryMinutes: number = 60): Promise<string> => {
+    const res = await api.post(
+      `videos/${videoId}/playback-token`,
+      { expiryMinutes }
+    );
+    // Suporta tanto resposta crua quanto envelopada pelo TransformInterceptor
+    const raw = res.data as any;
+    // Possíveis formatos: { token } ou { success, data: { token } }
+    if (raw?.token) return raw.token;
+    if (raw?.data?.token) return raw.data.token;
+    // Alguns formatos podem retornar { data: { success, token } }
+    if (raw?.data?.data?.token) return raw.data.data.token;
+    throw new Error('Token de reprodução não encontrado na resposta da API');
+  },
+
+  /**
    * Get a list of all videos for the current organization
    */
   getAllVideos: async (): Promise<VideoApiResponse> => {
@@ -450,8 +468,7 @@ const videoService = {
    * Update video display and embed options
    * @param uid The video's unique identifier
    * @param displayOptions The display options to update
-   * @param embedOptions The embed options to update
-   * @param ctaFields The CTA fields to update
+   * @param embedOptions The display options to update
    */
   updateVideoOptions: async (
     uid: string,

@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import analyticsService from '@/api-connection/analytics';
 import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw } from 'lucide-react';
 import type { ShakaPlayer } from 'shaka-player/dist/shaka-player.compiled.js';
+import videoService from '@/api-connection/videos';
 
 interface CustomVideoPlayerProps {
   src: {
@@ -41,7 +42,7 @@ interface CustomVideoPlayerProps {
   
   // Internal video support
   videoId?: string;
-
+  
   // Mux-like display options
   showProgressBar?: boolean;
   showPlaybackControls?: boolean;
@@ -144,33 +145,8 @@ export default function CustomVideoPlayer({
   // Generate playback token for internal videos
   const generatePlaybackToken = useCallback(async (videoId: string): Promise<string | null> => {
     try {
-      // Use the backend API URL instead of relative path
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (typeof window !== 'undefined') {
-        const accessToken = localStorage.getItem('token');
-        const dbOrgId = localStorage.getItem('dbOrganizationId');
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-        if (dbOrgId) {
-          headers['X-DB-Organization-Id'] = dbOrgId;
-        }
-      }
-
-      const response = await fetch(`${apiUrl}/videos/${videoId}/playback-token`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ expiryMinutes: 60 }),
-      });
-
-      if (!response.ok) {
-        console.warn(`Failed to generate token: ${response.status} - continuing without token`);
-        return null;
-      }
-
-      const data = await response.json();
-      return data.token;
+      const token = await videoService.generatePlaybackToken(videoId, 60);
+      return token || null;
     } catch (error) {
       console.warn('Error generating playback token, continuing without token:', error);
       return null;
