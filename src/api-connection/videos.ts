@@ -127,6 +127,18 @@ export interface EmbedVideoResponse {
   result: VideoData;
 }
 
+export interface PlaybackTokenResponse {
+  token?: string;
+  success?: boolean;
+  data?: {
+    token?: string;
+    success?: boolean;
+    data?: {
+      token?: string;
+    };
+  };
+}
+
 const videoService = {
   /**
    * Emitir token de reprodução para um vídeo (endpoint autenticado)
@@ -137,7 +149,7 @@ const videoService = {
       { expiryMinutes }
     );
     // Suporta tanto resposta crua quanto envelopada pelo TransformInterceptor
-    const raw = res.data as any;
+    const raw = res.data as PlaybackTokenResponse;
     // Possíveis formatos: { token } ou { success, data: { token } }
     if (raw?.token) return raw.token;
     if (raw?.data?.token) return raw.data.token;
