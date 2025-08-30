@@ -222,6 +222,7 @@ export default function CustomVideoPlayer({
             rebufferingGoal: 2,
             bufferingGoal: 10,
             bufferBehind: 30,
+            bufferAhead: 30, // Buffer mais à frente para vídeos longos
             retryParameters: {
               timeout: 30000,
               maxAttempts: 3,
