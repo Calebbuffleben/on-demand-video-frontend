@@ -219,38 +219,39 @@ export default function CustomVideoPlayer({
         // Configure Shaka Player for optimal Chrome performance
         const config = {
           streaming: {
-            rebufferingGoal: 2,
-            bufferingGoal: 10,
-            bufferBehind: 30,
-            bufferAhead: 30, // Buffer mais à frente para vídeos longos
+            rebufferingGoal: 5, // Aumentado de 2 para 5
+            bufferingGoal: 20, // Aumentado de 10 para 20
+            bufferBehind: 60, // Aumentado de 30 para 60
+            bufferAhead: 60, // Aumentado de 30 para 60
             retryParameters: {
               timeout: 30000,
-              maxAttempts: 3,
-              backoffFactor: 2.0,
-              fuzzFactor: 0.5
+              maxAttempts: 5, // Aumentado de 3 para 5
+              backoffFactor: 1.5, // Reduzido de 2.0 para 1.5
+              fuzzFactor: 0.3 // Reduzido de 0.5 para 0.3
             }
           },
           drm: {
             retryParameters: {
               timeout: 30000,
-              maxAttempts: 3,
-              backoffFactor: 2.0,
-              fuzzFactor: 0.5
+              maxAttempts: 5,
+              backoffFactor: 1.5,
+              fuzzFactor: 0.3
             }
           },
           manifest: {
             retryParameters: {
               timeout: 30000,
-              maxAttempts: 3,
-              backoffFactor: 2.0,
-              fuzzFactor: 0.5
+              maxAttempts: 5,
+              backoffFactor: 1.5,
+              fuzzFactor: 0.3
             }
           },
           abr: {
             enabled: true,
-            defaultBandwidthEstimate: 500000,
-            switchInterval: 8,
-            useNetworkInformation: false
+            defaultBandwidthEstimate: 1000000, // Aumentado de 500000 para 1000000
+            switchInterval: 10, // Aumentado de 8 para 10
+            useNetworkInformation: false,
+            bandwidthUpdateInterval: 5 // Adicionado para atualizar bandwidth mais frequentemente
           }
         };
 
