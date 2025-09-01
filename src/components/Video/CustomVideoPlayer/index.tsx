@@ -221,8 +221,6 @@ export default function CustomVideoPlayer({
           streaming: {
             rebufferingGoal: 5, // Aumentado de 2 para 5
             bufferingGoal: 20, // Aumentado de 10 para 20
-            bufferBehind: 60, // Aumentado de 30 para 60
-            bufferAhead: 60, // Aumentado de 30 para 60
             retryParameters: {
               timeout: 30000,
               maxAttempts: 5, // Aumentado de 3 para 5
@@ -250,8 +248,7 @@ export default function CustomVideoPlayer({
             enabled: true,
             defaultBandwidthEstimate: 1000000, // Aumentado de 500000 para 1000000
             switchInterval: 10, // Aumentado de 8 para 10
-            useNetworkInformation: false,
-            bandwidthUpdateInterval: 5 // Adicionado para atualizar bandwidth mais frequentemente
+            useNetworkInformation: false
           }
         };
 
