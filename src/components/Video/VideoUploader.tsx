@@ -66,6 +66,32 @@ export default function VideoUploader({
 
       if (statusResponse.success && statusResponse.video) {
         const videoData = statusResponse.video;
+        
+        // Check for transcode failure first
+        if (videoData.status?.state === 'error' || videoData.status?.state === 'failed') {
+          console.error('Video transcode failed:', videoData.status);
+          setIsProcessing(false);
+          
+          // CRÍTICO: Parar o polling quando vídeo falha
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            console.log('Stopped polling due to video failure');
+          }
+          
+          // Limpar timeout também
+          if (pollingTimeoutRef.current) {
+            clearTimeout(pollingTimeoutRef.current);
+          }
+          
+          if (onUploadError) {
+            onUploadError(new Error(`Falha no processamento do vídeo: ${videoData.status?.errorReasonText || 'Erro desconhecido'}`));
+          }
+          
+          // Definir estado de erro para mostrar na UI
+          setError(`Falha no processamento do vídeo: ${videoData.status?.errorReasonText || 'Erro desconhecido'}`);
+          return;
+        }
+        
         // Check both readyToStream flag and status state for readiness
         const isReady = videoData.readyToStream === true || 
                          (videoData.status?.state === 'ready');
@@ -105,8 +131,14 @@ export default function VideoUploader({
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
       }
+      
+      // Show specific error message for transcode failures
+      if (onUploadError) {
+        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao verificar status do vídeo';
+        onUploadError(new Error(errorMessage));
+      }
     }
-  }, [onUploadSuccess]);
+  }, [onUploadSuccess, onUploadError]);
 
   const startPolling = useCallback((uid: string) => {
     setIsProcessing(true);
