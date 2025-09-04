@@ -26,8 +26,7 @@ export default function VideoEmbedCodes({ video }: VideoEmbedCodesProps) {
   const embedUrls = {
     iframe: `<iframe 
   src="${baseUrl}/embed/${video.uid}" 
-  width="640" 
-  height="360" 
+  style="width:100%;height:100%;border:none;display:block;margin:0 auto;"
   frameborder="0" 
   allow="autoplay; fullscreen; picture-in-picture">
 </iframe>`,
