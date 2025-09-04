@@ -1,5 +1,5 @@
 import api from './service';
-import axios from 'axios';
+import axios, { AxiosProgressEvent } from 'axios';
 
 export interface DisplayOptions {
   showProgressBar?: boolean;
@@ -305,40 +305,90 @@ const videoService = {
       file.type || 'video/mp4'
     );
 
-    const chunkSize = 8 * 1024 * 1024; // 8MB
+    // 2) Define chunk sizing and concurrency
+    const MB = 1024 * 1024;
+    // Heurística simples: 16MB para arquivos pequenos, 32MB padrão, 64MB para muito grandes
+    let chunkSize = 32 * MB;
+    if (file.size < 512 * MB) chunkSize = 16 * MB;
+    if (file.size > 8 * 1024 * MB) chunkSize = 64 * MB; // >8GB
+
     const totalSize = file.size;
-    let uploadedBytes = 0;
-    const parts: { partNumber: number; eTag: string }[] = [];
+    const totalParts = Math.max(1, Math.ceil(totalSize / chunkSize));
+    const maxConcurrencyBase = 6; // alvo: 4–8 em paralelo
+    const maxConcurrency = Math.min(8, Math.max(4, maxConcurrencyBase));
 
-    // 2) Upload parts sequentially (pode ser paralelizado futuramente)
-    let partNumber = 1;
+    // Progresso agregado
+    const partLoadedBytes: number[] = new Array(totalParts).fill(0);
+    const partSizes: number[] = new Array(totalParts).fill(0).map((_, i) => {
+      const start = i * chunkSize;
+      const end = Math.min(totalSize, start + chunkSize);
+      return end - start;
+    });
+
+    const reportAggregatedProgress = () => {
+      const loaded = partLoadedBytes.reduce((acc, v) => acc + v, 0);
+      const pct = Math.min(100, Math.round((loaded / totalSize) * 100));
+      onUploadProgress?.(pct);
+    };
+
+    // 3) Upload parts in parallel with a worker pool
+    const results: Array<{ partNumber: number; eTag: string } | undefined> = new Array(totalParts);
+    let nextIndex = 0;
+
+    const uploadSinglePart = async (partIndex: number) => {
+      const partNumber = partIndex + 1;
+      const start = partIndex * chunkSize;
+      const end = Math.min(totalSize, start + chunkSize);
+      const chunk = file.slice(start, end);
+
+      const url = await videoService.getMultipartPartUrl({ key, uploadId, partNumber });
+
+      const response = await axios.put(url, chunk, {
+        withCredentials: false,
+        headers: { 'Content-Type': 'application/octet-stream' },
+        timeout: 300000, // 5 minutos por parte
+        onUploadProgress: (e: AxiosProgressEvent) => {
+          const loaded = typeof e.loaded === 'number' ? e.loaded : 0;
+          // clamp to part size
+          partLoadedBytes[partIndex] = Math.min(loaded, partSizes[partIndex]);
+          reportAggregatedProgress();
+        },
+      });
+
+      // Garantir 100% para a parte quando concluir
+      partLoadedBytes[partIndex] = partSizes[partIndex];
+      reportAggregatedProgress();
+
+      const rawEtag = (response.headers['etag'] || response.headers['ETag'] || response.headers['ETAG']);
+      const eTag = (Array.isArray(rawEtag) ? rawEtag[0] : rawEtag)?.toString().replace(/"/g, '');
+      if (!eTag) throw new Error('Missing ETag from part upload response');
+      results[partIndex] = { partNumber, eTag };
+    };
+
+    const worker = async () => {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const current = nextIndex++;
+        if (current >= totalParts) break;
+        await uploadSinglePart(current);
+      }
+    };
+
     try {
-      for (let offset = 0; offset < totalSize; offset += chunkSize, partNumber++) {
-        const chunk = file.slice(offset, Math.min(offset + chunkSize, totalSize));
-        const url = await videoService.getMultipartPartUrl({ key, uploadId, partNumber });
-
-        const response = await axios.put(url, chunk, {
-          withCredentials: false,
-          headers: { 'Content-Type': 'application/octet-stream' },
-          timeout: 60000, // 60 seconds timeout
-          onUploadProgress: (e) => {
-            if (e.total) {
-              const current = uploadedBytes + e.loaded;
-              const progress = Math.min(100, Math.round((current / totalSize) * 100));
-              onUploadProgress?.(progress);
-            }
-          },
-        });
-
-        const etag = (response.headers['etag'] || response.headers['ETag'] || '').toString().replace(/"/g, '');
-        if (!etag) throw new Error('Missing ETag from part upload response');
-        parts.push({ partNumber, eTag: etag });
-        uploadedBytes += chunk.size;
-        onUploadProgress?.(Math.min(100, Math.round((uploadedBytes / totalSize) * 100)));
+      const workers: Promise<void>[] = [];
+      const workerCount = Math.min(maxConcurrency, totalParts);
+      for (let i = 0; i < workerCount; i++) workers.push(worker());
+      if (workers.length > 0) {
+        await Promise.all(workers);
       }
 
-      // 3) Complete
+      const parts = results.filter(Boolean) as { partNumber: number; eTag: string }[];
+      parts.sort((a, b) => a.partNumber - b.partNumber);
+
+      // 4) Complete
       await videoService.completeMultipartUpload({ key, uploadId, parts, videoId: uid, organizationId });
+      // garantir 100%
+      onUploadProgress?.(100);
       return { uid };
     } catch (err) {
       // Abort on failure
