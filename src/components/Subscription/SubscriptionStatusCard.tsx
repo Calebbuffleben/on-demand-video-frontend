@@ -18,7 +18,46 @@ interface SubscriptionInfo {
   interval?: string;
 }
 
+interface Invite {
+  email: string;
+  organizationId: string;
+  role: string;
+  token: string;
+  expiresAt: Date;
+}
+
+interface Token {
+  token: string;
+}
+
+interface WebhookBody {
+  type: string;
+  data: Record<string, unknown>;
+}
+
+interface SubscriptionResponse {
+  id: string;
+  status: string;
+  planType?: string;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+}
+
+interface CheckoutResponse {
+  sessionUrl?: string;
+  sessionId?: string;
+}
+
 interface SubscriptionService {
+  createInvite: (invite: Invite) => Promise<Invite>;
+  getInvite: (token: Token) => Promise<Invite>;
+  consumeInvite: (token: string) => Promise<{ success: boolean; message: string }>;
+  getSubscriptionStatus: (account: string) => Promise<SubscriptionResponse>;
+  pauseSubscription: (account: string) => Promise<SubscriptionResponse>;
+  resumeSubscription: (account: string) => Promise<SubscriptionResponse>;
+  cancelSubscription: (account: string) => Promise<SubscriptionResponse>;
+  webhook: (body: WebhookBody) => Promise<{ success: boolean }>;
+  createCheckoutSession: () => Promise<CheckoutResponse>;
   getCurrentSubscription: () => Promise<{
     status: string;
     subscription: {

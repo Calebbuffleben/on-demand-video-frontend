@@ -8,21 +8,35 @@
 
 import api from "./service";
 
-type Invite = {
+interface Invite {
   email: string;
   organizationId: string;
   role: string;
   token: string;
   expiresAt: Date;
-};
+}
 
-type Token = {
+interface Token {
   token: string;
-};
+}
 
-type Body = {
-  body: Body;
-};
+interface WebhookBody {
+  type: string;
+  data: Record<string, unknown>;
+}
+
+interface SubscriptionResponse {
+  id: string;
+  status: string;
+  planType?: string;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
+}
+
+interface CheckoutResponse {
+  sessionUrl?: string;
+  sessionId?: string;
+}
 
 // Static implementation with predetermined return values
 const subscriptionService = {
@@ -33,41 +47,51 @@ const subscriptionService = {
   **/
 
   //POST /subscriptions/invites
-  createInvite: async (invite: Invite) => {
+  createInvite: async (invite: Invite): Promise<Invite> => {
     const res = await api.post('/subscriptions/invites', invite);
     return res.data;
   },
   //GET /auth/invite/:token
-  getInvite: async (token: Token) => {
+  getInvite: async (token: Token): Promise<Invite> => {
     const res = await api.get(`/auth/invite/${token}`);
     return res.data;
   },
   //POST /auth/invite/:token/consume
-  consumeInvite: async (token: string) => {
+  consumeInvite: async (token: string): Promise<{ success: boolean; message: string }> => {
     const res = await api.post(`/auth/invite/${token}/consume`);
     return res.data;
   },
   //GET /subscriptions/status (por account)
-  getSubscriptionStatus: async (account: string) => {
+  getSubscriptionStatus: async (account: string): Promise<SubscriptionResponse> => {
     const res = await api.get(`/subscriptions/status/${account}`);
     return res.data;
   },
   //POST /subscriptions/pause, POST /subscriptions/resume, POST /subscriptions/cancel
-  pauseSubscription: async (account: string) => {
+  pauseSubscription: async (account: string): Promise<SubscriptionResponse> => {
     const res = await api.post(`/subscriptions/pause/${account}`);
     return res.data;
   },
-  resumeSubscription: async (account: string) => {
+  resumeSubscription: async (account: string): Promise<SubscriptionResponse> => {
     const res = await api.post(`/subscriptions/resume/${account}`);
     return res.data;
   },
-  cancelSubscription: async (account: string) => {
+  cancelSubscription: async (account: string): Promise<SubscriptionResponse> => {
     const res = await api.post(`/subscriptions/cancel/${account}`);
     return res.data;
   },
   //POST /payments/webhook
-  webhook: async (body: Body) => {
+  webhook: async (body: WebhookBody): Promise<{ success: boolean }> => {
     const res = await api.post(`/payments/webhook`, body);
+    return res.data;
+  },
+  //POST /subscriptions/checkout
+  createCheckoutSession: async (): Promise<CheckoutResponse> => {
+    const res = await api.post(`/subscriptions/checkout`);
+    return res.data;
+  },
+  //GET /subscriptions/current
+  getCurrentSubscription: async () => {
+    const res = await api.get(`/subscriptions/current`);
     return res.data;
   },
 };
