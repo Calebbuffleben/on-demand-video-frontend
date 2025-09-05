@@ -6,39 +6,70 @@
  * until the backend API is fully implemented.
  */
 
+import api from "./service";
+
+type Invite = {
+  email: string;
+  organizationId: string;
+  role: string;
+  token: string;
+  expiresAt: Date;
+};
+
+type Token = {
+  token: string;
+};
+
+type Body = {
+  body: Body;
+};
+
 // Static implementation with predetermined return values
 const subscriptionService = {
-  // Get current user's subscription - always returns a default response
-  getCurrentSubscription() {
-    return Promise.resolve({
-      status: 'no_subscription',
-      subscription: null,
-      message: 'Subscription API not available yet'
-    });
-  },
+  /**
+  Criar metodos seguindo os requisitos do frontend para consumir
+  as rotas do backend para subscriptions
+  e payments
+  **/
 
-  // Create a checkout session - simulates a successful checkout creation
-  createCheckoutSession() {
-    return Promise.resolve({
-      sessionId: 'mock-session-id',
-      sessionUrl: 'https://example.com/checkout/mock-session'
-    });
+  //POST /subscriptions/invites
+  createInvite: async (invite: Invite) => {
+    const res = await api.post('/subscriptions/invites', invite);
+    return res.data;
   },
-
-  // Get organizations for the current user - returns an empty array
-  getOrganizations() {
-    return Promise.resolve({
-      organizations: []
-    });
+  //GET /auth/invite/:token
+  getInvite: async (token: Token) => {
+    const res = await api.get(`/auth/invite/${token}`);
+    return res.data;
   },
-
-  // Cancel subscription - simulates a successful cancellation
-  cancelSubscription() {
-    return Promise.resolve({
-      success: true,
-      message: 'Subscription cancelled successfully (mock)'
-    });
-  }
+  //POST /auth/invite/:token/consume
+  consumeInvite: async (token: string) => {
+    const res = await api.post(`/auth/invite/${token}/consume`);
+    return res.data;
+  },
+  //GET /subscriptions/status (por account)
+  getSubscriptionStatus: async (account: string) => {
+    const res = await api.get(`/subscriptions/status/${account}`);
+    return res.data;
+  },
+  //POST /subscriptions/pause, POST /subscriptions/resume, POST /subscriptions/cancel
+  pauseSubscription: async (account: string) => {
+    const res = await api.post(`/subscriptions/pause/${account}`);
+    return res.data;
+  },
+  resumeSubscription: async (account: string) => {
+    const res = await api.post(`/subscriptions/resume/${account}`);
+    return res.data;
+  },
+  cancelSubscription: async (account: string) => {
+    const res = await api.post(`/subscriptions/cancel/${account}`);
+    return res.data;
+  },
+  //POST /payments/webhook
+  webhook: async (body: Body) => {
+    const res = await api.post(`/payments/webhook`, body);
+    return res.data;
+  },
 };
 
 export default subscriptionService;
