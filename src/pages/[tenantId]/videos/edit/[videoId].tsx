@@ -351,7 +351,7 @@ export default function EditVideoPage() {
                       onClick={() => setLiveEdit(v => !v)}
                       className={`px-4 py-2 rounded-md text-sm font-medium shadow-lg transition-all ${liveEdit ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-scale-900 hover:bg-gray-50'}`}
                     >
-                      {liveEdit ? 'Live edit: ON' : 'Live edit: OFF'}
+                      {liveEdit ? 'Editar ao vivo: ON' : 'Editar ao vivo: OFF'}
                     </button>
                   </div>
 
