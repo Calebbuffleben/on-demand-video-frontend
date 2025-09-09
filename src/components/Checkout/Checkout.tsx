@@ -18,7 +18,11 @@ const Checkout: React.FC<CheckoutProps> = ({ priceId }) => {
       console.log('Creating checkout session for priceId:', priceId);
       
       // Use the subscription service
-      const response = await subscriptionService.createCheckoutSession();
+      const response = await subscriptionService.createCheckoutSession({
+        planType: priceId === 'price_basic' ? 'BASIC' : priceId === 'price_pro' ? 'PRO' : 'ENTERPRISE',
+        successUrl: `${window.location.origin}/subscription/success`,
+        cancelUrl: `${window.location.origin}/subscription/cancel`
+      });
       
       // Log the response in case of issues
       console.log('Checkout session response:', response);

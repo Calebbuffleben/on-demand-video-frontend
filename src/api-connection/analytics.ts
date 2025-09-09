@@ -117,6 +117,35 @@ export interface ViewerAnalytics {
   totalViews: number;
 }
 
+export interface RetentionBucket {
+  start: number;
+  end: number;
+  viewers: number;
+  pct: number;
+}
+
+export interface EventsSummaryData {
+  views: number;
+  watchTime: number;
+  duration: number;
+  bucketSize: number;
+  retention?: RetentionBucket[];
+  retentionPerSecond?: { time: number; pct: number }[];
+}
+
+export interface EventsInsightsData {
+  quartiles: {
+    q25: { time: number; reached: number; pct: number };
+    q50: { time: number; reached: number; pct: number };
+    q75: { time: number; reached: number; pct: number };
+    q100: { time: number; reached: number; pct: number };
+  };
+  completionRate: { completed: number; pct: number };
+  replays: { count: number; sessionsWithReplay: number; ratePct: number };
+  heatmap: Array<{ start: number; end: number; secondsWatched: number; intensityPct: number }>;
+  dropOffPoints: Array<{ time: number; dropPct: number }>;
+}
+
 export interface AnalyticsResponse {
   success: boolean;
   status: number;
@@ -340,6 +369,49 @@ const analyticsService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching organization retention data:', error);
+      throw error;
+    }
+  }
+  ,
+  /**
+   * Get aggregated events summary (views, watchTime, retention buckets/per-second)
+   */
+  getEventsSummary: async (
+    videoId: string,
+    params: (TimeRange & { bucketSize?: number; perSecond?: boolean }) = {}
+  ): Promise<{ success: boolean; data: EventsSummaryData }> => {
+    const { perSecond, ...restParams } = params;
+    const queryParams: Record<string, string | number | undefined> = { ...restParams };
+    if (typeof perSecond === 'boolean') {
+      queryParams.perSecond = perSecond ? 'true' : 'false';
+    }
+    try {
+      const response = await api.get<{ success: boolean; data: EventsSummaryData }>(
+        `analytics/events/summary/${videoId}`,
+        { params: queryParams }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching events summary for video ${videoId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get analytics insights (quartiles, completion, replays, heatmap, drop-offs)
+   */
+  getEventsInsights: async (
+    videoId: string,
+    params: (TimeRange & { bucketSize?: number; topDropOffs?: number }) = {}
+  ): Promise<{ success: boolean; data: EventsInsightsData }> => {
+    try {
+      const response = await api.get<{ success: boolean; data: EventsInsightsData }>(
+        `analytics/events/insights/${videoId}`,
+        { params }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching events insights for video ${videoId}:`, error);
       throw error;
     }
   }

@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import analyticsService, { TimeRange, ViewerAnalytics } from '@/api-connection/analytics';
+import analyticsService, { TimeRange, ViewerAnalytics, EventsSummaryData, EventsInsightsData } from '@/api-connection/analytics';
 import videoService from '@/api-connection/videos';
 import ViewerTimelineChart from '@/components/analytics/ViewerTimelineChart';
 import ViewerBreakdownCharts from '@/components/analytics/ViewerBreakdownCharts';
+import VideoRetentionBucketsChart from '@/components/analytics/VideoRetentionBucketsChart';
+import VideoInsights from '@/components/analytics/VideoInsights';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber, formatDuration } from '@/lib/utils';
@@ -52,6 +54,9 @@ const VideoAnalyticsPage: React.FC = () => {
   const [viewerAnalytics, setViewerAnalytics] = useState<ViewerAnalytics | null>(null);
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>({});
+  const [bucketSize, setBucketSize] = useState<number>(1);
+  const [eventsSummary, setEventsSummary] = useState<EventsSummaryData | null>(null);
+  const [insights, setInsights] = useState<EventsInsightsData | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,10 +67,12 @@ const VideoAnalyticsPage: React.FC = () => {
         setError(null);
 
         // Fetch video data, analytics, and viewer analytics in parallel
-        const [videoResponse, analyticsResponse, viewerAnalyticsResponse] = await Promise.all([
+        const [videoResponse, analyticsResponse, viewerAnalyticsResponse, eventsSummaryResponse, eventsInsightsResponse] = await Promise.all([
           videoService.getVideoByUid(videoId as string),
           analyticsService.getVideoAnalytics(videoId as string, timeRange),
-          analyticsService.getViewerAnalytics(videoId as string, timeRange)
+          analyticsService.getViewerAnalytics(videoId as string, timeRange),
+          analyticsService.getEventsSummary(videoId as string, { ...timeRange, bucketSize, perSecond: true }),
+          analyticsService.getEventsInsights(videoId as string, { ...timeRange, bucketSize, topDropOffs: 5 })
         ]);
 
         if (videoResponse.success && videoResponse.data?.result) {
@@ -84,6 +91,13 @@ const VideoAnalyticsPage: React.FC = () => {
         if (viewerAnalyticsResponse.success) {
           setViewerAnalytics(viewerAnalyticsResponse.data);
         }
+
+        if (eventsSummaryResponse.success) {
+          setEventsSummary(eventsSummaryResponse.data);
+        }
+        if (eventsInsightsResponse.success) {
+          setInsights(eventsInsightsResponse.data);
+        }
       } catch (err) {
         setError('Erro ao carregar dados');
         console.error('Error fetching data:', err);
@@ -93,7 +107,7 @@ const VideoAnalyticsPage: React.FC = () => {
     };
 
     fetchData();
-  }, [tenantId, videoId, timeRange]);
+  }, [tenantId, videoId, timeRange, bucketSize]);
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -106,12 +120,14 @@ const VideoAnalyticsPage: React.FC = () => {
       endDate: formData.get('endDate') as string,
       granularity: Number(formData.get('granularity'))
     };
+    const newBucket = Number(formData.get('bucketSize')) || 1;
     
     // Use a callback to ensure state is updated properly
     setTimeRange((prev) => ({
       ...prev,
       ...newTimeRange
     }));
+    setBucketSize(newBucket);
     
     return false;
   };
@@ -246,6 +262,19 @@ const VideoAnalyticsPage: React.FC = () => {
                     <option value="3600">1 hora</option>
                   </optgroup>
                 </select>
+                <select
+                  name="bucketSize"
+                  className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  defaultValue={bucketSize}
+                >
+                  <optgroup label="Bucket de Retenção">
+                    <option value="1">1s</option>
+                    <option value="5">5s</option>
+                    <option value="10">10s</option>
+                    <option value="15">15s</option>
+                    <option value="30">30s</option>
+                  </optgroup>
+                </select>
                 <button
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
@@ -325,13 +354,21 @@ const VideoAnalyticsPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ViewerTimelineChart 
-                  data={analytics.retentionData}
+                  data={(eventsSummary?.retentionPerSecond || []).map(p => ({ time: p.time, retention: p.pct }))}
                   videoDuration={videoData.duration}
                   granularity={timeRange.granularity}
                   totalViews={analytics.totalViews}
                 />
               </CardContent>
             </Card>
+          )}
+
+          {/* Retention Buckets Chart */}
+          {eventsSummary?.retention && eventsSummary.retention.length > 0 && (
+            <VideoRetentionBucketsChart
+              data={eventsSummary.retention}
+              totalViews={analytics.totalViews}
+            />
           )}
 
           {/* Viewer Breakdown Charts */}
@@ -344,6 +381,18 @@ const VideoAnalyticsPage: React.FC = () => {
                 <ViewerBreakdownCharts data={viewerAnalytics} />
               </CardContent>
             </Card>
+          )}
+
+          {/* Insights */}
+          {insights && (
+            <VideoInsights
+              quartiles={insights.quartiles}
+              completion={insights.completionRate}
+              replays={insights.replays}
+              heatmap={insights.heatmap}
+              dropOffs={insights.dropOffPoints}
+              totalViews={analytics.totalViews}
+            />
           )}
         </div>
       </div>

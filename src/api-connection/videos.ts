@@ -366,7 +366,6 @@ const videoService = {
     };
 
     const worker = async () => {
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const current = nextIndex++;
         if (current >= totalParts) break;

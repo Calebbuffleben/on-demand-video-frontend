@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { ViewerAnalytics, DeviceBreakdown, BrowserBreakdown, LocationBreakdown, OSBreakdown, ConnectionBreakdown } from '../../api-connection/analytics';
+import { ViewerAnalytics, DeviceBreakdown, BrowserBreakdown, OSBreakdown, ConnectionBreakdown } from '../../api-connection/analytics';
 
 interface ViewerBreakdownChartsProps {
   data: ViewerAnalytics;
@@ -26,6 +26,33 @@ const EmptyDataState: React.FC<{ title: string; description?: string }> = ({ tit
 );
 
 const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) => {
+  // Location level selector: country | region | city
+  const [locationLevel, setLocationLevel] = useState<'country' | 'region' | 'city'>('country');
+
+  // Aggregate locations by selected level
+  const aggregatedLocations = useMemo(() => {
+    if (!data.locations || data.locations.length === 0) return [] as Array<{ label: string; views: number; percentage: number }>;
+    const map = new Map<string, number>();
+    for (const loc of data.locations) {
+      let key = '';
+      if (locationLevel === 'country') {
+        key = loc.country || loc.countryCode || 'Unknown';
+      } else if (locationLevel === 'region') {
+        const regionLabel = loc.region || 'Unknown Region';
+        key = loc.countryCode ? `${loc.countryCode}-${regionLabel}` : regionLabel;
+      } else {
+        const cityLabel = loc.city || 'Unknown City';
+        key = loc.region ? `${cityLabel}, ${loc.region}` : cityLabel;
+      }
+      map.set(key, (map.get(key) || 0) + (loc.views || 0));
+    }
+    const total = Array.from(map.values()).reduce((s, v) => s + v, 0) || 1;
+    return Array.from(map.entries())
+      .map(([label, views]) => ({ label, views, percentage: (views / total) * 100 }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 20);
+  }, [data.locations, locationLevel]);
+
   // Check if we have any meaningful data
   const hasDeviceData = data.devices && data.devices.length > 0;
   const hasBrowserData = data.browsers && data.browsers.length > 0;
@@ -118,24 +145,39 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
           )}
         </div>
 
-        {/* Geographic Distribution */}
+        {/* Geographic Distribution */
+        }
         <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuição Geográfica</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Distribuição Geográfica</h3>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">Nível:</span>
+              <select
+                value={locationLevel}
+                onChange={(e) => setLocationLevel(e.target.value as 'country' | 'region' | 'city')}
+                className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+              >
+                <option value="country">País</option>
+                <option value="region">Estado/Região</option>
+                <option value="city">Cidade</option>
+              </select>
+            </div>
+          </div>
           {hasLocationData ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data.locations}>
+              <BarChart data={aggregatedLocations}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
-                  dataKey="country" 
+                  dataKey="label" 
                   angle={-45}
                   textAnchor="end"
                   height={80}
                 />
                 <YAxis />
                 <Tooltip
-                  formatter={(value: number, name: string, props: { payload?: LocationBreakdown }) => [
-                    `${value} visualizações (${props.payload?.percentage?.toFixed(1) || 0}%)`,
-                    props.payload?.country || 'País Desconhecido'
+                  formatter={(value: number, name: string, props: { payload?: { label?: string; percentage?: number } }) => [
+                    `${value} visualizações (${(props.payload?.percentage || 0).toFixed(1)}%)`,
+                    props.payload?.label || 'Local Desconhecido'
                   ]}
                 />
                 <Bar dataKey="views" fill="#8884d8" />
