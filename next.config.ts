@@ -9,7 +9,10 @@ const nextConfig: NextConfig = {
       'images.clerk.dev',
       'images.unsplash.com',
       'image.mux.com',
-      'localhost'
+      'localhost',
+      'localhost:4000',
+      '127.0.0.1',
+      '127.0.0.1:4000'
     ],
   },
   async headers() {

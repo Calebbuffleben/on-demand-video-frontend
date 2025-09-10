@@ -137,6 +137,7 @@ export default function VideoWatchPage() {
                       <CustomVideoPlayer 
                         src={videoData.playback}
                         videoId={videoData.uid} // Pass video ID for JWT token generation
+                        poster={videoData.thumbnail} // Pass the thumbnail as poster
                         title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
                         autoPlay={videoData.meta?.displayOptions?.autoPlay}
                         showControls={videoData.meta?.displayOptions?.showPlaybackControls}

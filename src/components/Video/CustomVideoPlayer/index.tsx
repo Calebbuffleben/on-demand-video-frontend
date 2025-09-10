@@ -178,6 +178,12 @@ export default function CustomVideoPlayer({
         } else {
           setComputedPoster(poster);
         }
+        
+        // Debug poster URL
+        if (poster) {
+          console.log('🖼️ Poster URL:', poster);
+          console.log('🖼️ Computed Poster URL:', poster && token && poster.includes('/api/videos/thumb/') ? `${poster}${poster.includes('?') ? '&' : '?'}token=${token}` : poster);
+        }
 
         console.log('🎯 Video source:', videoSrc);
 
@@ -678,6 +684,10 @@ export default function CustomVideoPlayer({
         playsInline
         webkit-playsinline="true"
         controls={false}
+        style={{
+          backgroundColor: '#000',
+          objectFit: 'contain'
+        }}
       />
 
       {/* Big play button when video is not playing */}

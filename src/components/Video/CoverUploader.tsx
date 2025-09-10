@@ -9,13 +9,13 @@ interface CoverUploaderProps {
 
 export default function CoverUploader({ onCoverSelect, currentCover }: CoverUploaderProps) {
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
-  console.log('[CoverUploader] Initial previewUrl state: ', previewUrl);
 
   useEffect(() => {
-    console.log('[CoverUploader] useEffect triggered. currentCover:', currentCover);
     if (currentCover) {
       if (currentCover.startsWith('/')) {
-        const newUrl = `${process.env.BACKEND_URL}${currentCover}`;
+        // Remove /api from the backend URL since we're serving static files directly
+        const backend = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/api\/?$/, '') || process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:4000';
+        const newUrl = `${backend}${currentCover}`;
         setPreviewUrl(newUrl);
       } else {
         setPreviewUrl(currentCover);
@@ -63,6 +63,7 @@ export default function CoverUploader({ onCoverSelect, currentCover }: CoverUplo
               className="mx-auto max-h-48 rounded-lg shadow-sm"
               width={320}
               height={192}
+              unoptimized
               style={{ objectFit: 'contain', maxHeight: '12rem' }}
               onError={(e) => { 
                 console.error('[CoverUploader] Error loading image:', previewUrl, e); 
