@@ -25,6 +25,7 @@ type AuthContextValue = {
   organization: AuthOrganization | null;
   login: (email: string, password: string) => Promise<void>;
   register: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void>;
+  registerWithToken: (data: { firstName: string; lastName: string; email: string; password: string; token: string }) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   requestEmailVerification: (email: string) => Promise<void>;
@@ -146,6 +147,31 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [router]);
 
+  const registerWithToken = React.useCallback(async (data: { firstName: string; lastName: string; email: string; password: string; token: string }) => {
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/register-with-token', data);
+      const { user, organization, token: authToken } = res.data || {};
+      setUser(user ?? null);
+      setOrganization(organization ?? null);
+
+      // Save token to localStorage for API requests
+      if (authToken && typeof window !== 'undefined') {
+        localStorage.setItem('token', authToken);
+        console.log('🔐 Token saved to localStorage after register with token');
+      }
+
+      // After register, route to tenant dashboard (org is created automatically)
+      if (organization?.id) {
+        await router.push(`/${organization.id}/dashboard`);
+      } else {
+        await router.push('/');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
+
   const logout = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -183,10 +209,11 @@ export function AppAuthProvider({ children }: { children: React.ReactNode }) {
     organization,
     login,
     register,
+    registerWithToken,
     logout,
     refresh,
     requestEmailVerification,
-  }), [loading, user, organization, login, register, logout, refresh, requestEmailVerification]);
+  }), [loading, user, organization, login, register, registerWithToken, logout, refresh, requestEmailVerification]);
 
   return (
     <AppAuthContext.Provider value={value}>

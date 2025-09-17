@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useAppAuth } from '@/contexts/AppAuthContext';
 import AuthShell, { AuthInput } from '@/components/Auth/AuthShell';
 import Button from '@/components/Button';
 
 export default function SignUpPage() {
-  const { register, loading } = useAppAuth();
+  const router = useRouter();
+  const { register, registerWithToken, loading } = useAppAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,6 +20,9 @@ export default function SignUpPage() {
   const [lastNameTouched, setLastNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
+  const [checkingToken, setCheckingToken] = useState(true);
 
   const firstNameValid = useMemo(() => firstName.trim().length >= 2, [firstName]);
   const lastNameValid = useMemo(() => lastName.trim().length >= 2, [lastName]);
@@ -30,6 +35,22 @@ export default function SignUpPage() {
   const passwordValid = useMemo(() => pwLen && pwUpper && pwLower && pwDigit && pwSpecial, [pwLen, pwUpper, pwLower, pwDigit, pwSpecial]);
   const formValid = useMemo(() => firstNameValid && lastNameValid && emailValid && passwordValid, [firstNameValid, lastNameValid, emailValid, passwordValid]);
 
+  // Verificar token na URL
+  useEffect(() => {
+    const { token: urlToken } = router.query;
+    
+    if (urlToken && typeof urlToken === 'string') {
+      setToken(urlToken);
+      setTokenValid(true);
+      setCheckingToken(false);
+    } else {
+      // Sem token, redirecionar para pricing
+      setTokenValid(false);
+      setCheckingToken(false);
+      router.push('/pricing');
+    }
+  }, [router]);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitted(true);
@@ -38,8 +59,12 @@ export default function SignUpPage() {
       setError('Verifique os campos destacados e corrija as pendências.');
       return;
     }
+    if (!token) {
+      setError('Token de criação de conta não encontrado.');
+      return;
+    }
     try {
-      await register({ firstName, lastName, email, password });
+      await registerWithToken({ firstName, lastName, email, password, token });
     } catch (e: unknown) {
       const maybeMsg = (e as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
       const msg = Array.isArray(maybeMsg)
@@ -48,6 +73,25 @@ export default function SignUpPage() {
       setError(msg);
     }
   };
+
+  // Mostrar loading enquanto verifica o token
+  if (checkingToken) {
+    return (
+      <AuthShell
+        title="Verificando acesso..."
+        description="Validando seu link de criação de conta"
+      >
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        </div>
+      </AuthShell>
+    );
+  }
+
+  // Se não há token válido, não mostrar nada (já redirecionou)
+  if (!tokenValid || !token) {
+    return null;
+  }
 
   return (
     <AuthShell
@@ -61,6 +105,21 @@ export default function SignUpPage() {
       )}
     >
       <form onSubmit={onSubmit} className="space-y-4">
+        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-4">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-blue-300">Acesso Restrito</h3>
+              <p className="text-sm text-blue-200 mt-1">
+                Esta página é acessível apenas através de um link especial enviado por email após a confirmação do pagamento.
+              </p>
+            </div>
+          </div>
+        </div>
         {error && (
           <div className="text-red-300 text-sm whitespace-pre-line">{error}</div>
         )}
