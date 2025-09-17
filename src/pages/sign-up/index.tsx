@@ -37,19 +37,26 @@ export default function SignUpPage() {
 
   // Verificar token na URL
   useEffect(() => {
+    // Aguardar o router estar pronto antes de verificar o query
+    if (!router.isReady) return;
+    
     const { token: urlToken } = router.query;
+    console.log('🔍 [DEBUG] Router query:', router.query);
+    console.log('🔍 [DEBUG] URL token:', urlToken);
     
     if (urlToken && typeof urlToken === 'string') {
+      console.log('✅ [DEBUG] Token encontrado, configurando...');
       setToken(urlToken);
       setTokenValid(true);
       setCheckingToken(false);
     } else {
+      console.log('❌ [DEBUG] Token não encontrado, redirecionando para pricing');
       // Sem token, redirecionar para pricing
       setTokenValid(false);
       setCheckingToken(false);
       router.push('/pricing');
     }
-  }, [router]);
+  }, [router.isReady, router.query]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
