@@ -9,7 +9,7 @@ import Button from '@/components/Button';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { register, registerWithToken, loading } = useAppAuth();
+  const { registerWithToken, loading } = useAppAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
