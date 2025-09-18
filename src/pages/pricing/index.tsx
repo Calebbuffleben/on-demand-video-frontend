@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import PricingPlanComponent from '../../components/Pricing/PricingPlanComponent';
 
 const PricingPage = () => {
@@ -18,9 +19,11 @@ const PricingPage = () => {
         <p className="mt-5 text-xl text-silver-500 text-center">
           Choose the plan that best fits your needs.
         </p>
-        <div className="mt-12 flex justify-center">
-          <PricingPlanComponent {...basicPlan} />
-        </div>
+        <Link href="https://go.pepperpay.com.br/o0a2i">
+          <div className="mt-12 flex justify-center">
+            <PricingPlanComponent {...basicPlan} />
+          </div>
+        </Link>
       </div>
     </div>
   );
