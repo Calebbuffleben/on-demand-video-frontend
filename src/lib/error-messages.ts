@@ -10,11 +10,20 @@ export interface LimitErrorDetails {
 }
 
 /**
+ * Type guard to check if error has axios response structure
+ */
+function isAxiosError(error: Error | string | { response?: { data?: { message?: string } }; message?: string }): error is { response: { data: { message: string } } } {
+  return typeof error === 'object' && error !== null && 'response' in error && 
+         Boolean(error.response) && typeof error.response === 'object' && 'data' in error.response &&
+         Boolean(error.response.data) && typeof error.response.data === 'object' && 'message' in error.response.data;
+}
+
+/**
  * Translates backend error codes to user-friendly messages
  */
-export function translateError(error: any): LimitErrorDetails {
+export function translateError(error: Error | string | { response?: { data?: { message?: string } }; message?: string }): LimitErrorDetails {
   // Handle axios errors
-  if (error?.response?.data?.message) {
+  if (isAxiosError(error)) {
     const backendMessage = error.response.data.message;
     return translateBackendError(backendMessage);
   }
@@ -84,7 +93,7 @@ function translateBackendError(message: string): LimitErrorDetails {
 /**
  * Formats error messages for display in UI components
  */
-export function formatErrorForDisplay(error: any): string {
+export function formatErrorForDisplay(error: Error | string | { response?: { data?: { message?: string } }; message?: string }): string {
   const translated = translateError(error);
   return translated.message;
 }
@@ -92,13 +101,13 @@ export function formatErrorForDisplay(error: any): string {
 /**
  * Checks if an error is related to plan limits
  */
-export function isLimitError(error: any): boolean {
+export function isLimitError(error: Error | string | { response?: { data?: { message?: string } }; message?: string }): boolean {
   return translateError(error).isLimitError;
 }
 
 /**
  * Gets upgrade URL for limit errors
  */
-export function getUpgradeUrl(error: any): string | undefined {
+export function getUpgradeUrl(error: Error | string | { response?: { data?: { message?: string } }; message?: string }): string | undefined {
   return translateError(error).upgradeUrl;
 }

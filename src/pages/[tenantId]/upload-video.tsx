@@ -17,7 +17,7 @@ function UploadVideoPage() {
   const [videoUid, setVideoUid] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | string | null>(null);
   const [videoPlaybackSrc, setVideoPlaybackSrc] = useState<{hls: string, dash?: string} | null>(null);
 
   useEffect(() => {

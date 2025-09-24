@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { translateError, LimitErrorDetails } from '@/lib/error-messages';
 
 interface ErrorMessageProps {
-  error: any;
+  error: Error | string | { response?: { data?: { message?: string } }; message?: string };
   className?: string;
   showUpgradeButton?: boolean;
 }
@@ -57,7 +57,7 @@ export default function ErrorMessage({
 /**
  * Simple error message component for inline errors
  */
-export function InlineErrorMessage({ error, className = '' }: { error: any; className?: string }) {
+export function InlineErrorMessage({ error, className = '' }: { error: Error | string | { response?: { data?: { message?: string } }; message?: string }; className?: string }) {
   const errorDetails: LimitErrorDetails = translateError(error);
   
   return (

@@ -33,7 +33,7 @@ export default function VideoUploader({
 }: VideoUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [embedInfo, setEmbedInfo] = useState<VideoEmbedInfo | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -222,7 +222,7 @@ export default function VideoUploader({
 
     } catch (err) {
       console.error('Error uploading video:', err);
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
       
       if (onUploadError && err instanceof Error) {
         onUploadError(err);
