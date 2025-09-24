@@ -205,7 +205,7 @@ const videoService = {
    * @param maxDurationSeconds The maximum duration for the video in seconds
    * @param organizationId The organization ID for the upload
    */
-  getUploadUrl: async (maxDurationSeconds: number = 3600, organizationId: string): Promise<UploadUrlResponse> => {
+  getUploadUrl: async (maxDurationSeconds: number = 3600, organizationId: string, expectedSizeBytes: number): Promise<UploadUrlResponse> => {
     try {
       if (!organizationId) {
         throw new Error('Id da organização é obrigatório');
@@ -220,7 +220,8 @@ const videoService = {
         maxDurationSeconds,
         organizationId,
         name: 'Vídeo Enviado',
-        description: 'Enviado através da interface web'
+        description: 'Enviado através da interface web',
+        expectedSizeBytes,
       });
       console.log('URL de Upload:', response.data);
       
@@ -264,13 +265,15 @@ const videoService = {
    */
   initMultipartUpload: async (
     organizationId: string,
-    name?: string,
-    description?: string,
-    contentType: string = 'video/mp4'
+    name: string,
+    description: string,
+    contentType: string,
+    expectedSizeBytes: number,
+    maxDurationSeconds: number = 3600
   ): Promise<{ uid: string; key: string; uploadId: string }> => {
     const res = await api.post<{ success: true; data: { uid: string; key: string; uploadId: string } }>(
       'videos/multipart/init',
-      { organizationId, name, description, contentType }
+      { organizationId, name, description, contentType, expectedSizeBytes, maxDurationSeconds }
     );
     return res.data.data;
   },
@@ -302,7 +305,9 @@ const videoService = {
       organizationId,
       file.name,
       'Enviado via multipart',
-      file.type || 'video/mp4'
+      file.type || 'video/mp4',
+      file.size,
+      Math.ceil((file.size / (1024 * 1024 * 8)) * 60) // rough estimate if needed (size to duration), can be adjusted
     );
 
     // 2) Define chunk sizing and concurrency

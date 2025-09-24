@@ -13,6 +13,7 @@ import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import analyticsService from '@/api-connection/analytics';
 // import { useClerkToken } from '@/hooks/useClerkToken';
 import AuthGuard from '@/components/Auth/AuthGuard';
+import subsApi, { OrgUsageLimitsResponse } from '../../../api-connection/subscriptions';
 
 // Type interfaces for analytics data
 interface VideoUpload {
@@ -50,7 +51,7 @@ const DashboardPage = () => {
   
   // Initialize state without localStorage
   const [dbOrgId, setDbOrgId] = useState<string | null>(null);
-  const [subscriptionService, setSubscriptionService] = useState<{ getCurrentSubscription: () => Promise<unknown> } | null>(null);
+  const [subSvc, setSubSvc] = useState<{ getCurrentSubscription: () => Promise<unknown> } | null>(null);
   
   // Platform stats
   const [platformStats, setPlatformStats] = useState({
@@ -69,7 +70,7 @@ const DashboardPage = () => {
 
   const fetchSubscription = useCallback(async () => {
     // Don't attempt to fetch on server or if service isn't loaded
-    if (typeof window === 'undefined' || !subscriptionService) return;
+    if (typeof window === 'undefined' || !subSvc) return;
     
     setLoading(true);
     try {
@@ -82,7 +83,7 @@ const DashboardPage = () => {
       // Small delay to ensure localStorage is set
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      const subscription = await subscriptionService.getCurrentSubscription();
+      const subscription = await subSvc.getCurrentSubscription();
       console.log('Subscription loaded:', subscription);
       setSubscription(subscription);
     } catch (err: unknown) {
@@ -97,14 +98,14 @@ const DashboardPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [organization?.id, subscriptionService]);
+  }, [organization?.id, subSvc]);
   
   // Load the subscription service module safely
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // Only load on client side
       import('@/api-connection/subscriptions').then((module) => {
-        setSubscriptionService(module.default);
+        setSubSvc(module.default);
       });
     }
   }, []);
@@ -127,7 +128,7 @@ const DashboardPage = () => {
   
   useEffect(() => {
     // Don't proceed until Clerk organization and subscription service are loaded
-    if (!orgLoaded || !subscriptionService) {
+    if (!orgLoaded || !subSvc) {
       return;
     }
     
@@ -169,7 +170,7 @@ const DashboardPage = () => {
       subscriptionRequested.current = true;
       fetchSubscription();
     }
-  }, [orgLoaded, organization, tenantId, router, loading, subscription, dbOrgId, subscriptionService, fetchSubscription]);
+  }, [orgLoaded, organization, tenantId, router, loading, subscription, dbOrgId, subSvc, fetchSubscription]);
 
   // Load analytics data
   useEffect(() => {
@@ -197,6 +198,26 @@ const DashboardPage = () => {
 
     loadAnalytics();
   }, [tenantId]);
+
+  const [usage, setUsage] = useState<OrgUsageLimitsResponse | null>(null);
+  const [loadingUsage, setLoadingUsage] = useState<boolean>(true);
+  const [errorUsage, setErrorUsage] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await subsApi.getOrgUsage();
+        setUsage(data);
+      } catch (e) {
+        const errorMessage = e instanceof Error 
+          ? e.message 
+          : (e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load usage';
+        setErrorUsage(errorMessage);
+      } finally {
+        setLoadingUsage(false);
+      }
+    })();
+  }, []);
 
   return (
     <ClientOnly>
@@ -374,6 +395,60 @@ const DashboardPage = () => {
           {/* Video Retention Analytics */}
           <div className="mb-8">
             <VideoRetentionChart />
+          </div>
+
+          {/* Usage Limits */}
+          <div className="mb-8">
+            <h2 className="text-lg font-medium mb-4 text-scale-900">Uso da Plataforma</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {loadingUsage ? (
+                // Loading skeletons
+                Array(3).fill(0).map((_, i) => (
+                  <div key={i} className="bg-white rounded-lg shadow p-4 animate-pulse">
+                    <div className="h-4 bg-silver-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-8 bg-silver-200 rounded w-3/4"></div>
+                  </div>
+                ))
+              ) : errorUsage ? (
+                // Error state
+                <div className="col-span-full text-red-500">
+                  {errorUsage}
+                </div>
+              ) : (
+                // Usage cards
+                <>
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <h3 className="text-sm font-medium text-silver-500">Plano</h3>
+                    <p className="text-2xl font-semibold mt-1">{usage?.plan || (loadingUsage ? '—' : 'N/A')}</p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <h3 className="text-sm font-medium text-silver-500">Storage usado</h3>
+                    <p className="text-2xl font-semibold mt-1">
+                      {loadingUsage
+                        ? '—'
+                        : (typeof usage?.usage?.storageGB === 'number'
+                            ? `${(usage?.usage?.storageGB as number).toFixed(2)} GB`
+                            : '—')}
+                      <span className="text-sm text-silver-500"> / {usage?.limits?.maxStorageGB ?? '∞'} GB</span>
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <h3 className="text-sm font-medium text-silver-500">Minutos totais</h3>
+                    <p className="text-2xl font-semibold mt-1">
+                      {loadingUsage ? '—' : (usage?.usage?.totalMinutes ?? '—')}
+                      <span className="text-sm text-silver-500"> / {usage?.limits?.maxTotalMinutes ?? '∞'}</span>
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-4 md:col-span-3">
+                    <h3 className="text-sm font-medium text-silver-500">Visualizações únicas</h3>
+                    <p className="text-2xl font-semibold mt-1">
+                      {loadingUsage ? '—' : (usage?.usage?.uniqueViews ?? '—')}
+                      <span className="text-sm text-silver-500"> / {usage?.limits?.maxUniqueViews ?? '∞'}</span>
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </DashboardLayout>

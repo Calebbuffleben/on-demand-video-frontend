@@ -56,7 +56,7 @@ export default function SignUpPage() {
       setCheckingToken(false);
       router.push('/pricing');
     }
-  }, [router.isReady, router.query]);
+  }, [router.isReady, router.query, router]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

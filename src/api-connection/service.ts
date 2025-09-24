@@ -7,6 +7,8 @@ const api = axios.create({
     },
     withCredentials: true
 });
+// Note: All api-connection clients should use relative paths without leading '/api'
+// because baseURL (NEXT_PUBLIC_API_URL) already points to the backend API root.
 
 // Add request interceptor to include Authorization when explicitly needed (mostly cookies are used)
 api.interceptors.request.use(
@@ -60,7 +62,7 @@ api.interceptors.request.use(
             }
             
             // For subscriptions endpoints, use database ID in URL when not present
-            if (config.url && config.url.includes('/api/subscriptions/')) {
+            if (config.url && config.url.includes('/api/subscriptions/') && !config.url.endsWith('/usage')) {
                 // If URL ends with 'current' or ID is already embedded, don't modify
                 if (!config.url.endsWith('/current') && 
                     !config.url.match(/\/api\/subscriptions\/[a-zA-Z0-9_-]+$/)) {

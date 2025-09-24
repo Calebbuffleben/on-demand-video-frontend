@@ -31,6 +31,13 @@ export interface SubscriptionResponse {
   cancelAtPeriodEnd?: boolean;
 }
 
+export interface OrgUsageLimitsResponse {
+  organizationId: string;
+  plan: 'FREE' | 'BASIC' | 'PRO' | 'ENTERPRISE';
+  limits: { maxStorageGB: number | null; maxTotalMinutes: number | null; maxUniqueViews: number | null };
+  usage: { storageGB: number; totalMinutes: number; uniqueViews: number };
+}
+
 export interface CheckoutResponse {
   sessionUrl?: string;
   sessionId?: string;
@@ -46,56 +53,89 @@ const subscriptionService = {
 
   //POST /subscriptions/invites
   createInvite: async (invite: Pick<Invite, 'email'>): Promise<Invite> => {
-    const res = await api.post('/api/subscriptions/invites', invite);
+    const res = await api.post('subscriptions/invites', invite);
     return res.data;
   },
   //GET /auth/invite/:token
   getInvite: async (token: Token): Promise<Invite> => {
-    const res = await api.get(`/api/auth/invite/${token}`);
+    const res = await api.get(`auth/invite/${token}`);
     return res.data;
   },
   //POST /auth/invite/:token/consume
   consumeInvite: async (token: string, body: { password: string; firstName?: string; lastName?: string }): Promise<{ success: boolean; message?: string }> => {
-    const res = await api.post(`/api/auth/invite/${token}/consume`, body);
+    const res = await api.post(`auth/invite/${token}/consume`, body);
     return res.data;
   },
   //GET /subscriptions/status (por account)
   getSubscriptionStatus: async (): Promise<SubscriptionResponse> => {
-    const res = await api.get(`/api/subscriptions/status`);
+    const res = await api.get(`subscriptions/status`);
     return res.data;
   },
   //GET /subscriptions/access (grace-aware)
   hasAccess: async (): Promise<{ hasAccess: boolean; isWithinGrace: boolean; subscription: SubscriptionResponse }> => {
-    const res = await api.get(`/api/subscriptions/access`);
+    const res = await api.get(`subscriptions/access`);
     return res.data;
   },
   //POST /subscriptions/pause, POST /subscriptions/resume, POST /subscriptions/cancel
   pauseSubscription: async (): Promise<SubscriptionResponse> => {
-    const res = await api.post(`/api/subscriptions/pause`);
+    const res = await api.post(`subscriptions/pause`);
     return res.data;
   },
   resumeSubscription: async (): Promise<SubscriptionResponse> => {
-    const res = await api.post(`/api/subscriptions/resume`);
+    const res = await api.post(`subscriptions/resume`);
     return res.data;
   },
   cancelSubscription: async (): Promise<SubscriptionResponse> => {
-    const res = await api.post(`/api/subscriptions/cancel`);
+    const res = await api.post(`subscriptions/cancel`);
     return res.data;
   },
   //POST /payments/webhook
   webhook: async (body: WebhookBody): Promise<{ success: boolean }> => {
-    const res = await api.post(`/api/payments/webhook`, body);
+    const res = await api.post(`payments/webhook`, body);
     return res.data;
   },
   //POST /subscriptions/checkout
   createCheckoutSession: async (payload: { planType: 'BASIC' | 'PRO' | 'ENTERPRISE'; successUrl: string; cancelUrl: string }): Promise<CheckoutResponse> => {
-    const res = await api.post(`/api/subscriptions/checkout`, payload);
+    const res = await api.post(`subscriptions/checkout`, payload);
     return res.data;
   },
   //GET /subscriptions/current
   getCurrentSubscription: async () => {
-    const res = await api.get(`/api/subscriptions/current`);
-    return res.data;
+    const res = await api.get(`subscriptions/current`);
+    const raw = res.data as { data?: SubscriptionResponse } | SubscriptionResponse;
+    let subscription: SubscriptionResponse;
+    
+    if ('data' in raw && raw.data) {
+      subscription = raw.data;
+    } else {
+      subscription = raw as SubscriptionResponse;
+    }
+    
+    return {
+      status: 'success',
+      subscription: subscription ? {
+        id: subscription.id,
+        status: subscription.status,
+        plan: subscription.planType ? {
+          name: subscription.planType,
+          //TODO
+          amount: 0, // This would need to come from the backend
+          interval: 'month' // This would need to come from the backend
+        } : undefined,
+        currentPeriodEnd: subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).getTime() / 1000 : 0,
+        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd || false
+      } : null,
+      message: subscription ? 'Subscription found' : 'No subscription found'
+    };
+  },
+  // GET /subscriptions/usage (user scoped)
+  getOrgUsage: async (): Promise<OrgUsageLimitsResponse> => {
+    const res = await api.get(`subscriptions/usage`);
+    const raw = res.data as { data?: OrgUsageLimitsResponse } | OrgUsageLimitsResponse;
+    if ('data' in raw && raw.data) {
+      return raw.data;
+    }
+    return raw as OrgUsageLimitsResponse;
   },
 };
 

@@ -68,6 +68,14 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
     return '/my-videos';
   };
 
+  // Build billing/usage URL with tenant context
+  const getBillingUsageUrl = () => {
+    if (tenantId && typeof tenantId === 'string') {
+      return `/${tenantId}/billing/usage`;
+    }
+    return '/billing/usage';
+  };
+
   if (loading) {
     return (
       <div className={`relative ${className}`}>
@@ -138,6 +146,17 @@ export default function DashboardMenu({ className = '' }: DashboardMenuProps) {
               Trocar Organização
             </Link>
             
+            <Link 
+              href={getBillingUsageUrl()}
+              className="flex items-center px-4 py-2 text-sm text-silver-700 hover:bg-silver-50 w-full text-left"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 text-silver-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h10m-9 4h8a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              Faturamento e Uso
+            </Link>
+
             <Link 
               href="/subscriptions"
               className="flex items-center px-4 py-2 text-sm text-silver-700 hover:bg-silver-50 w-full text-left"

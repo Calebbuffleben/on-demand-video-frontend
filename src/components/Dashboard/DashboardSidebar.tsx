@@ -22,7 +22,7 @@ const DashboardSidebar: React.FC = () => {
     { name: 'Enviar Vídeo', href: '/upload-video', icon: 'upload' },
     { name: 'Análises', href: '/analytics', icon: 'analytics', isNew: true },
     { name: 'Códigos de Incorporação', href: '/embed-codes', icon: 'code', isNew: true },
-    { name: 'Armazenamento', href: '/storage', icon: 'storage', isNew: true },
+    { name: 'Faturamento e Uso', href: '/billing/usage', icon: 'money', isNew: true },
   ];
 
   return (
