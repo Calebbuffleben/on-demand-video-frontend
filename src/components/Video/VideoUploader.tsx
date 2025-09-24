@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import videoService from '../../api-connection/videos';
 import Image from 'next/image';
+import ErrorMessage from '../Error/ErrorMessage';
 
 interface VideoUploaderProps {
   maxDurationSeconds?: number;
@@ -32,7 +33,7 @@ export default function VideoUploader({
 }: VideoUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [embedInfo, setEmbedInfo] = useState<VideoEmbedInfo | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -221,8 +222,7 @@ export default function VideoUploader({
 
     } catch (err) {
       console.error('Error uploading video:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido ocorreu';
-      setError(errorMessage);
+      setError(err);
       
       if (onUploadError && err instanceof Error) {
         onUploadError(err);
@@ -422,8 +422,8 @@ export default function VideoUploader({
         )}
         
         {error && (
-          <div className="mt-2 text-red-600 text-sm">
-            {error}
+          <div className="mt-2">
+            <ErrorMessage error={error} />
           </div>
         )}
       </div>

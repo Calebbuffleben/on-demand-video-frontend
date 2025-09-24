@@ -8,6 +8,7 @@ import VideoUploader from '../components/Video/VideoUploader';
 import CustomVideoPlayer from '../components/Video/CustomVideoPlayer';
 import Button from '../components/Button';
 import videoService from '../api-connection/videos';
+import ErrorMessage from '../components/Error/ErrorMessage';
 
 export default function UploadVideoPage() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function UploadVideoPage() {
   const [videoUid, setVideoUid] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any>(null);
   const [videoPlaybackSrc, setVideoPlaybackSrc] = useState<{hls: string, dash?: string} | null>(null);
 
   // Redirect to tenant-specific version if tenantId is available
@@ -87,7 +88,7 @@ export default function UploadVideoPage() {
   };
 
   const handleUploadError = (error: Error) => {
-    setError(error.message);
+    setError(error);
   };
 
   return (
@@ -126,8 +127,8 @@ export default function UploadVideoPage() {
             )}
             
             {error && (
-              <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
-                {error}
+              <div className="mt-4">
+                <ErrorMessage error={error} />
               </div>
             )}
             
