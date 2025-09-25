@@ -86,7 +86,9 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
           #__next {
             height: 100%;
           }
-          * { box-sizing: border-box; }
+          * { 
+            box-sizing: border-box; 
+          }
         `}</style>
         
         {/* ULTRA-AGGRESSIVE ANTI-REDIRECT SCRIPT */}
@@ -188,23 +190,25 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
         }} />
       </Head>
 
-      <div className="w-full h-screen flex items-center justify-center bg-black relative">
+      <div className="w-full h-screen bg-black relative" style={{ height: '100vh' }}>
         {error && (
-          <div className="text-white text-center p-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <p className="text-sm">{error}</p>
-            <p className="text-xs text-gray-400 mt-2">Video ID: {videoId}</p>
+          <div className="absolute inset-0 flex items-center justify-center text-white text-center p-4 z-10">
+            <div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <p className="text-sm">{error}</p>
+              <p className="text-xs text-gray-400 mt-2">Video ID: {videoId}</p>
+            </div>
           </div>
         )}
 
-        <div className="w-full h-full flex items-center justify-center p-0">
-          <div className="w-full max-w-[200vw] max-h-[200vh] aspect-video">
-            {videoData && videoData.playback && videoData.playback.hls && (
-              <CustomVideoPlayer 
+        <div className="w-full h-full">
+          {videoData && videoData.playback && videoData.playback.hls && (
+            <CustomVideoPlayer 
               src={videoData.playback}
               videoId={videoData.uid} // Pass video ID for JWT token generation
+              height="100%"
               autoPlay={videoData.meta?.displayOptions?.autoPlay}
               controls={videoData.meta?.displayOptions?.showPlaybackControls}
               muted={videoData.meta?.displayOptions?.muted}
@@ -230,8 +234,7 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
               ctaStartTime={videoData.ctaStartTime}
               ctaEndTime={videoData.ctaEndTime}
             />
-            )}
-          </div>
+          )}
         </div>
       </div>
     </>
