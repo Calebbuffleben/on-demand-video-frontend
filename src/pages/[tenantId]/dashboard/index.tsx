@@ -304,7 +304,6 @@ const DashboardPage = () => {
             <h2 className="text-lg font-medium mb-4 text-scale-900">Visão Geral da Plataforma</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {analyticsLoading ? (
-                // Loading skeletons
                 Array(4).fill(0).map((_, i) => (
                   <div key={i} className="bg-white rounded-lg shadow p-4 animate-pulse">
                     <div className="h-4 bg-silver-200 rounded w-1/2 mb-2"></div>
@@ -312,12 +311,10 @@ const DashboardPage = () => {
                   </div>
                 ))
               ) : analyticsError ? (
-                // Error state
                 <div className="col-span-full text-red-500">
                   {analyticsError}
                 </div>
               ) : (
-                // Stats cards
                 <>
                   <div className="bg-white rounded-lg shadow p-4">
                     <h3 className="text-sm font-medium text-silver-500">Total de Vídeos</h3>
@@ -345,7 +342,6 @@ const DashboardPage = () => {
             <h2 className="text-lg font-medium mb-4 text-scale-900">Envios Recentes</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {analyticsLoading ? (
-                // Loading skeletons
                 Array(3).fill(0).map((_, i) => (
                   <div key={i} className="bg-white rounded-lg shadow overflow-hidden animate-pulse">
                     <div className="aspect-video bg-silver-200"></div>
@@ -356,12 +352,10 @@ const DashboardPage = () => {
                   </div>
                 ))
               ) : analyticsError ? (
-                // Error state
                 <div className="col-span-full text-red-500">
                   {analyticsError}
                 </div>
               ) : recentUploads.length > 0 ? (
-                // Video cards
                 recentUploads.map((upload) => (
                   <div key={upload.id} className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="aspect-video relative">
@@ -384,7 +378,6 @@ const DashboardPage = () => {
                   </div>
                 ))
               ) : (
-                // Empty state
                 <div className="col-span-full text-center text-silver-500 py-8">
                   Nenhum envio recente
                 </div>
@@ -402,7 +395,6 @@ const DashboardPage = () => {
             <h2 className="text-lg font-medium mb-4 text-scale-900">Uso da Plataforma</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {loadingUsage ? (
-                // Loading skeletons
                 Array(3).fill(0).map((_, i) => (
                   <div key={i} className="bg-white rounded-lg shadow p-4 animate-pulse">
                     <div className="h-4 bg-silver-200 rounded w-1/2 mb-2"></div>
@@ -410,12 +402,10 @@ const DashboardPage = () => {
                   </div>
                 ))
               ) : errorUsage ? (
-                // Error state
                 <div className="col-span-full text-red-500">
                   {errorUsage}
                 </div>
               ) : (
-                // Usage cards
                 <>
                   <div className="bg-white rounded-lg shadow p-4">
                     <h3 className="text-sm font-medium text-silver-500">Plano</h3>

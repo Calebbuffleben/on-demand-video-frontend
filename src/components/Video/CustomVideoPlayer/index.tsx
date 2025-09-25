@@ -671,7 +671,7 @@ export default function CustomVideoPlayer({
     <div 
       ref={containerRef}
       className={`relative bg-black rounded-lg overflow-hidden ${className}`}
-      style={{ width, height: height === 'auto' ? '357px' : height }}
+      style={{ width, height: height === 'auto' ? '100%' : height }}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
