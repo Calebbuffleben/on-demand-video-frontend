@@ -196,11 +196,12 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
         )}
 
         <div className="w-full h-full flex items-center justify-center p-0">
-          <div className="w-full max-w-[200vw] max-h-[200vh] aspect-video">
+          <div className="w-full h-full aspect-video">
             {videoData && videoData.playback && videoData.playback.hls && (
               <CustomVideoPlayer 
               src={videoData.playback}
               videoId={videoData.uid} // Pass video ID for JWT token generation
+              height="100%"
               autoPlay={videoData.meta?.displayOptions?.autoPlay}
               controls={videoData.meta?.displayOptions?.showPlaybackControls}
               muted={videoData.meta?.displayOptions?.muted}
