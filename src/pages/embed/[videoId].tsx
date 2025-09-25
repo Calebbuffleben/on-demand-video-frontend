@@ -75,12 +75,16 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
         <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />
         <meta httpEquiv="Content-Security-Policy" content="frame-ancestors *;" />
         <style>{`
-          body { 
+          html, body { 
             margin: 0; 
             padding: 0; 
+            height: 100%;
             overflow: hidden; 
             background-color: #000; 
             font-family: system-ui, -apple-system, sans-serif;
+          }
+          #__next {
+            height: 100%;
           }
           * { box-sizing: border-box; }
         `}</style>
@@ -196,12 +200,11 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
         )}
 
         <div className="w-full h-full flex items-center justify-center p-0">
-          <div className="w-full h-full aspect-video">
+          <div className="w-full max-w-[200vw] max-h-[200vh] aspect-video">
             {videoData && videoData.playback && videoData.playback.hls && (
               <CustomVideoPlayer 
               src={videoData.playback}
               videoId={videoData.uid} // Pass video ID for JWT token generation
-              height="100%"
               autoPlay={videoData.meta?.displayOptions?.autoPlay}
               controls={videoData.meta?.displayOptions?.showPlaybackControls}
               muted={videoData.meta?.displayOptions?.muted}
