@@ -75,15 +75,15 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Demografia dos Visualizadores</h2>
+    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Demografia dos Visualizadores</h2>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
         {/* Device Breakdown */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuição por Dispositivo</h3>
+        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Distribuição por Dispositivo</h3>
           {hasDeviceData ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={data.devices}
@@ -113,10 +113,10 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
         </div>
 
         {/* Browser Breakdown */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Distribuição por Navegador</h3>
+        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Distribuição por Navegador</h3>
           {hasBrowserData ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={data.browsers}
@@ -147,9 +147,9 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
 
         {/* Geographic Distribution */
         }
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Distribuição Geográfica</h3>
+        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">Distribuição Geográfica</h3>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">Nível:</span>
               <select
@@ -164,7 +164,7 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
             </div>
           </div>
           {hasLocationData ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={aggregatedLocations}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
@@ -189,10 +189,10 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
         </div>
 
         {/* Operating System Breakdown */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Sistema Operacional</h3>
+        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Sistema Operacional</h3>
           {hasOSData ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={data.operatingSystems}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="os" />
@@ -212,10 +212,10 @@ const ViewerBreakdownCharts: React.FC<ViewerBreakdownChartsProps> = ({ data }) =
         </div>
 
         {/* Connection Type */}
-        <div className="bg-gray-50 rounded-lg p-4 lg:col-span-2">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Tipo de Conexão</h3>
+        <div className="bg-gray-50 rounded-lg p-4 col-span-1 lg:col-span-2">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Tipo de Conexão</h3>
           {hasConnectionData ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={data.connections}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="connectionType" />

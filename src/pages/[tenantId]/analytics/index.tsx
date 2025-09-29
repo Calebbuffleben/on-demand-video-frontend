@@ -70,11 +70,11 @@ function AnalyticsPage() {
   if (loading) {
     return (
       <DashboardLayout sidebar={<DashboardSidebar />}>
-        <div className="p-4 md:p-6 bg-gray-50">
+        <div className="p-3 sm:p-4 md:p-6 bg-gray-50">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
-            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
               <div>
-                <h1 className="text-2xl font-semibold">Analytics</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold">Analytics</h1>
                 <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
@@ -89,11 +89,11 @@ function AnalyticsPage() {
   if (error) {
     return (
       <DashboardLayout sidebar={<DashboardSidebar />}>
-        <div className="p-4 md:p-6 bg-gray-50">
+        <div className="p-3 sm:p-4 md:p-6 bg-gray-50">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
-            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
               <div>
-                <h1 className="text-2xl font-semibold">Analytics</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold">Analytics</h1>
                 <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
@@ -110,11 +110,11 @@ function AnalyticsPage() {
   if (!data) {
     return (
       <DashboardLayout sidebar={<DashboardSidebar />}>
-        <div className="p-4 md:p-6 bg-gray-50">
+        <div className="p-3 sm:p-4 md:p-6 bg-gray-50">
           <header className="bg-white shadow-sm mb-6 rounded-lg">
-            <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
               <div>
-                <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold">Painel de Análises</h1>
                 <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
               </div>
               <DashboardMenu />
@@ -128,11 +128,11 @@ function AnalyticsPage() {
   return (
     <AuthGuard requireAuth requireOrg>
     <DashboardLayout sidebar={<DashboardSidebar />}>
-      <div className="p-4 md:p-6 bg-gray-50">
+      <div className="p-3 sm:p-4 md:p-6 bg-gray-50">
         <header className="bg-white shadow-sm mb-6 rounded-lg">
-          <div className="px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-semibold">Painel de Análises</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold">Painel de Análises</h1>
               <p className="text-gray-600 text-sm mt-1">Visualize o desempenho do seu conteúdo</p>
             </div>
             <DashboardMenu />
@@ -141,7 +141,7 @@ function AnalyticsPage() {
 
         <div className="space-y-6">
           {/* Platform Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               title="Total de Vídeos"
               value={formatNumber(data.platformStats.totalVideos)}
@@ -163,10 +163,10 @@ function AnalyticsPage() {
           {/* Recent Uploads */}
           <Card>
             <CardHeader>
-              <CardTitle>Envios Recentes</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Envios Recentes</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {data.recentUploads.map((upload) => (
                   <VideoCard
                     key={upload.id}
@@ -185,10 +185,10 @@ function AnalyticsPage() {
           {/* Popular Videos */}
           <Card>
             <CardHeader>
-              <CardTitle>Vídeos Populares</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Vídeos Populares</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {data.popularVideos.map((video) => (
                   <VideoCard
                     key={video.id}
@@ -213,10 +213,10 @@ function StatCard({ title, value }: { title: string; value: string }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <CardTitle className="text-xs sm:text-sm font-medium">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-lg sm:text-2xl font-bold">{value}</div>
       </CardContent>
     </Card>
   );
@@ -255,15 +255,15 @@ function VideoCard({
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
           <Link
             href={`/${tenantId}/analytics/videos/${id}`}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-scale-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-silver-50"
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white text-scale-600 px-3 py-2 rounded-md text-xs sm:text-sm font-medium hover:bg-silver-50"
           >
             Ver Analytics
           </Link>
         </div>
       </div>
-      <CardContent className="p-4">
-        <h3 className="font-semibold truncate">{title}</h3>
-        <div className="text-sm text-silver-500 mt-2">
+      <CardContent className="p-3 sm:p-4">
+        <h3 className="font-semibold text-sm sm:text-base truncate">{title}</h3>
+        <div className="text-xs sm:text-sm text-silver-500 mt-2 space-y-1">
           {views !== undefined && <div>{formatNumber(views)} visualizações</div>}
           {date && <div>{formatDate(new Date(date))}</div>}
           {duration && <div>{duration}</div>}
@@ -277,14 +277,14 @@ function VideoCard({
 function AnalyticsSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-24" />
+          <Skeleton key={i} className="h-20 sm:h-24" />
         ))}
       </div>
 
-      <Skeleton className="h-64" />
-      <Skeleton className="h-64" />
+      <Skeleton className="h-48 sm:h-64" />
+      <Skeleton className="h-48 sm:h-64" />
     </div>
   );
 }

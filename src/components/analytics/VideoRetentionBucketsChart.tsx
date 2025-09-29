@@ -36,13 +36,13 @@ const VideoRetentionBucketsChart: React.FC<VideoRetentionBucketsChartProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <span>Retenção por Bucket</span>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">Mostrar:</span>
             <button
               onClick={() => setShowPercentage(true)}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-md transition-colors ${
                 showPercentage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -50,7 +50,7 @@ const VideoRetentionBucketsChart: React.FC<VideoRetentionBucketsChartProps> = ({
             </button>
             <button
               onClick={() => setShowPercentage(false)}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-md transition-colors ${
                 !showPercentage ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -60,7 +60,7 @@ const VideoRetentionBucketsChart: React.FC<VideoRetentionBucketsChartProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[360px] w-full">
+        <div className="h-[300px] sm:h-[360px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <XAxis dataKey="label" interval={0} angle={-30} textAnchor="end" height={60} />

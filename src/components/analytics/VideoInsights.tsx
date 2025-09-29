@@ -36,7 +36,7 @@ const VideoInsights: React.FC<VideoInsightsProps> = ({ quartiles, completion, re
         <div className="text-sm text-gray-600"><strong>Base:</strong> {totalViews} visualizações</div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader><CardTitle>Q25 • 25% do vídeo</CardTitle></CardHeader>
           <CardContent>
@@ -70,7 +70,7 @@ const VideoInsights: React.FC<VideoInsightsProps> = ({ quartiles, completion, re
       <Card>
         <CardHeader><CardTitle>Replays</CardTitle></CardHeader>
         <CardContent>
-          <div className="flex gap-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
             <div>
               <div className="text-2xl font-bold">{replays.count}</div>
               <div className="text-sm text-gray-500">Replays totais</div>

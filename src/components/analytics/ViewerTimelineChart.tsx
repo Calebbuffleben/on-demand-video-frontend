@@ -55,13 +55,13 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <span>Retenção de Visualizadores</span>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">Mostrar:</span>
             <button
               onClick={() => setShowPercentage(true)}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-md transition-colors ${
                 showPercentage 
                   ? 'bg-blue-500 text-white' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -71,7 +71,7 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
             </button>
             <button
               onClick={() => setShowPercentage(false)}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-md transition-colors ${
                 !showPercentage 
                   ? 'bg-blue-500 text-white' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -83,7 +83,7 @@ const ViewerTimelineChart: React.FC<ViewerTimelineChartProps> = ({ data, videoDu
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-[400px] w-full">
+        <div className="h-[300px] sm:h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
