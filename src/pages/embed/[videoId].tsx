@@ -75,29 +75,14 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
         <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />
         <meta httpEquiv="Content-Security-Policy" content="frame-ancestors *;" />
         <style>{`
-          html, body { 
-            margin: 0 !important; 
-            padding: 0 !important; 
-            height: 100% !important;
-            overflow: hidden !important; 
-            background-color: #000 !important; 
-            font-family: system-ui, -apple-system, sans-serif !important;
+          body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            background-color: #000; 
+            font-family: system-ui, -apple-system, sans-serif;
           }
-          #__next {
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          .embed-container {
-            height: 100vh !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #000 !important;
-          }
-          .embed-container * {
-            box-sizing: border-box !important;
-          }
+          * { box-sizing: border-box; }
         `}</style>
         
         {/* ULTRA-AGGRESSIVE ANTI-REDIRECT SCRIPT */}
@@ -199,17 +184,9 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
         }} />
       </Head>
 
-      <div className="embed-container">
+      <div className="w-full h-screen flex items-center justify-center bg-black relative">
         {error && (
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            color: 'white',
-            textAlign: 'center',
-            zIndex: 10
-          }}>
+          <div className="text-white text-center p-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
@@ -218,37 +195,40 @@ export default function VideoEmbedPage({ videoData, error, videoId }: EmbedPageP
           </div>
         )}
 
-        {videoData && videoData.playback && videoData.playback.hls && (
-          <CustomVideoPlayer 
-            src={videoData.playback}
-            videoId={videoData.uid}
-            height="100%"
-            autoPlay={videoData.meta?.displayOptions?.autoPlay}
-            controls={videoData.meta?.displayOptions?.showPlaybackControls}
-            muted={videoData.meta?.displayOptions?.muted}
-            loop={videoData.meta?.displayOptions?.loop}
-            hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
-            showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
-            progressBarColor={videoData.meta?.displayOptions?.progressBarColor}
-            useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
-            progressEasing={videoData.meta?.displayOptions?.progressEasing}
-            playButtonColor={videoData.meta?.displayOptions?.playButtonColor}
-            playButtonSize={videoData.meta?.displayOptions?.playButtonSize}
-            playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor}
-            soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
-            soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
-            soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
-            soundControlText={videoData.meta?.displayOptions?.soundControlText}
-            poster={videoData.thumbnail || undefined}
-            showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
-            showCta={!!videoData.ctaText}
-            ctaText={videoData.ctaText}
-            ctaButtonText={videoData.ctaButtonText}
-            ctaLink={videoData.ctaLink}
-            ctaStartTime={videoData.ctaStartTime}
-            ctaEndTime={videoData.ctaEndTime}
-          />
-        )}
+        <div className="w-full h-full flex items-center justify-center p-0">
+          <div className="w-full max-w-[200vw] max-h-[200vh] aspect-video">
+            {videoData && videoData.playback && videoData.playback.hls && (
+              <CustomVideoPlayer 
+              src={videoData.playback}
+              videoId={videoData.uid} // Pass video ID for JWT token generation
+              autoPlay={videoData.meta?.displayOptions?.autoPlay}
+              controls={videoData.meta?.displayOptions?.showPlaybackControls}
+              muted={videoData.meta?.displayOptions?.muted}
+              loop={videoData.meta?.displayOptions?.loop}
+              hideProgress={!videoData.meta?.displayOptions?.showProgressBar}
+              showTechnicalInfo={videoData.meta?.embedOptions?.showTechnicalInfo}
+              progressBarColor={videoData.meta?.displayOptions?.progressBarColor}
+              useOriginalProgressBar={videoData.meta?.displayOptions?.useOriginalProgressBar}
+              progressEasing={videoData.meta?.displayOptions?.progressEasing}
+              playButtonColor={videoData.meta?.displayOptions?.playButtonColor}
+              playButtonSize={videoData.meta?.displayOptions?.playButtonSize}
+              playButtonBgColor={videoData.meta?.displayOptions?.playButtonBgColor}
+              soundControlSize={videoData.meta?.displayOptions?.soundControlSize}
+              soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
+              soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
+              soundControlText={videoData.meta?.displayOptions?.soundControlText}
+              poster={videoData.thumbnail || undefined}
+              showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
+              showCta={!!videoData.ctaText}
+              ctaText={videoData.ctaText}
+              ctaButtonText={videoData.ctaButtonText}
+              ctaLink={videoData.ctaLink}
+              ctaStartTime={videoData.ctaStartTime}
+              ctaEndTime={videoData.ctaEndTime}
+            />
+            )}
+          </div>
+        </div>
       </div>
     </>
   );
