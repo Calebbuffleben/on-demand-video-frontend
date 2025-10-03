@@ -7,6 +7,7 @@ import CustomVideoPlayer from '@/components/Video/CustomVideoPlayer';
 import videoService, { VideoData } from '@/api-connection/videos';
 import { useOrganization } from '@/hooks/useOrganization';
 import AuthGuard from '@/components/Auth/AuthGuard';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 
 export default function VideoDetailPage() {
   const [video, setVideo] = useState<VideoData | null>(null);
@@ -221,7 +222,7 @@ export default function VideoDetailPage() {
                         playButtonColor={video.meta?.displayOptions?.playButtonColor}
                         playButtonSize={video.meta?.displayOptions?.playButtonSize}
                         playButtonBgColor={video.meta?.displayOptions?.playButtonBgColor}
-                        poster={video.thumbnail || undefined}
+                        poster={(resolveAssetUrl(video.thumbnail) || buildThumbUrl(video.uid)) as string}
                         soundControlText={video.meta?.displayOptions?.soundControlText}
                         soundControlColor={video.meta?.displayOptions?.soundControlColor}
                         soundControlOpacity={video.meta?.displayOptions?.soundControlOpacity}

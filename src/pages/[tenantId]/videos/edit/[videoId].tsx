@@ -8,6 +8,7 @@ import CoverUploader from '@/components/Video/CoverUploader';
 import videoService, { VideoData } from '@/api-connection/videos';
 import ColorPicker from '@/components/ui/ColorPicker';
 import AuthGuard from '@/components/Auth/AuthGuard';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 
 // Edit Video Page allows users to update video details and player options
 export default function EditVideoPage() {
@@ -651,7 +652,7 @@ export default function EditVideoPage() {
                         soundControlColor={displayOptions.soundControlColor}
                         soundControlOpacity={displayOptions.soundControlOpacity}
                         soundControlText={displayOptions.soundControlText}
-                        poster={video.thumbnail || undefined}
+                        poster={(resolveAssetUrl(video.thumbnail) || buildThumbUrl(video.uid)) as string}
                         showSoundControl={displayOptions.showSoundControl ?? (displayOptions.autoPlay && displayOptions.muted)}
                         showCta={ctaFields.showCta}
                         ctaText={ctaFields.ctaText}

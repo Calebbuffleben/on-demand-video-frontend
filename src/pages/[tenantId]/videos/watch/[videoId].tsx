@@ -10,6 +10,7 @@ import CustomVideoPlayer from '../../../../components/Video/CustomVideoPlayer';
 import VideoEmbedCodes from '../../../../components/Video/VideoEmbedCodes';
 import videoService, { VideoData } from '../../../../api-connection/videos';
 import AuthGuard from '@/components/Auth/AuthGuard';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 
 export default function VideoWatchPage() {
   const router = useRouter();
@@ -158,7 +159,7 @@ export default function VideoWatchPage() {
                       <CustomVideoPlayer 
                         src={videoData.playback}
                         videoId={videoData.uid} // Pass video ID for JWT token generation
-                        poster={videoData.thumbnail} // Pass the thumbnail as poster
+                        poster={(resolveAssetUrl(videoData.thumbnail) || buildThumbUrl(videoData.uid)) as string} // normalized poster
                         title={videoData.meta?.displayOptions?.showTitle ? videoData.meta?.name : undefined}
                         autoPlay={videoData.meta?.displayOptions?.autoPlay}
                         showControls={videoData.meta?.displayOptions?.showPlaybackControls}

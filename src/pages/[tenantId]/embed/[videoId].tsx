@@ -2,6 +2,7 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import CustomVideoPlayer from '../../../components/Video/CustomVideoPlayer';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 import { EmbedVideoResponse } from '../../../api-connection/videos';
 
 interface EmbedPageProps {
@@ -225,7 +226,7 @@ export default function VideoEmbedPage({ videoData, error, videoId, tenantId }: 
                 soundControlColor={videoData.meta?.displayOptions?.soundControlColor}
                 soundControlOpacity={videoData.meta?.displayOptions?.soundControlOpacity}
                 soundControlText={videoData.meta?.displayOptions?.soundControlText}
-                poster={videoData.thumbnail || undefined}
+                poster={(resolveAssetUrl(videoData.thumbnail) || buildThumbUrl(videoData.uid)) as string}
                 showSoundControl={videoData.meta?.displayOptions?.showSoundControl ?? (videoData.meta?.displayOptions?.autoPlay && videoData.meta?.displayOptions?.muted)}
                 showCta={!!videoData.ctaText}
                 ctaText={videoData.ctaText}
