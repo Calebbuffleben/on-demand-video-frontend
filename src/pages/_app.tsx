@@ -16,6 +16,32 @@ export default function App({ Component, pageProps }: AppProps) {
   const [isEmbedPage, setIsEmbedPage] = useState(false);
   const [isCrossDomainIframe, setIsCrossDomainIframe] = useState(false);
   
+  // Service Worker registration (runs for all routes, including embeds)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ('serviceWorker' in navigator) {
+      const register = async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+          if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              });
+            }
+          });
+        } catch (e) {
+          console.warn('SW registration failed', e);
+        }
+      };
+      register();
+    }
+  }, []);
+  
   // 🌐 CROSS-DOMAIN IFRAME DETECTION
   useEffect(() => {
     if (typeof window !== 'undefined') {

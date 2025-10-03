@@ -68,6 +68,27 @@ export default function VideoWatchPage() {
     }
 
     fetchVideo();
+
+    // Prefetch inicial (CORS-safe, sem cookies)
+    (async () => {
+      try {
+        if (typeof window === 'undefined' || !videoId) return;
+        await new Promise((r) => setTimeout(r, 500));
+        const backend = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
+        const masterUrl = `${backend}/api/videos/stream/${videoId}/master.m3u8`;
+        fetch(masterUrl, { cache: 'no-cache', credentials: 'omit', mode: 'cors' }).catch(() => undefined);
+        const heights = [720, 480, 360];
+        const segIdx = [0, 1, 2, 3, 4];
+        for (const h of heights) {
+          const variantUrl = `${backend}/api/videos/stream/${videoId}/seg/variant_${h}p.m3u8`;
+          fetch(variantUrl, { cache: 'no-cache', credentials: 'omit', mode: 'cors' }).catch(() => undefined);
+          for (const i of segIdx) {
+            const segUrl = `${backend}/api/videos/stream/${videoId}/seg/segment_${h}p_${String(i).padStart(3, '0')}.ts`;
+            fetch(segUrl, { cache: 'no-cache', credentials: 'omit', mode: 'cors' }).catch(() => undefined);
+          }
+        }
+      } catch {}
+    })();
   }, [videoId]);
 
   const getVideosUrl = () => {
