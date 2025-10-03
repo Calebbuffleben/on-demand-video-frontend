@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { VideoData } from '../../api-connection/videos';
 import Image from 'next/image';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 import { useOrganization } from '@/hooks/useOrganization';
 
 interface VideoCardProps {
@@ -16,6 +17,8 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
   const router = useRouter();
   const { tenantId } = router.query;
   const { organization } = useOrganization();
+  
+  const thumbnailSrc = resolveAssetUrl(video.thumbnail) || buildThumbUrl(video.uid);
   
   // Helper functions to get tenant-aware URLs
   const getVideoWatchUrl = (uid: string) => {
@@ -34,14 +37,15 @@ export default function VideoCard({ video, onDelete }: VideoCardProps) {
       {/* Thumbnail or placeholder */}
       <Link href={getVideoWatchUrl(video.uid)} className="block relative">
         <div className="aspect-video bg-silver-100 relative">
-          {video.thumbnail ? (
+          {thumbnailSrc ? (
             <Image
-              src={video.thumbnail}
+              src={thumbnailSrc}
               alt={video.meta?.name || 'Miniatura do vídeo'}
               className="w-full h-full object-cover"
               width={320}
               height={180}
               style={{ objectFit: 'cover' }}
+              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-silver-100">

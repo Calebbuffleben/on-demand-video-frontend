@@ -11,6 +11,7 @@ import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import Image from 'next/image';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 import AuthGuard from '@/components/Auth/AuthGuard';
 
 function AnalyticsPage() {
@@ -246,11 +247,12 @@ function VideoCard({
     <Card className="overflow-hidden group">
       <div className="aspect-video relative">
         <Image
-          src={thumbnailUrl}
+          src={resolveAssetUrl(thumbnailUrl) || buildThumbUrl(id)}
           alt={title}
           className="object-cover w-full h-full"
           width={320}
           height={180}
+          unoptimized
         />
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
           <Link

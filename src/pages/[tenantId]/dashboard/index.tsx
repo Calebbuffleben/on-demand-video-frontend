@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import Link from 'next/link';
 import Head from 'next/head';
 import Image from 'next/image';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 import VideoRetentionChart from '@/components/analytics/VideoRetentionChart';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
 import DashboardLayout from '../../../components/Dashboard/DashboardLayout';
@@ -359,12 +360,13 @@ const DashboardPage = () => {
                 recentUploads.map((upload) => (
                   <div key={upload.id} className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="aspect-video relative">
-                      <Image
-                        src={upload.thumbnailUrl}
+                    <Image
+                        src={resolveAssetUrl(upload.thumbnailUrl) || buildThumbUrl(upload.id)}
                         alt={upload.title}
                         className="object-cover w-full h-full"
                         width={320}
                         height={180}
+                        unoptimized
                       />
                     </div>
                     <div className="p-4">

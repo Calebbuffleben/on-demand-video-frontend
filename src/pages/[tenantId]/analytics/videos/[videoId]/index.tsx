@@ -11,6 +11,7 @@ import VideoInsights from '@/components/analytics/VideoInsights';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatNumber, formatDuration } from '@/lib/utils';
+import { resolveAssetUrl, buildThumbUrl } from '@/lib/utils';
 import DashboardLayout from '../../../../../components/Dashboard/DashboardLayout';
 import DashboardSidebar from '../../../../../components/Dashboard/DashboardSidebar';
 import DashboardMenu from '@/components/Dashboard/DashboardMenu';
@@ -295,11 +296,12 @@ const VideoAnalyticsPage: React.FC = () => {
             <CardContent>
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <Image
-                  src={videoData.thumbnail}
+                  src={resolveAssetUrl(videoData.thumbnail) || buildThumbUrl(videoData.uid)}
                   alt={videoData.meta.name}
                   className="w-full sm:w-48 h-27 object-cover rounded"
                   width={192}
                   height={108}
+                  unoptimized
                 />
                 <div className="flex-1">
                   <h2 className="text-lg sm:text-xl font-semibold">{videoData.meta.name}</h2>
