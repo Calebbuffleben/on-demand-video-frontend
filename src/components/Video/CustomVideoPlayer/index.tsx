@@ -369,6 +369,17 @@ export default function CustomVideoPlayer({
     const video = videoRef.current;
     if (!video) return;
 
+    // Visibility gating using IntersectionObserver
+    let isVisible = true;
+    let io: IntersectionObserver | null = null;
+    if ('IntersectionObserver' in window) {
+      io = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        isVisible = !!(entry && entry.isIntersecting && entry.intersectionRatio > 0);
+      }, { threshold: [0, 0.1, 0.25, 0.5] });
+      io.observe(video);
+    }
+
     const handleLoadedMetadata = () => {
       setDuration(video.duration);
       onDurationChange?.(video.duration);
@@ -402,8 +413,8 @@ export default function CustomVideoPlayer({
     const handlePlay = () => {
       setIsPlaying(true);
       onPlay?.();
-      // Fire play event
-      if (videoId) {
+      // Fire play event (only when visible and tab active)
+      if (videoId && isVisible && !document.hidden) {
         analyticsService.sendEvent({
           videoId,
           eventType: 'play',
@@ -423,7 +434,7 @@ export default function CustomVideoPlayer({
     const handlePause = () => {
       setIsPlaying(false);
       onPause?.();
-      if (videoId) {
+      if (videoId && isVisible && !document.hidden) {
         analyticsService.sendEvent({
           videoId,
           eventType: 'pause',
@@ -458,6 +469,7 @@ export default function CustomVideoPlayer({
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('volumechange', handleVolumeChange);
       video.removeEventListener('ratechange', handleRateChange);
+      if (io) io.disconnect();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enableCTA, ctaStartTime, ctaEndTime, onPlay, onPause, onTimeUpdate, onDurationChange]);
@@ -491,19 +503,21 @@ export default function CustomVideoPlayer({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTime, duration]);
 
-  // Heartbeat (timeupdate every 5s)
+  // Heartbeat (timeupdate every 5s) gated by visibility
   useEffect(() => {
     if (!videoId) return;
     const interval = setInterval(() => {
       const v = videoRef.current;
       if (!v) return;
-      analyticsService.sendEvent({
-        videoId,
-        eventType: 'timeupdate',
-        currentTime: Math.floor(v.currentTime || 0),
-        duration: Math.floor(v.duration || 0),
-        sessionId: sessionIdRef.current,
-      });
+      if (!document.hidden) {
+        analyticsService.sendEvent({
+          videoId,
+          eventType: 'timeupdate',
+          currentTime: Math.floor(v.currentTime || 0),
+          duration: Math.floor(v.duration || 0),
+          sessionId: sessionIdRef.current,
+        });
+      }
     }, 5000);
     return () => clearInterval(interval);
   }, [videoId]);

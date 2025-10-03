@@ -173,6 +173,51 @@ const defaultMockData = {
   popularVideos: [] as PopularVideo[]
 };
 
+// Client identity for per-user dedupe
+const CLIENT_ID_KEY = 'analytics.clientId';
+function getClientId(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    let id = localStorage.getItem(CLIENT_ID_KEY);
+    if (!id) {
+      id = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+        ? (crypto as unknown as { randomUUID: () => string }).randomUUID()
+        : Math.random().toString(36).slice(2);
+      localStorage.setItem(CLIENT_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+// View dedupe cache (per user/video) with TTL to avoid re-counts on internal pages
+const VIEW_CACHE_PREFIX = 'analytics.viewCache.';
+const DEFAULT_VIEW_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+function isViewThrottled(videoId: string, ttlMs: number = DEFAULT_VIEW_TTL_MS): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const clientId = getClientId() || 'anon';
+    const key = `${VIEW_CACHE_PREFIX}${clientId}.${videoId}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return false;
+    const ts = Number(raw);
+    return Number.isFinite(ts) && (Date.now() - ts) < ttlMs;
+  } catch {
+    return false;
+  }
+}
+
+function markView(videoId: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const clientId = getClientId() || 'anon';
+    const key = `${VIEW_CACHE_PREFIX}${clientId}.${videoId}`;
+    localStorage.setItem(key, String(Date.now()));
+  } catch {}
+}
+
 const analyticsService = {
   /**
    * Send player event to backend
@@ -188,7 +233,27 @@ const analyticsService = {
     organizationId?: string;
   }) => {
     try {
-      await api.post('analytics/events', payload);
+      const basePayload = { ...payload };
+      // Attach clientId automatically if not provided
+      if (!basePayload.clientId) {
+        const clientId = getClientId();
+        if (clientId) basePayload.clientId = clientId;
+      }
+
+      // Dedupe views: only send 'play' if not throttled recently for this user/video
+      if (basePayload.eventType === 'play') {
+        if (isViewThrottled(basePayload.videoId)) {
+          // Skip counting a new view within TTL
+          return;
+        }
+      }
+
+      await api.post('analytics/events', basePayload);
+
+      if (basePayload.eventType === 'play') {
+        // Mark this view to avoid repeated counts within TTL
+        markView(basePayload.videoId);
+      }
     } catch (e) {
       // Best-effort; do not throw
       console.warn('analytics sendEvent failed', e);
