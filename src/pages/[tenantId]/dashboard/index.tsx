@@ -358,16 +358,23 @@ const DashboardPage = () => {
                 </div>
               ) : recentUploads.length > 0 ? (
                 recentUploads.map((upload) => (
-                  <div key={upload.id} className="bg-white rounded-lg shadow overflow-hidden">
+                  <Link key={upload.id} href={`/${tenantId}/videos/watch/${upload.id}`} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow group">
                     <div className="aspect-video relative">
-                    <Image
-                        src={resolveAssetUrl(upload.thumbnailUrl) || buildThumbUrl(upload.id)}
-                        alt={upload.title}
-                        className="object-cover w-full h-full"
-                        width={320}
-                        height={180}
-                        unoptimized
-                      />
+                      <Image
+                          src={resolveAssetUrl(upload.thumbnailUrl) || buildThumbUrl(upload.id)}
+                          alt={upload.title}
+                          className="object-cover w-full h-full"
+                          width={320}
+                          height={180}
+                          unoptimized
+                        />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white rounded-full p-3 shadow-lg">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-scale-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                     <div className="p-4">
                       <h3 className="font-semibold truncate">{upload.title}</h3>
@@ -377,7 +384,7 @@ const DashboardPage = () => {
                         <div>{upload.size}</div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <div className="col-span-full text-center text-silver-500 py-8">
